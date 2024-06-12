@@ -121,22 +121,60 @@ static void put_num(word num, word n, byte color) {
 
 static const int8 neighbors[] = { -1, 1, -32, 32 };
 
-static word *update_cell(word i, word *upd) {
-    byte *ptr = forest + i;
-    put_char('0' + *ptr, i, 4);
-    if (*ptr < 3 && *ptr > 0) {
-	for (byte n = 0; n < SIZE(neighbors); n++) {
-	    int8 offset = neighbors[n];
-	    byte *near = ptr + offset;
-	    if (*near == 0) {
-		*(upd++) = i + offset;
-		(*near)++;
-	    }
+static inline byte should_regrow(byte *ptr) {
+    for (byte n = 0; n < SIZE(neighbors); n++) {
+	byte near = *(ptr + neighbors[n]);
+	if (0 < near && near <= 3) {
+	    return 1;
 	}
-	(*ptr)++;
-	*(upd++) = i;
+    }
+    return 0;
+}
+
+static inline word *regrow_neighbors(word i, word *upd, byte *ptr) {
+    for (byte n = 0; n < SIZE(neighbors); n++) {
+	int8 offset = neighbors[n];
+	byte *near = ptr + offset;
+	if (*near == 0) {
+	    *(upd++) = i + offset;
+	    (*near)++;
+	}
     }
     return upd;
+}
+
+static const char vegetation[] = { '.', '1', '2', '*' };
+
+static word *update_grass(word i, word *upd, byte *ptr) {
+    byte grass = *ptr;
+    put_char(vegetation[grass], i, 4);
+    switch(grass) {
+    case 0:
+	if (should_regrow(ptr)) goto grow;
+    case 3:
+	return upd;
+    default:
+	upd = regrow_neighbors(i, upd, ptr);
+    }
+  grow:
+    *upd = i;
+    (*ptr)++;
+    return upd + 1;
+}
+
+static word *update_sheep(word i, word *upd, byte *ptr) {
+    return upd;
+}
+
+static word *update_cell(word i, word *upd) {
+    byte *ptr = forest + i;
+
+    if (*ptr <= 3) {
+	return update_grass(i, upd, ptr);
+    }
+    else {
+	return update_sheep(i, upd, ptr);
+    }
 }
 
 static void advance_forest(word *ptr, word *upd) {
