@@ -15,6 +15,7 @@ typedef unsigned short word;
 
 static volatile byte vblank;
 static byte *map_y[192];
+static byte world[1536];
 
 static void interrupt(void) __naked {
 #ifdef ZXS
@@ -70,6 +71,11 @@ static void clear_screen(void) {
 #endif
 }
 
+static void wait_vblank(void) {
+    while (!is_vsync()) { }
+    vblank = 0;
+}
+
 static void precalculate(void) {
     for (byte y = 0; y < 192; y++) {
 #ifdef ZXS
@@ -88,6 +94,25 @@ static void put_char(char symbol, byte x, byte y, byte color) {
     }
     BYTE(0x5800 + (y << 2) + x) = color;
 #endif
+}
+
+static void put_str(const char *msg, byte x, byte y, byte color) {
+    while (*msg != 0) {
+	put_char(*(msg++), x++, y, color);
+    }
+}
+
+static char to_hex(byte digit) {
+    return (digit < 10) ? '0' + digit : 'A' + digit - 10;
+}
+
+static void put_num(word num, byte x, byte y, byte color) {
+    char msg[] = "0000";
+    for (byte i = 0; i < 4; i++) {
+	msg[3 - i] = to_hex(num & 0xf);
+	num = num >> 4;
+    }
+    put_str(msg, x, y, color);
 }
 
 void reset(void) {
