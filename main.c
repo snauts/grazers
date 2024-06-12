@@ -16,7 +16,7 @@ typedef unsigned short word;
 static volatile byte vblank;
 static byte *map_y[192];
 
-static byte forest[1536];
+static byte forest[768];
 static word update[512];
 static byte amount;
 
@@ -121,36 +121,35 @@ static void put_num(word num, word n, byte color) {
 
 static const int8 neighbors[] = { -1, 1, -32, 32 };
 
-static word *update_cell(word i, word *upd, byte *src, byte *dst) {
-    dst += i;
-    if (src[i] < 3 && src[i] > 0) {
+static word *update_cell(word i, word *upd) {
+    byte *ptr = forest + i;
+    put_char('0' + *ptr, i, 4);
+    if (*ptr < 3 && *ptr > 0) {
 	for (byte n = 0; n < SIZE(neighbors); n++) {
 	    int8 offset = neighbors[n];
-	    byte *near = dst + offset;
+	    byte *near = ptr + offset;
 	    if (*near == 0) {
 		*(upd++) = i + offset;
 		(*near)++;
 	    }
 	}
-	(*dst)++;
-	put_char('0' + *dst, i, 4);
+	(*ptr)++;
 	*(upd++) = i;
     }
-    src[i] = *dst;
     return upd;
 }
 
-static void advance_forest(word *ptr, word *upd, byte *src, byte *dst) {
+static void advance_forest(word *ptr, word *upd) {
     while (*ptr) {
-	upd = update_cell(*ptr++, upd, src, dst);
+	upd = update_cell(*ptr++, upd);
     }
+    *upd = 0;
     wait_vblank();
 }
 
 static void add_fence(word n) {
     put_char('#', n, 4);
     forest[n + 0x000] = 0x80;
-    forest[n + 0x300] = 0x80;
 }
 
 static void update_border(void) {
@@ -173,8 +172,8 @@ static void game_loop(void) {
     update[0x00] = 0x21;
 
     for (;;) {
-	advance_forest(update, update + 256, forest, forest + 768);
-	advance_forest(update + 256, update, forest + 768, forest);
+	advance_forest(update, update + 256);
+	advance_forest(update + 256, update);
     }
 }
 
