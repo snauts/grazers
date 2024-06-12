@@ -73,7 +73,7 @@ static void clear_screen(void) {
 #endif
 }
 
-//#define DEBUG
+#define DEBUG
 static void wait_vblank(void) {
 #ifdef DEBUG
     byte prev, next = in_fe(0x7f) & 1;
@@ -182,13 +182,18 @@ static word *migrate(word i, byte cell, word *upd, byte *ptr) {
     return upd;
 }
 
-static const char grazer[] = { 'x', 'o', 'O', '@' };
+static const char grazer[] = {
+    '0', '1', '2', '3',
+    '4', '5', '6', '7',
+    '8', '9', 'A', 'B',
+    'C', 'D', 'E', 'F',
+};
 
 static word *update_sheep(word i, word *upd, byte *ptr) {
     byte cell = *ptr;
     byte food = cell & 3;
     byte size = cell >> 2;
-    put_char(grazer[size], i, 7);
+    put_char(grazer[cell & 0xf], i, 7);
     if (food == 0) {
 	upd = migrate(i, cell - 4, upd, ptr);
 	cell = 0;
