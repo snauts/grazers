@@ -9,13 +9,16 @@ typedef unsigned short word;
 
 #ifdef ZXS
 #define is_vsync()	vblank
-#define SETUP_STACK()	__asm__("ld sp, #0xFDFC")
+#define SETUP_STACK()	__asm__("ld sp, #0xfdfc")
 #define IRQ_BASE	0xfe00
 #endif
 
 static volatile byte vblank;
 static byte *map_y[192];
-static byte world[1536];
+
+static byte forest[1536];
+static word update[512];
+static byte amount;
 
 static void interrupt(void) __naked {
 #ifdef ZXS
@@ -79,26 +82,27 @@ static void wait_vblank(void) {
 static void precalculate(void) {
     for (byte y = 0; y < 192; y++) {
 #ifdef ZXS
-	byte f = ((y & 7) << 3) | ((y >> 3) & 7) | (y & 0xC0);
+	byte f = ((y & 7) << 3) | ((y >> 3) & 7) | (y & 0xc0);
 	map_y[y] = (byte *) (0x4000 + (f << 5));
 #endif
     }
 }
 
-static void put_char(char symbol, byte x, byte y, byte color) {
+static void put_char(char symbol, word n, byte color) {
 #ifdef ZXS
-    y = y << 3;
-    byte *addr = (byte *) 0x3C00 + (symbol << 3);
+    byte x = n & 0x1f;
+    byte y = (n >> 2) & ~7;
+    BYTE(0x5800 + n) = color;
+    byte *addr = (byte *) 0x3c00 + (symbol << 3);
     for (byte i = 0; i < 8; i++) {
 	map_y[y + i][x] = *addr++;
     }
-    BYTE(0x5800 + (y << 2) + x) = color;
 #endif
 }
 
-static void put_str(const char *msg, byte x, byte y, byte color) {
+static void put_str(const char *msg, word n, byte color) {
     while (*msg != 0) {
-	put_char(*(msg++), x++, y, color);
+	put_char(*(msg++), n++, color);
     }
 }
 
@@ -106,13 +110,72 @@ static char to_hex(byte digit) {
     return (digit < 10) ? '0' + digit : 'A' + digit - 10;
 }
 
-static void put_num(word num, byte x, byte y, byte color) {
+static void put_num(word num, word n, byte color) {
     char msg[] = "0000";
     for (byte i = 0; i < 4; i++) {
 	msg[3 - i] = to_hex(num & 0xf);
 	num = num >> 4;
     }
-    put_str(msg, x, y, color);
+    put_str(msg, n, color);
+}
+
+static const int8 neighbors[] = { -1, 1, -32, 32 };
+
+static word *update_cell(word i, word *upd, byte *src, byte *dst) {
+    dst += i;
+    if (src[i] < 3 && src[i] > 0) {
+	for (byte n = 0; n < SIZE(neighbors); n++) {
+	    int8 offset = neighbors[n];
+	    byte *near = dst + offset;
+	    if (*near == 0) {
+		*(upd++) = i + offset;
+		(*near)++;
+	    }
+	}
+	(*dst)++;
+	put_char('0' + *dst, i, 4);
+	*(upd++) = i;
+    }
+    src[i] = *dst;
+    return upd;
+}
+
+static void advance_forest(word *ptr, word *upd, byte *src, byte *dst) {
+    while (*ptr) {
+	upd = update_cell(*ptr++, upd, src, dst);
+    }
+    wait_vblank();
+}
+
+static void add_fence(word n) {
+    put_char('#', n, 4);
+    forest[n + 0x000] = 0x80;
+    forest[n + 0x300] = 0x80;
+}
+
+static void update_border(void) {
+    for (word x = 0; x < 32; x++) {
+	add_fence(0x000 + x);
+	add_fence(0x2e0 + x);
+    }
+    for (word y = 0; y < 768; y += 32) {
+	add_fence(0x000 + y);
+	add_fence(0x01f + y);
+    }
+}
+
+static void game_loop(void) {
+    memset(update, 0x00, sizeof(update));
+    memset(forest, 0x00, sizeof(forest));
+    update_border();
+
+    forest[0x21] = 0x01;
+    update[0x00] = 0x21;
+
+    for (;;) {
+	advance_forest(update, update + 256, forest, forest + 768);
+	advance_forest(update + 256, update, forest + 768, forest);
+    }
 }
 
 void reset(void) {
@@ -120,4 +183,6 @@ void reset(void) {
     setup_system();
     clear_screen();
     precalculate();
+
+    game_loop();
 }
