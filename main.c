@@ -126,7 +126,7 @@ static void put_num(word num, word n, byte color) {
     put_str(msg, n, color);
 }
 
-static const int8 neighbors[] = { -1, 1, -32, 32 };
+static const int8 neighbors[] = { -1, -32, 1, 32 };
 
 static inline byte should_regrow(byte *ptr) {
     for (byte n = 0; n < SIZE(neighbors); n++) {
