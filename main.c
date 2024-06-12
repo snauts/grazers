@@ -190,14 +190,14 @@ static word *update_sheep(word i, word *upd, byte *ptr) {
     byte size = cell >> 2;
     put_char(grazer[size], i, 7);
     if (food == 0) {
-	upd = migrate(i, cell, upd, ptr);
+	upd = migrate(i, cell - 4, upd, ptr);
 	cell = 0;
     }
     else if (size < 3) {
 	cell += 3; /* inc size +4, dec food -1 */
     }
     else {
-	upd = migrate(i, 0x04, upd, ptr);
+	upd = migrate(i, 4, upd, ptr);
 	cell -= 4;
     }
     *upd = i;
