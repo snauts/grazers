@@ -8,6 +8,7 @@ all:
 	@echo "make fuse" - build and run fuse
 
 prg:
+	@gcc $(TYPE) -lm tga-dump.c -o tga-dump
 	@sdcc $(CFLAGS) $(TYPE) main.c -o grazers.ihx
 	hex2bin grazers.ihx > /dev/null
 
@@ -22,4 +23,4 @@ fuse: zxs
 	fuse --no-confirm-actions -g 2x grazers.tap
 
 clean:
-	rm -f grazers*
+	rm -f grazers* tga-dump
