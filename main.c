@@ -14,6 +14,7 @@ typedef unsigned short word;
 #endif
 
 static volatile byte vblank;
+static byte *map_y[192];
 
 static void interrupt(void) __naked {
 #ifdef ZXS
@@ -69,8 +70,29 @@ static void clear_screen(void) {
 #endif
 }
 
+static void precalculate(void) {
+    for (byte y = 0; y < 192; y++) {
+#ifdef ZXS
+	byte f = ((y & 7) << 3) | ((y >> 3) & 7) | (y & 0xC0);
+	map_y[y] = (byte *) (0x4000 + (f << 5));
+#endif
+    }
+}
+
+static void put_char(char symbol, byte x, byte y, byte color) {
+#ifdef ZXS
+    y = y << 3;
+    byte *addr = (byte *) 0x3C00 + (symbol << 3);
+    for (byte i = 0; i < 8; i++) {
+	map_y[y + i][x] = *addr++;
+    }
+    BYTE(0x5800 + (y << 2) + x) = color;
+#endif
+}
+
 void reset(void) {
     SETUP_STACK();
     setup_system();
     clear_screen();
+    precalculate();
 }
