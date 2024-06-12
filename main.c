@@ -18,7 +18,6 @@ static byte *map_y[192];
 
 static byte forest[768];
 static word update[512];
-static byte amount;
 
 static void interrupt(void) __naked {
 #ifdef ZXS
@@ -162,7 +161,11 @@ static word *update_grass(word i, word *upd, byte *ptr) {
     return upd + 1;
 }
 
+static const char grazer[] = { 'x', 'o', 'O', '@' };
+
 static word *update_sheep(word i, word *upd, byte *ptr) {
+    byte sheep = *ptr >> 2;
+    put_char(grazer[sheep], i, 7);
     return upd;
 }
 
@@ -208,6 +211,9 @@ static void game_loop(void) {
 
     forest[0x21] = 0x01;
     update[0x00] = 0x21;
+
+    forest[0x42] = 0x04;
+    update[0x01] = 0x42;
 
     for (;;) {
 	advance_forest(update, update + 256);
