@@ -169,6 +169,19 @@ static word *update_grass(word i, word *upd, byte *ptr) {
     return upd + 1;
 }
 
+static word *migrate(word i, byte cell, word *upd, byte *ptr) {
+    for (byte n = 0; n < SIZE(neighbors); n++) {
+	int8 offset = neighbors[n];
+	byte *near = ptr + offset;
+	if (*near <= 3 && *near > 0) {
+	    *(upd++) = i + offset;
+	    *near |= cell;
+	    break;
+	}
+    }
+    return upd;
+}
+
 static const char grazer[] = { 'x', 'o', 'O', '@' };
 
 static word *update_sheep(word i, word *upd, byte *ptr) {
@@ -177,32 +190,15 @@ static word *update_sheep(word i, word *upd, byte *ptr) {
     byte size = cell >> 2;
     put_char(grazer[size], i, 7);
     if (food == 0) {
-	for (byte n = 0; n < SIZE(neighbors); n++) {
-	    int8 offset = neighbors[n];
-	    byte *near = ptr + offset;
-	    if (*near <= 3 && *near > 0) {
-		*(upd++) = i + offset;
-		*near |= cell;
-		break;
-	    }
-	}
+	upd = migrate(i, cell, upd, ptr);
 	cell = 0;
     }
     else if (size < 3) {
-	cell += 0x04;
-	cell -= 0x01;
+	cell += 3; /* inc size +4, dec food -1 */
     }
     else {
-	for (byte n = 0; n < SIZE(neighbors); n++) {
-	    int8 offset = neighbors[n];
-	    byte *near = ptr + offset;
-	    if (*near <= 3 && *near > 0) {
-		*(upd++) = i + offset;
-		*near |= 0x04;
-		break;
-	    }
-	}
-	cell -= 0x04;
+	upd = migrate(i, 0x04, upd, ptr);
+	cell -= 4;
     }
     *upd = i;
     *ptr = cell;
