@@ -73,7 +73,15 @@ static void clear_screen(void) {
 #endif
 }
 
+//#define DEBUG
 static void wait_vblank(void) {
+#ifdef DEBUG
+    byte prev, next = in_fe(0x7f) & 1;
+    do {
+	prev = next;
+	next = in_fe(0x7f) & 1;
+    } while (next == prev || prev == 0);
+#endif
     while (!is_vsync()) { }
     vblank = 0;
 }
@@ -142,7 +150,7 @@ static inline word *regrow_neighbors(word i, word *upd, byte *ptr) {
     return upd;
 }
 
-static const char vegetation[] = { '.', '1', '2', '*' };
+static const char vegetation[] = { ' ', '1', '2', '*' };
 
 static word *update_grass(word i, word *upd, byte *ptr) {
     byte grass = *ptr;
@@ -164,9 +172,41 @@ static word *update_grass(word i, word *upd, byte *ptr) {
 static const char grazer[] = { 'x', 'o', 'O', '@' };
 
 static word *update_sheep(word i, word *upd, byte *ptr) {
-    byte sheep = *ptr >> 2;
-    put_char(grazer[sheep], i, 7);
-    return upd;
+    byte cell = *ptr;
+    byte food = cell & 3;
+    byte size = cell >> 2;
+    put_char(grazer[size], i, 7);
+    if (food == 0) {
+	for (byte n = 0; n < SIZE(neighbors); n++) {
+	    int8 offset = neighbors[n];
+	    byte *near = ptr + offset;
+	    if (*near <= 3 && *near > 0) {
+		*(upd++) = i + offset;
+		*near |= cell;
+		break;
+	    }
+	}
+	cell = 0;
+    }
+    else if (size < 3) {
+	cell += 0x04;
+	cell -= 0x01;
+    }
+    else {
+	for (byte n = 0; n < SIZE(neighbors); n++) {
+	    int8 offset = neighbors[n];
+	    byte *near = ptr + offset;
+	    if (*near <= 3 && *near > 0) {
+		*(upd++) = i + offset;
+		*near |= 0x04;
+		break;
+	    }
+	}
+	cell -= 0x04;
+    }
+    *upd = i;
+    *ptr = cell;
+    return upd + 1;
 }
 
 static word *update_cell(word i, word *upd) {
@@ -212,7 +252,7 @@ static void game_loop(void) {
     forest[0x21] = 0x01;
     update[0x00] = 0x21;
 
-    forest[0x42] = 0x04;
+    forest[0x42] = 0x07;
     update[0x01] = 0x42;
 
     for (;;) {
