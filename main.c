@@ -17,7 +17,8 @@ static volatile byte vblank;
 static byte *map_y[192];
 
 static byte forest[768];
-static word update[512];
+static word update[256];
+static word mirror[256];
 
 static void interrupt(void) __naked {
 #ifdef ZXS
@@ -138,13 +139,13 @@ static inline byte should_regrow(byte *ptr) {
     return 0;
 }
 
-static word *upd;
+static word *queue;
 static inline void regrow_neighbors(word i, byte *ptr) {
     for (byte n = 0; n < SIZE(neighbors); n++) {
 	int8 offset = neighbors[n];
 	byte *near = ptr + offset;
 	if (*near == 0) {
-	    *(upd++) = i + offset;
+	    *(queue++) = i + offset;
 	    (*near)++;
 	}
     }
@@ -164,7 +165,7 @@ static void update_grass(word i, byte *ptr) {
 	regrow_neighbors(i, ptr);
     }
   grow:
-    *(upd++) = i;
+    *(queue++) = i;
     (*ptr)++;
 }
 
@@ -173,7 +174,7 @@ static void migrate(word i, byte cell, byte *ptr) {
 	int8 offset = neighbors[n];
 	byte *near = ptr + offset;
 	if (*near <= 3 && *near > 0) {
-	    *(upd++) = i + offset;
+	    *(queue++) = i + offset;
 	    *near |= cell;
 	    return;
 	}
@@ -203,7 +204,7 @@ static void update_sheep(word i, byte *ptr) {
 	migrate(i, 4, ptr);
 	cell -= 4;
     }
-    *(upd++) = i;
+    *(queue++) = i;
     *ptr = cell;
 }
 
@@ -222,7 +223,7 @@ static void advance_forest(word *ptr) {
     while (*ptr) {
 	update_cell(*ptr++);
     }
-    *upd = 0;
+    *queue = 0;
     wait_vblank();
 }
 
@@ -244,6 +245,7 @@ static void update_border(void) {
 
 static void game_loop(void) {
     memset(update, 0x00, sizeof(update));
+    memset(mirror, 0x00, sizeof(mirror));
     memset(forest, 0x00, sizeof(forest));
     update_border();
 
@@ -254,10 +256,10 @@ static void game_loop(void) {
     update[0x01] = 0x42;
 
     for (;;) {
-	upd = update + 256;
+	queue = mirror;
 	advance_forest(update);
-	upd = update;
-	advance_forest(update + 256);
+	queue = update;
+	advance_forest(mirror);
     }
 }
 
