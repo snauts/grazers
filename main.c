@@ -132,7 +132,7 @@ static const int8 neighbors[] = { -1, -32, 1, 32 };
 
 static inline byte should_regrow(byte *ptr) {
     for (byte n = 0; n < SIZE(neighbors); n++) {
-	byte near = *(ptr + neighbors[n]);
+	byte near = *(ptr + neighbors[n]) & 0xf;
 	if (0 < near && near <= 3) {
 	    return 1;
 	}
@@ -168,7 +168,8 @@ static void update_grass(byte cell, byte *ptr) {
 static byte migrate(byte cell, byte *ptr) {
     for (byte n = 0; n < SIZE(neighbors); n++) {
 	byte *near = ptr + neighbors[n];
-	if (*near <= 3 && *near > 0) {
+	byte info = *near & 0xf;
+	if (info <= 3 && info > 0) {
 	    *(queue++) = near;
 	    *near |= cell;
 	    return 1;
@@ -215,9 +216,20 @@ static void update_cell(byte *ptr) {
     put_char(grazer[cell], ptr - forest, color);
 }
 
-static void advance_forest(byte **ptr) {
+static void clean_tags(byte **ptr) {
     while (*ptr) {
-	update_cell(*ptr++);
+	*(*ptr++) &= ~0x40;
+    }
+}
+
+static void advance_forest(byte **ptr) {
+    clean_tags(ptr);
+    while (*ptr) {
+	byte *place = *ptr++;
+	if ((*place & 0x40) == 0) {
+	    update_cell(place);
+	    *place |= 0x40;
+	}
     }
     *queue = 0;
     wait_vblank();
