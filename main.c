@@ -143,8 +143,7 @@ static inline byte should_regrow(byte *ptr) {
 static byte **queue;
 static inline void regrow_neighbors(byte *ptr) {
     for (byte n = 0; n < SIZE(neighbors); n++) {
-	int8 offset = neighbors[n];
-	byte *near = ptr + offset;
+	byte *near = ptr + neighbors[n];
 	if (*near == 0) {
 	    *(queue++) = near;
 	    (*near)++;
@@ -168,8 +167,7 @@ static void update_grass(byte cell, byte *ptr) {
 
 static byte migrate(byte cell, byte *ptr) {
     for (byte n = 0; n < SIZE(neighbors); n++) {
-	int8 offset = neighbors[n];
-	byte *near = ptr + offset;
+	byte *near = ptr + neighbors[n];
 	if (*near <= 3 && *near > 0) {
 	    *(queue++) = near;
 	    *near |= cell;
