@@ -265,11 +265,10 @@ static void wait_user_input(void) {
 	next |= (in_fe(0xfb) & 2) << 2;
 	if (~in_fe(0x7f) & 1) break;
     } while (next == prev || prev == 0);
-
-    if (next & BIT(0)) move_hunter(pos + 1);
-    if (next & BIT(1)) move_hunter(pos - 32);
-    if (next & BIT(2)) move_hunter(pos - 1);
-    if (next & BIT(3)) move_hunter(pos + 32);
+    if (!(next & BIT(0))) move_hunter(pos - 1);
+    if (!(next & BIT(1))) move_hunter(pos + 32);
+    if (!(next & BIT(2))) move_hunter(pos + 1);
+    if (!(next & BIT(3))) move_hunter(pos - 32);
 }
 
 static void display_forest(byte **ptr) {
