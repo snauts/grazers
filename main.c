@@ -166,16 +166,17 @@ static void update_grass(byte cell, byte *ptr) {
     (*ptr)++;
 }
 
-static void migrate(byte cell, byte *ptr) {
+static byte migrate(byte cell, byte *ptr) {
     for (byte n = 0; n < SIZE(neighbors); n++) {
 	int8 offset = neighbors[n];
 	byte *near = ptr + offset;
 	if (*near <= 3 && *near > 0) {
 	    *(queue++) = near;
 	    *near |= cell;
-	    return;
+	    return 1;
 	}
     }
+    return 0;
 }
 
 static const char grazer[] = {
@@ -189,15 +190,13 @@ static void update_sheep(byte cell, byte *ptr) {
     byte food = cell & 3;
     byte size = cell >> 2;
     if (food == 0) {
-	migrate(cell - 4, ptr);
-	cell = 0;
+	cell = migrate(cell - 4, ptr) ? 0 : cell - 4;
     }
     else if (size < 3) {
 	cell += 3; /* inc size +4, dec food -1 */
     }
     else {
-	migrate(4, ptr);
-	cell -= 4;
+	cell -= migrate(4, ptr) ? 4 : 1;
     }
     *(queue++) = ptr;
     *ptr = cell;
