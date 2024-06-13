@@ -135,9 +135,8 @@ static void put_num(word num, word n, byte color) {
 static void put_tile(byte cell, word n) {
     byte x = n & 0x1f;
     byte y = (n >> 2) & ~7;
-    byte color = cell & 0xc ? 7 : 4;
-    BYTE(0x5800 + n) = color;
-    byte *addr = (byte *) tiles + (cell << 3);
+    BYTE(0x5800 + n) = cell & 0xc ? 7 : 4;
+    byte *addr = (byte *) (word) tiles + (cell << 3);
     for (byte i = 0; i < 8; i++) {
 	map_y[y + i][x] = *addr++;
     }
