@@ -217,9 +217,7 @@ static void update_cell(byte *ptr) {
 }
 
 static void clean_tags(byte **ptr) {
-    while (*ptr) {
-	*(*ptr++) &= ~0x40;
-    }
+    while (*ptr) *(*ptr++) &= ~0x40;
 }
 
 static void advance_cells(byte **ptr) {
@@ -233,8 +231,8 @@ static void advance_cells(byte **ptr) {
 }
 
 static void advance_forest(byte **ptr) {
-    clean_tags(ptr);
     advance_cells(ptr);
+    clean_tags(ptr);
 }
 
 static void tile_ptr(byte *ptr) {
