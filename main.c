@@ -152,10 +152,7 @@ static inline void regrow_neighbors(byte *ptr) {
     }
 }
 
-static const char vegetation[] = { ' ', '1', '2', '*' };
-
 static void update_grass(byte cell, byte *ptr) {
-    put_char(vegetation[cell], ptr - forest, 4);
     switch(cell) {
     case 0:
 	if (should_regrow(ptr)) goto grow;
@@ -182,7 +179,7 @@ static void migrate(byte cell, byte *ptr) {
 }
 
 static const char grazer[] = {
-    '0', '1', '2', '3',
+    ' ', '1', '2', '3',
     '4', '5', '6', '7',
     '8', '9', 'A', 'B',
     'C', 'D', 'E', 'F',
@@ -191,7 +188,6 @@ static const char grazer[] = {
 static void update_sheep(byte cell, byte *ptr) {
     byte food = cell & 3;
     byte size = cell >> 2;
-    put_char(grazer[cell & 0xf], ptr - forest, 7);
     if (food == 0) {
 	migrate(cell - 4, ptr);
 	cell = 0;
@@ -208,14 +204,18 @@ static void update_sheep(byte cell, byte *ptr) {
 }
 
 static void update_cell(byte *ptr) {
-    byte cell = *ptr & 0xf;
+    byte color, cell = *ptr & 0xf;
 
     if (cell <= 3) {
 	update_grass(cell, ptr);
+	color = 4;
     }
     else {
 	update_sheep(cell, ptr);
+	color = 7;
     }
+
+    put_char(grazer[cell], ptr - forest, color);
 }
 
 static void advance_forest(byte **ptr) {
