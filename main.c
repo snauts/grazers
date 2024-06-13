@@ -132,11 +132,12 @@ static void put_num(word num, word n, byte color) {
     put_str(msg, n, color);
 }
 
-static void put_tile(byte cell, word n) {
+static byte *sprites;
+static void put_tile(byte cell, byte color, word n) {
     byte x = n & 0x1f;
     byte y = (n >> 2) & ~7;
-    BYTE(0x5800 + n) = cell & 0xc ? 7 : 4;
-    byte *addr = (byte *) (word) tiles + (cell << 3);
+    BYTE(0x5800 + n) = color;
+    byte *addr = sprites + (cell << 3);
     for (byte i = 0; i < 8; i++) {
 	map_y[y + i][x] = *addr++;
     }
@@ -239,8 +240,11 @@ static void advance_forest(byte **ptr) {
 }
 
 static void display_forest(byte **ptr) {
+    sprites = (void *) tiles;
     while (*ptr) {
-	put_tile(**ptr & 0x1f, *ptr - forest);
+	byte cell = **ptr & 0x1f;
+	byte color = cell & 0xc ? 7 : 4;
+	put_tile(cell, color, *ptr - forest);
 	ptr++;
     }
     wait_vblank();
