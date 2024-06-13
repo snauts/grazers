@@ -245,9 +245,10 @@ static void tile_ptr(byte *ptr) {
 
 static void move_hunter(word dst) {
     if ((forest[dst] & 0x80) == 0) {
+	sprites = (void *) tiles;
 	forest[pos] &= ~0x2c;
 	tile_ptr(forest + pos);
-	sprites = hunter;
+	sprites = (void *) hunter;
 	forest[dst] |= 0x20;
 	put_tile(0, 0x46, dst);
 	pos = dst;
@@ -267,7 +268,7 @@ static void wait_user_input(void) {
 static void display_forest(byte **ptr) {
     sprites = (void *) tiles;
     while (*ptr) {
-	ptr_tile(*ptr);
+	tile_ptr(*ptr);
 	ptr++;
     }
     wait_user_input();
