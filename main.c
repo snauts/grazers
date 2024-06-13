@@ -23,6 +23,8 @@ static byte forest[768];
 static byte *update[256];
 static byte *mirror[256];
 
+static word pos;
+
 static void interrupt(void) __naked {
 #ifdef ZXS
     __asm__("di");
@@ -56,6 +58,12 @@ static byte in_fe(byte a) __naked {
     __asm__("ret");
 }
 
+static byte in_1f(void) __naked {
+    __asm__("ld bc, #0x1f");
+    __asm__("in a, (c)");
+    __asm__("ret");
+}
+
 static void memset(byte *ptr, byte data, word len) {
     while (len-- > 0) { *ptr++ = data; }
 }
@@ -77,17 +85,7 @@ static void clear_screen(void) {
 #endif
 }
 
-static void wait_for_spacebar(void) {
-    byte prev, next = 0;
-    do {
-	prev = next;
-	next = in_fe(0x7f) & 1;
-	if (~in_fe(0xfd) & 8) break;
-    } while (next == prev || prev == 0);
-}
-
 static void wait_vblank(void) {
-    wait_for_spacebar();
     while (!is_vsync()) { }
     vblank = 0;
 }
@@ -239,6 +237,15 @@ static void advance_forest(byte **ptr) {
     *queue = 0;
 }
 
+static void wait_user_input(void) {
+    byte prev, next = 0;
+    do {
+	prev = next;
+	next = in_fe(0x7f) & 1;
+	if (~in_fe(0xfd) & 8) break;
+    } while (next == prev || prev == 0);
+}
+
 static void display_forest(byte **ptr) {
     sprites = (void *) tiles;
     while (*ptr) {
@@ -247,6 +254,7 @@ static void display_forest(byte **ptr) {
 	put_tile(cell, color, *ptr - forest);
 	ptr++;
     }
+    wait_user_input();
     wait_vblank();
 }
 
