@@ -82,14 +82,12 @@ static void wait_for_spacebar(void) {
     do {
 	prev = next;
 	next = in_fe(0x7f) & 1;
+	if (~in_fe(0xfd) & 8) break;
     } while (next == prev || prev == 0);
 }
 
-//#define DEBUG
 static void wait_vblank(void) {
-#ifdef DEBUG
     wait_for_spacebar();
-#endif
     while (!is_vsync()) { }
     vblank = 0;
 }
