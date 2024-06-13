@@ -229,7 +229,7 @@ static void advance_forest(byte **ptr) {
     clean_tags(ptr);
     while (*ptr) {
 	byte *place = *ptr++;
-	if ((*place & 0x40) == 0) {
+	if ((*place & 0x60) == 0) {
 	    update_cell(place);
 	    *place |= 0x40;
 	}
