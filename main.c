@@ -23,6 +23,8 @@ static byte forest[768];
 static byte *update[256];
 static byte *mirror[256];
 
+static byte invert[SIZE(tiles)];
+
 static void interrupt(void) __naked {
 #ifdef ZXS
     __asm__("di");
@@ -267,11 +269,28 @@ static void update_border(void) {
     }
 }
 
+static byte flip_bits(byte source) {
+    byte result = 0;
+    for (byte i = 0; i < 8; i++) {
+	result = result << 1;
+	result |= source & 1;
+	source = source >> 1;
+    }
+    return result;
+}
+
+static void invert_tiles(void) {
+    for (word i = 0; i < SIZE(tiles); i++) {
+	invert[i] = flip_bits(tiles[i]);
+    }
+}
+
 static void game_loop(void) {
     memset(update, 0x00, sizeof(update));
     memset(mirror, 0x00, sizeof(mirror));
     memset(forest, 0x00, sizeof(forest));
     update_border();
+    invert_tiles();
 
     forest[0x21] = 0x01;
     update[0x00] = forest + 0x21;
