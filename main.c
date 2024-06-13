@@ -237,6 +237,23 @@ static void advance_forest(byte **ptr) {
     *queue = 0;
 }
 
+static void tile_ptr(byte *ptr) {
+    byte cell = *ptr & 0x1f;
+    byte color = cell & 0xc ? 7 : 4;
+    put_tile(cell, color, ptr - forest);
+}
+
+static void move_hunter(word dst) {
+    if ((forest[dst] & 0x80) == 0) {
+	forest[pos] &= ~0x2c;
+	tile_ptr(forest + pos);
+	sprites = hunter;
+	forest[dst] |= 0x20;
+	put_tile(0, 0x46, dst);
+	pos = dst;
+    }
+}
+
 static void wait_user_input(void) {
     byte prev, next = 0;
     do {
@@ -244,14 +261,13 @@ static void wait_user_input(void) {
 	next = in_fe(0x7f) & 1;
 	if (~in_fe(0xfd) & 8) break;
     } while (next == prev || prev == 0);
+    move_hunter(pos - 1);
 }
 
 static void display_forest(byte **ptr) {
     sprites = (void *) tiles;
     while (*ptr) {
-	byte cell = **ptr & 0x1f;
-	byte color = cell & 0xc ? 7 : 4;
-	put_tile(cell, color, *ptr - forest);
+	ptr_tile(*ptr);
 	ptr++;
     }
     wait_user_input();
@@ -296,6 +312,9 @@ static void game_loop(void) {
 
     forest[0x43] = 0x07;
     update[0x01] = forest + 0x43;
+
+    pos = 600;
+    move_hunter(600);
 
     for (;;) {
 	game_round(update, mirror);
