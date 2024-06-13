@@ -2,6 +2,8 @@ typedef signed char int8;
 typedef unsigned char byte;
 typedef unsigned short word;
 
+#include "data.h"
+
 #define ADDR(obj)	((word) (obj))
 #define BYTE(addr)	(* (volatile byte *) (addr))
 #define WORD(addr)	(* (volatile word *) (addr))
@@ -201,19 +203,28 @@ static void update_sheep(byte cell, byte *ptr) {
     *ptr = cell;
 }
 
+static void put_tile(byte cell, word n) {
+    byte x = n & 0x1f;
+    byte y = (n >> 2) & ~7;
+    byte color = cell <= 3 ? 4 : 7;
+    BYTE(0x5800 + n) = color;
+    byte *addr = (byte *) tiles + (cell << 3);
+    for (byte i = 0; i < 8; i++) {
+	map_y[y + i][x] = *addr++;
+    }
+}
+
 static void update_cell(byte *ptr) {
-    byte color, cell = *ptr & 0xf;
+    byte cell = *ptr & 0xf;
 
     if (cell <= 3) {
 	update_grass(cell, ptr);
-	color = 4;
     }
     else {
 	update_sheep(cell, ptr);
-	color = 7;
     }
 
-    put_char(grazer[cell], ptr - forest, color);
+    put_tile(cell, ptr - forest);
 }
 
 static void clean_tags(byte **ptr) {
