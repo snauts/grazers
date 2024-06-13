@@ -224,8 +224,7 @@ static void clean_tags(byte **ptr) {
     }
 }
 
-static void advance_forest(byte **ptr) {
-    clean_tags(ptr);
+static void advance_cells(byte **ptr) {
     while (*ptr) {
 	byte *place = *ptr++;
 	if ((*place & 0x60) == 0) {
@@ -233,6 +232,11 @@ static void advance_forest(byte **ptr) {
 	    *place |= 0x40;
 	}
     }
+}
+
+static void advance_forest(byte **ptr) {
+    clean_tags(ptr);
+    advance_cells(ptr);
     *queue = 0;
     wait_vblank();
 }
