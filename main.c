@@ -153,10 +153,9 @@ static inline void regrow_neighbors(word i, byte *ptr) {
 
 static const char vegetation[] = { ' ', '1', '2', '*' };
 
-static void update_grass(word i, byte *ptr) {
-    byte grass = *ptr;
-    put_char(vegetation[grass], i, 4);
-    switch(grass) {
+static void update_grass(word i, byte cell, byte *ptr) {
+    put_char(vegetation[cell], i, 4);
+    switch(cell) {
     case 0:
 	if (should_regrow(ptr)) goto grow;
     case 3:
@@ -188,8 +187,7 @@ static const char grazer[] = {
     'C', 'D', 'E', 'F',
 };
 
-static void update_sheep(word i, byte *ptr) {
-    byte cell = *ptr;
+static void update_sheep(word i, byte cell, byte *ptr) {
     byte food = cell & 3;
     byte size = cell >> 2;
     put_char(grazer[cell & 0xf], i, 7);
@@ -210,12 +208,13 @@ static void update_sheep(word i, byte *ptr) {
 
 static void update_cell(word i) {
     byte *ptr = forest + i;
+    byte cell = *ptr & 0xf;
 
-    if (*ptr <= 3) {
-	update_grass(i, ptr);
+    if (cell <= 3) {
+	update_grass(i, cell, ptr);
     }
     else {
-	update_sheep(i, ptr);
+	update_sheep(i, cell, ptr);
     }
 }
 
