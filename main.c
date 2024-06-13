@@ -202,7 +202,7 @@ static void update_sheep(byte cell, byte *ptr) {
 	cell += 3; /* inc size +4, dec food -1 */
     }
     else {
-	cell -= migrate(4, ptr) ? 4 : 1;
+	cell -= migrate(4 | (cell & 0x10), ptr) ? 4 : 1;
     }
     *(queue++) = ptr;
     *ptr = cell;
