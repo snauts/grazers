@@ -138,7 +138,8 @@ static inline byte should_regrow(byte *ptr) {
     return 0;
 }
 
-static inline word *regrow_neighbors(word i, word *upd, byte *ptr) {
+static word *upd;
+static inline void regrow_neighbors(word i, byte *ptr) {
     for (byte n = 0; n < SIZE(neighbors); n++) {
 	int8 offset = neighbors[n];
 	byte *near = ptr + offset;
@@ -147,39 +148,36 @@ static inline word *regrow_neighbors(word i, word *upd, byte *ptr) {
 	    (*near)++;
 	}
     }
-    return upd;
 }
 
 static const char vegetation[] = { ' ', '1', '2', '*' };
 
-static word *update_grass(word i, word *upd, byte *ptr) {
+static void update_grass(word i, byte *ptr) {
     byte grass = *ptr;
     put_char(vegetation[grass], i, 4);
     switch(grass) {
     case 0:
 	if (should_regrow(ptr)) goto grow;
     case 3:
-	return upd;
+	return;
     default:
-	upd = regrow_neighbors(i, upd, ptr);
+	regrow_neighbors(i, ptr);
     }
   grow:
-    *upd = i;
+    *(upd++) = i;
     (*ptr)++;
-    return upd + 1;
 }
 
-static word *migrate(word i, byte cell, word *upd, byte *ptr) {
+static void migrate(word i, byte cell, byte *ptr) {
     for (byte n = 0; n < SIZE(neighbors); n++) {
 	int8 offset = neighbors[n];
 	byte *near = ptr + offset;
 	if (*near <= 3 && *near > 0) {
 	    *(upd++) = i + offset;
 	    *near |= cell;
-	    break;
+	    return;
 	}
     }
-    return upd;
 }
 
 static const char grazer[] = {
@@ -189,41 +187,40 @@ static const char grazer[] = {
     'C', 'D', 'E', 'F',
 };
 
-static word *update_sheep(word i, word *upd, byte *ptr) {
+static void update_sheep(word i, byte *ptr) {
     byte cell = *ptr;
     byte food = cell & 3;
     byte size = cell >> 2;
     put_char(grazer[cell & 0xf], i, 7);
     if (food == 0) {
-	upd = migrate(i, cell - 4, upd, ptr);
+	migrate(i, cell - 4, ptr);
 	cell = 0;
     }
     else if (size < 3) {
 	cell += 3; /* inc size +4, dec food -1 */
     }
     else {
-	upd = migrate(i, 4, upd, ptr);
+	migrate(i, 4, ptr);
 	cell -= 4;
     }
-    *upd = i;
+    *(upd++) = i;
     *ptr = cell;
-    return upd + 1;
 }
 
-static word *update_cell(word i, word *upd) {
+static void update_cell(word i) {
     byte *ptr = forest + i;
 
     if (*ptr <= 3) {
-	return update_grass(i, upd, ptr);
+	update_grass(i, ptr);
     }
     else {
-	return update_sheep(i, upd, ptr);
+	update_sheep(i, ptr);
     }
 }
 
-static void advance_forest(word *ptr, word *upd) {
+static void advance_forest(word *ptr) {
     while (*ptr) {
-	upd = update_cell(*ptr++, upd);
+	update_cell(*ptr++);
     }
     *upd = 0;
     wait_vblank();
@@ -257,8 +254,10 @@ static void game_loop(void) {
     update[0x01] = 0x42;
 
     for (;;) {
-	advance_forest(update, update + 256);
-	advance_forest(update + 256, update);
+	upd = update + 256;
+	advance_forest(update);
+	upd = update;
+	advance_forest(update + 256);
     }
 }
 
