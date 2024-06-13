@@ -80,7 +80,7 @@ static void clear_screen(void) {
 #define DEBUG
 static void wait_vblank(void) {
 #ifdef DEBUG
-    byte prev, next = in_fe(0x7f) & 1;
+    byte prev, next = 0;
     do {
 	prev = next;
 	next = in_fe(0x7f) & 1;
@@ -128,6 +128,17 @@ static void put_num(word num, word n, byte color) {
 	num = num >> 4;
     }
     put_str(msg, n, color);
+}
+
+static void put_tile(byte cell, word n) {
+    byte x = n & 0x1f;
+    byte y = (n >> 2) & ~7;
+    byte color = cell <= 3 ? 4 : 7;
+    BYTE(0x5800 + n) = color;
+    byte *addr = (byte *) tiles + (cell << 3);
+    for (byte i = 0; i < 8; i++) {
+	map_y[y + i][x] = *addr++;
+    }
 }
 
 static const int8 neighbors[] = { -1, -32, 1, 32 };
@@ -203,17 +214,6 @@ static void update_sheep(byte cell, byte *ptr) {
     *ptr = cell;
 }
 
-static void put_tile(byte cell, word n) {
-    byte x = n & 0x1f;
-    byte y = (n >> 2) & ~7;
-    byte color = cell <= 3 ? 4 : 7;
-    BYTE(0x5800 + n) = color;
-    byte *addr = (byte *) tiles + (cell << 3);
-    for (byte i = 0; i < 8; i++) {
-	map_y[y + i][x] = *addr++;
-    }
-}
-
 static void update_cell(byte *ptr) {
     byte cell = *ptr & 0xf;
 
@@ -259,6 +259,11 @@ static void update_border(void) {
     for (word y = 0; y < 768; y += 32) {
 	add_fence(0x000 + y);
 	add_fence(0x01f + y);
+    }
+    for (word x = 0; x < 24; x++) {
+	for (word y = 11; y < 13; y++) {
+	    add_fence((y * 32) + x);
+	}
     }
 }
 
