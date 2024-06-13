@@ -160,7 +160,7 @@ static inline void regrow_neighbors(byte *ptr) {
 }
 
 static void update_grass(byte cell, byte *ptr) {
-    switch(cell) {
+    switch(cell & 3) {
     case 0:
 	if (should_regrow(ptr)) goto grow;
     case 3:
