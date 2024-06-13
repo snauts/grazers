@@ -214,8 +214,6 @@ static void update_cell(byte *ptr) {
     else {
 	update_grass(cell, ptr);
     }
-
-    put_tile(cell, ptr - forest);
 }
 
 static void clean_tags(byte **ptr) {
@@ -238,6 +236,13 @@ static void advance_forest(byte **ptr) {
     clean_tags(ptr);
     advance_cells(ptr);
     *queue = 0;
+}
+
+static void display_forest(byte **ptr) {
+    while (*ptr) {
+	put_tile(**ptr & 0x1f, *ptr - forest);
+	ptr++;
+    }
     wait_vblank();
 }
 
@@ -262,6 +267,12 @@ static void update_border(void) {
     }
 }
 
+static void game_round(byte **src, byte **dst) {
+    queue = dst;
+    advance_forest(src);
+    display_forest(dst);
+}
+
 static void game_loop(void) {
     memset(update, 0x00, sizeof(update));
     memset(mirror, 0x00, sizeof(mirror));
@@ -275,10 +286,8 @@ static void game_loop(void) {
     update[0x01] = forest + 0x43;
 
     for (;;) {
-	queue = mirror;
-	advance_forest(update);
-	queue = update;
-	advance_forest(mirror);
+	game_round(update, mirror);
+	game_round(mirror, update);
     }
 }
 
