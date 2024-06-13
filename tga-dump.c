@@ -12,6 +12,7 @@ static char *file_name;
 static int color_index = 1;
 static unsigned char inkmap[256];
 static unsigned char colors[256];
+static int as_tiles = 0;
 
 struct Header {
     unsigned char id;
@@ -118,10 +119,22 @@ static void dump_buffer(void *ptr, int size, int step) {
     if ((size & 7) != 0) printf("\n");
 }
 
+static void save_as_stripe(struct Header *header, unsigned char *output) {
+    for (int y = 0; y < header->h; y += 8) {
+	for (int x = 0; x < header->w / 8; x++) {
+	    for (int i = 0; i < 8; i++) {
+		printf(" 0x%02x,", output[((y + i) * header->w / 8) + x]);
+	    }
+	    printf("\n");
+	}
+    }
+}
+
 static void save_bitmap(struct Header *header, unsigned char *buf, int size) {
     int j = 0;
     char name[256];
     int attribute_size = size / 64;
+    unsigned char output[size / 8];
     unsigned short on[attribute_size];
     remove_extension(file_name, name);
     printf("const byte %s[] = {\n", name);
@@ -130,8 +143,13 @@ static void save_bitmap(struct Header *header, unsigned char *buf, int size) {
 	    on[j++] = on_pixel(buf, i, header->w);
 	}
 	unsigned char pixel = on[ink_index(header, i)] & 0xff;
-	printf(" 0x%02x,", consume_pixels(buf + i, pixel));
-	if ((i % 64) == 56) printf("\n");
+	output[i / 8] = consume_pixels(buf + i, pixel);
+    }
+    if (as_tiles) {
+	save_as_stripe(header, output);
+    }
+    else {
+	dump_buffer(output, size / 8, 1);
     }
     if (has_any_color()) {
 	unsigned char buf[attribute_size];
@@ -148,6 +166,7 @@ int main(int argc, char **argv) {
     if (argc < 2) {
 	printf("USAGE: tga-dump [option] file.tga\n");
 	printf("  -b   save bitmap zx\n");
+	printf("  -t   save tiles zx\n");
 	return 0;
     }
 
@@ -173,6 +192,9 @@ int main(int argc, char **argv) {
     close(fd);
 
     switch (argv[1][1]) {
+    case 't':
+	as_tiles = 1;
+	/* falls through */
     case 'b':
 #ifdef ZXS
 	for (int i = 3; i < argc; i++) {
