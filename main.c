@@ -4,6 +4,7 @@ typedef unsigned short word;
 
 #include "data.h"
 
+#define BIT(n)		(1 << (n))
 #define ADDR(obj)	((word) (obj))
 #define BYTE(addr)	(* (volatile byte *) (addr))
 #define WORD(addr)	(* (volatile word *) (addr))
@@ -234,7 +235,6 @@ static void advance_cells(byte **ptr) {
 static void advance_forest(byte **ptr) {
     clean_tags(ptr);
     advance_cells(ptr);
-    *queue = 0;
 }
 
 static void tile_ptr(byte *ptr) {
@@ -245,9 +245,11 @@ static void tile_ptr(byte *ptr) {
 
 static void move_hunter(word dst) {
     if ((forest[dst] & 0x80) == 0) {
+	byte *place = forest + pos;
 	sprites = (void *) tiles;
-	forest[pos] &= ~0x2c;
-	tile_ptr(forest + pos);
+	*place &= ~0x2c;
+	tile_ptr(place);
+	*(queue++) = place;
 	sprites = (void *) hunter;
 	forest[dst] |= 0x20;
 	put_tile(0, 0x46, dst);
@@ -259,10 +261,15 @@ static void wait_user_input(void) {
     byte prev, next = 0;
     do {
 	prev = next;
-	next = in_fe(0x7f) & 1;
-	if (~in_fe(0xfd) & 8) break;
+	next = in_fe(0xfd) & 7;
+	next |= (in_fe(0xfb) & 2) << 2;
+	if (~in_fe(0x7f) & 1) break;
     } while (next == prev || prev == 0);
-    move_hunter(pos - 1);
+
+    if (next & BIT(0)) move_hunter(pos + 1);
+    if (next & BIT(1)) move_hunter(pos - 32);
+    if (next & BIT(2)) move_hunter(pos - 1);
+    if (next & BIT(3)) move_hunter(pos + 32);
 }
 
 static void display_forest(byte **ptr) {
@@ -273,6 +280,7 @@ static void display_forest(byte **ptr) {
     }
     wait_user_input();
     wait_vblank();
+    *queue = 0;
 }
 
 static void add_fence(word n) {
