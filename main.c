@@ -77,14 +77,18 @@ static void clear_screen(void) {
 #endif
 }
 
-#define DEBUG
-static void wait_vblank(void) {
-#ifdef DEBUG
+static void wait_for_spacebar(void) {
     byte prev, next = 0;
     do {
 	prev = next;
 	next = in_fe(0x7f) & 1;
     } while (next == prev || prev == 0);
+}
+
+//#define DEBUG
+static void wait_vblank(void) {
+#ifdef DEBUG
+    wait_for_spacebar();
 #endif
     while (!is_vsync()) { }
     vblank = 0;
