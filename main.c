@@ -23,8 +23,6 @@ static byte forest[768];
 static byte *update[256];
 static byte *mirror[256];
 
-static byte invert[SIZE(tiles)];
-
 static void interrupt(void) __naked {
 #ifdef ZXS
     __asm__("di");
@@ -135,7 +133,7 @@ static void put_num(word num, word n, byte color) {
 static void put_tile(byte cell, word n) {
     byte x = n & 0x1f;
     byte y = (n >> 2) & ~7;
-    byte color = cell <= 3 ? 4 : 7;
+    byte color = cell & 0xc ? 7 : 4;
     BYTE(0x5800 + n) = color;
     byte *addr = (byte *) tiles + (cell << 3);
     for (byte i = 0; i < 8; i++) {
@@ -185,6 +183,8 @@ static byte migrate(byte cell, byte *ptr) {
 	byte *near = ptr + neighbors[n];
 	byte info = *near & 0xf;
 	if (info <= 3 && info > 0) {
+	    if (n == 0) cell |= 0x10;
+	    if (n == 2) cell &= ~0x10;
 	    *(queue++) = near;
 	    *near |= cell;
 	    return 1;
@@ -193,20 +193,13 @@ static byte migrate(byte cell, byte *ptr) {
     return 0;
 }
 
-static const char grazer[] = {
-    ' ', '1', '2', '3',
-    '4', '5', '6', '7',
-    '8', '9', 'A', 'B',
-    'C', 'D', 'E', 'F',
-};
-
 static void update_sheep(byte cell, byte *ptr) {
-    byte food = cell & 3;
-    byte size = cell >> 2;
+    byte food = cell & 0x3;
+    byte size = cell & 0xc;
     if (food == 0) {
 	cell = migrate(cell - 4, ptr) ? 0 : cell - 4;
     }
-    else if (size < 3) {
+    else if (size < 0xc) {
 	cell += 3; /* inc size +4, dec food -1 */
     }
     else {
@@ -217,13 +210,13 @@ static void update_sheep(byte cell, byte *ptr) {
 }
 
 static void update_cell(byte *ptr) {
-    byte cell = *ptr & 0xf;
+    byte cell = *ptr & 0x1f;
 
-    if (cell <= 3) {
-	update_grass(cell, ptr);
+    if (cell & 0xc) {
+	update_sheep(cell, ptr);
     }
     else {
-	update_sheep(cell, ptr);
+	update_grass(cell, ptr);
     }
 
     put_tile(cell, ptr - forest);
@@ -269,34 +262,17 @@ static void update_border(void) {
     }
 }
 
-static byte flip_bits(byte source) {
-    byte result = 0;
-    for (byte i = 0; i < 8; i++) {
-	result = result << 1;
-	result |= source & 1;
-	source = source >> 1;
-    }
-    return result;
-}
-
-static void invert_tiles(void) {
-    for (word i = 0; i < SIZE(tiles); i++) {
-	invert[i] = flip_bits(tiles[i]);
-    }
-}
-
 static void game_loop(void) {
     memset(update, 0x00, sizeof(update));
     memset(mirror, 0x00, sizeof(mirror));
     memset(forest, 0x00, sizeof(forest));
     update_border();
-    invert_tiles();
 
     forest[0x21] = 0x01;
     update[0x00] = forest + 0x21;
 
-    forest[0x42] = 0x07;
-    update[0x01] = forest + 0x42;
+    forest[0x43] = 0x07;
+    update[0x01] = forest + 0x43;
 
     for (;;) {
 	queue = mirror;
