@@ -142,7 +142,7 @@ static void put_tile(byte cell, byte color, word n) {
     }
 }
 
-static const int8 neighbors[] = { -1, -32, 1, 32 };
+static const int8 neighbors[] = { -1, 32, 1, -32 };
 
 static inline byte should_regrow(byte *ptr) {
     for (byte n = 0; n < SIZE(neighbors); n++) {
@@ -247,9 +247,9 @@ static void move_hunter(word dst) {
     if ((forest[dst] & 0x80) == 0) {
 	byte *place = forest + pos;
 	sprites = (void *) tiles;
+	*(queue++) = place;
 	*place &= ~0x2c;
 	tile_ptr(place);
-	*(queue++) = place;
 	sprites = (void *) hunter;
 	forest[dst] |= 0x20;
 	put_tile(0, 0x46, dst);
@@ -265,10 +265,11 @@ static void wait_user_input(void) {
 	next |= (in_fe(0xfb) & 2) << 2;
 	if (~in_fe(0x7f) & 1) break;
     } while (next == prev || prev == 0);
-    if (!(next & BIT(0))) move_hunter(pos - 1);
-    if (!(next & BIT(1))) move_hunter(pos + 32);
-    if (!(next & BIT(2))) move_hunter(pos + 1);
-    if (!(next & BIT(3))) move_hunter(pos - 32);
+    for (byte n = 0; n < SIZE(neighbors); n++) {
+	if ((next & BIT(n)) == 0) {
+	    move_hunter(pos + neighbors[n]);
+	}
+    }
 }
 
 static void display_forest(byte **ptr) {
