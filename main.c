@@ -201,7 +201,7 @@ static void update_sheep(byte cell, byte *ptr) {
     byte food = cell & C_FOOD;
     byte size = cell & C_SIZE;
     if (food == 0) {
-	cell = migrate(cell - 4, ptr) ? 0 : cell - 4;
+	cell = size == 4 || migrate(cell - 4, ptr) ? 0 : cell - 4;
     }
     else if (size < C_SIZE) {
 	cell += 3; /* inc size +4, dec food -1 */
