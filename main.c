@@ -156,7 +156,7 @@ static void inc10(word *num) {
     }
 }
 
-static void put_tile(byte cell, byte color, word n) {
+static void put_tile(byte cell, word n) {
     byte x = n & 0x1f;
     byte y = (n >> 2) & ~7;
     BYTE(0x5800 + n) = tiles_color[cell];
@@ -265,8 +265,7 @@ static void tile_ptr(byte *ptr) {
     byte cell = *ptr;
     if ((cell & C_PLAY) == 0) {
 	cell &= (C_FACE | C_SIZE | C_FOOD);
-	byte color = cell & C_SIZE ? 7 : 4;
-	put_tile(cell, color, ptr - forest);
+	put_tile(cell, ptr - forest);
     }
 }
 
@@ -308,8 +307,7 @@ static void rolling_rock_sound(void) {
 
 static void bite(word dst) {
     for (byte i = 0; i < 4; i++) {
-	byte color = i == 3 ? 0x02 : 0x47;
-	put_tile(36 + i, color, dst);
+	put_tile(36 + i, dst);
 	bite_sound(i);
     }
 }
@@ -319,7 +317,7 @@ static byte roll_rock(int8 diff) {
     if ((forest[dst] & (C_TILE | C_SIZE)) == 0) {
 	forest[dst] = (byte) C_TILE | T_ROCK;
 	rolling_rock_sound();
-	put_tile(34, 6, dst);
+	put_tile(34, dst);
 	return TRUE;
     }
     return FALSE;
@@ -343,7 +341,7 @@ static void move_hunter(int8 diff) {
 	byte face = get_face(diff, cell);
 	next = next & ~(C_FACE | C_TILE);
 	forest[dst] = C_PLAY | face | next;
-	put_tile(face ? 33 : 32, 0x46, dst);
+	put_tile(face ? 33 : 32, dst);
 	pos = dst;
     }
 }
@@ -432,7 +430,7 @@ static void init_variables(void) {
 
     forest[0x88] = 0x80;
     update[0x02] = forest + 0x88;
-    put_tile(34, 6, 0x88);
+    put_tile(34, 0x88);
 
     pos = 200;
     move_hunter(200);
