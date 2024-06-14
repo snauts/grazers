@@ -300,6 +300,13 @@ static void bite_sound(word distance) {
     beep(1024 - offset, 1024 + offset, 256);
 }
 
+static void rolling_rock_sound(void) {
+    for (byte i = 0; i < 4; i++) {
+	byte offset = 0x10 << i;
+	beep(768 - (offset << 1), 768 + offset, 64);
+    }
+}
+
 static void bite(word dst) {
     for (byte i = 0; i < 4; i++) {
 	byte color = i == 3 ? 0x02 : 0x47;
@@ -313,6 +320,7 @@ static byte roll_rock(int8 diff) {
     if ((forest[dst] & (C_TILE | C_SIZE)) == 0) {
 	forest[dst] = (byte) C_TILE | T_ROCK;
 	sprites = (void *) hunter;
+	rolling_rock_sound();
 	put_tile(2, 6, dst);
 	return TRUE;
     }
