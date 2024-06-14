@@ -272,7 +272,7 @@ static byte key_state(void) {
 }
 
 static byte fast_forward(void) {
-    return ~in_fe(0x7f) & 1;
+    return ~in_fe(0xbf) & 1;
 }
 
 static void wait_user_input(void) {
