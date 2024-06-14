@@ -35,6 +35,7 @@ static byte *update[512];
 static byte *mirror[512];
 
 static word pos;
+static word epoch;
 
 static void interrupt(void) __naked {
 #ifdef ZXS
@@ -146,12 +147,11 @@ static byte inc10_byte(byte *num) {
     return value;
 }
 
-static word inc10(word num) {
-    byte *ptr = (byte *) &num;
+static void inc10(word *num) {
+    byte *ptr = (byte *) num;
     if (inc10_byte(ptr + 0) == 0) {
 	inc10_byte(ptr + 1);
     }
-    return num;
 }
 
 static byte *sprites;
@@ -371,23 +371,27 @@ static void add_fence(word n) {
 static void update_border(void) {
     for (word x = 0; x < 32; x++) {
 	add_fence(0x000 + x);
-	add_fence(0x2e0 + x);
+	add_fence(0x2c0 + x);
     }
-    for (word y = 0; y < 768; y += 32) {
+    for (word y = 0; y < 0x2e0; y += 32) {
 	add_fence(0x000 + y);
 	add_fence(0x01f + y);
     }
     for (word x = 0; x < 24; x++) {
-	for (word y = 11; y < 13; y++) {
-	    add_fence((y * 32) + x);
-	}
+	add_fence(0x160 + x);
     }
+}
+
+static void increment_epoch(void) {
+    inc10(&epoch);
+    put_num(epoch, 0x2e6, 4);
 }
 
 static void game_round(byte **src, byte **dst) {
     queue = dst;
     advance_forest(src);
     display_forest(dst);
+    increment_epoch();
 }
 
 static void game_loop(void) {
@@ -404,6 +408,9 @@ static void game_loop(void) {
 
     pos = 200;
     move_hunter(200);
+
+    epoch = 0;
+    put_str("EPOCH:0000", 0x2e0, 4);
 
     for (;;) {
 	game_round(update, mirror);
