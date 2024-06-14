@@ -286,7 +286,10 @@ static void move_hunter(int8 diff) {
 }
 
 static byte key_state(void) {
-    return (~in_fe(0xfd) & 7) | ((~in_fe(0xfb) & 2) << 2);
+    byte output = ~in_fe(0xfd) & 7;
+    output |= (~in_fe(0xfb) & 2) << 2;
+    output |= (~in_fe(0x7f) & 1) << 4;
+    return output;
 }
 
 static byte fast_forward(void) {
