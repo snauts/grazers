@@ -365,7 +365,7 @@ static void display_forest(byte **ptr) {
 
 static void add_fence(word n) {
     put_char('#', n, 4);
-    forest[n + 0x000] = 0x80;
+    forest[n + 0x000] = 0x81;
 }
 
 static void update_border(void) {
@@ -408,6 +408,11 @@ static void init_variables(void) {
 
     forest[0x43] = 0x07;
     update[0x01] = forest + 0x43;
+
+    forest[0x88] = 0x80;
+    update[0x02] = forest + 0x88;
+    sprites = (void *) hunter;
+    put_tile(2, 6, 0x88);
 
     pos = 200;
     move_hunter(200);
