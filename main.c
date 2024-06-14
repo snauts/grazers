@@ -10,6 +10,8 @@ typedef unsigned short word;
 #define SIZE(array)	(sizeof(array) / sizeof(*(array)))
 
 #define BIT(n)		(1 << (n))
+#define TRUE		1
+#define FALSE		0
 
 #define C_FOOD		0x3
 #define C_SIZE		0xc
@@ -154,19 +156,20 @@ static const int8 neighbors[] = { -1, 32, 1, -32 };
 
 static inline byte should_regrow(byte *ptr) {
     for (byte n = 0; n < SIZE(neighbors); n++) {
-	byte near = *(ptr + neighbors[n]) & ~C_DONE;
-	if (0 < near && near <= 3) return 1;
+	byte food = *(ptr + neighbors[n]) & ~C_DONE;
+	if (0 < food && food <= 3) return TRUE;
     }
-    return 0;
+    return FALSE;
 }
 
 static byte **queue;
+#define QUEUE(x) *(queue++) = (x)
 static inline void regrow_neighbors(byte *ptr) {
     for (byte n = 0; n < SIZE(neighbors); n++) {
 	byte *near = ptr + neighbors[n];
 	if (*near == 0) {
 	    *near = 1;
-	    *(queue++) = near;
+	    QUEUE(near);
 	}
     }
 }
@@ -179,7 +182,7 @@ static void update_grass(byte cell, byte *ptr) {
     else if (!should_regrow(ptr)) {
 	return;
     }
-    *(queue++) = ptr;
+    QUEUE(ptr);
     (*ptr)++;
 }
 
@@ -187,15 +190,15 @@ static byte migrate(byte cell, byte *ptr) {
     for (byte n = 0; n < SIZE(neighbors); n++) {
 	byte *near = ptr + neighbors[n];
 	byte food = *near & ~C_DONE;
-	if (food <= 3 && food > 0) {
+	if (0 < food && food <= 3) {
 	    if (n == 0) cell |= C_FACE;
 	    if (n == 2) cell &= ~C_FACE;
-	    *(queue++) = near;
+	    QUEUE(near);
 	    *near |= cell;
-	    return 1;
+	    return TRUE;
 	}
     }
-    return 0;
+    return FALSE;
 }
 
 static void update_sheep(byte cell, byte *ptr) {
@@ -204,13 +207,13 @@ static void update_sheep(byte cell, byte *ptr) {
     if (food == 0) {
 	cell = size == 4 || migrate(cell - 4, ptr) ? 0 : cell - 4;
     }
-    else if (size < C_SIZE) {
-	cell += 3; /* inc size +4, dec food -1 */
-    }
-    else {
+    else if (size == C_SIZE) {
 	cell -= migrate(4 | (cell & C_FACE), ptr) ? 4 : 1;
     }
-    *(queue++) = ptr;
+    else {
+	cell += 3; /* inc size +4, dec food -1 */
+    }
+    QUEUE(ptr);
     *ptr = cell;
 }
 
@@ -270,8 +273,8 @@ static void move_hunter(int8 diff) {
 	byte *place = forest + pos;
 	byte face = get_face(diff, place);
 	sprites = (void *) tiles;
-	*(queue++) = place;
 	*place &= C_FOOD;
+	QUEUE(place);
 	tile_ptr(place);
 
 	sprites = (void *) hunter;
