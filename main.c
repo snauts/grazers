@@ -236,9 +236,11 @@ static void advance_forest(byte **ptr) {
 }
 
 static void tile_ptr(byte *ptr) {
-    byte cell = *ptr & 0x1f;
-    byte color = cell & 0xc ? 7 : 4;
-    put_tile(cell, color, ptr - forest);
+    byte cell = *ptr & 0x2f;
+    if (cell < 0x20) {
+	byte color = cell & 0xc ? 7 : 4;
+	put_tile(cell, color, ptr - forest);
+    }
 }
 
 static void move_hunter(word dst) {
