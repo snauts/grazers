@@ -172,15 +172,13 @@ static inline void regrow_neighbors(byte *ptr) {
 }
 
 static void update_grass(byte cell, byte *ptr) {
-    switch(cell & C_FOOD) {
-    case 0:
-	if (should_regrow(ptr)) goto grow;
-    case 3:
-	return;
-    default:
+    if (cell > 0) {
 	regrow_neighbors(ptr);
+	if (cell == 3) return;
     }
-  grow:
+    else if (!should_regrow(ptr)) {
+	return;
+    }
     *(queue++) = ptr;
     (*ptr)++;
 }
