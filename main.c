@@ -252,17 +252,30 @@ static void tile_ptr(byte *ptr) {
     }
 }
 
-static void move_hunter(word dst) {
+static byte get_face(int8 diff, char *place) {
+    switch (diff) {
+    case 1:
+	return 0;
+    case -1:
+	return C_FACE;
+    default:
+	return *place & C_FACE;
+    }
+}
+
+static void move_hunter(int8 diff) {
+    word dst = pos + diff;
     if ((forest[dst] & C_TILE) == 0) {
 	byte *place = forest + pos;
+	byte face = get_face(diff, place);
 	sprites = (void *) tiles;
 	*(queue++) = place;
 	*place &= C_FOOD;
 	tile_ptr(place);
 
 	sprites = (void *) hunter;
-	forest[dst] |= C_PLAY;
-	put_tile(0, 0x46, dst);
+	forest[dst] = (forest[dst] & ~C_FACE) | C_PLAY | face;
+	put_tile(face ? 1 : 0, 0x46, dst);
 	pos = dst;
     }
 }
@@ -286,7 +299,7 @@ static void wait_user_input(void) {
 
     for (byte n = 0; n < SIZE(neighbors); n++) {
 	if (change & BIT(n)) {
-	    move_hunter(pos + neighbors[n]);
+	    move_hunter(neighbors[n]);
 	}
     }
 }
