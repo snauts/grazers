@@ -314,7 +314,6 @@ static void display_forest(byte **ptr) {
 	ptr++;
     }
     wait_user_input();
-    wait_vblank();
     *queue = 0;
 }
 
