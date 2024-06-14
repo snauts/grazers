@@ -320,7 +320,8 @@ static void move_hunter(int8 diff) {
 	sprites = (void *) hunter;
 	if (next & C_SIZE) bite(dst);
 	byte face = get_face(diff, cell);
-	forest[dst] = (next & ~C_FACE) | C_PLAY | face;
+	next = next & ~(C_FACE | C_TILE);
+	forest[dst] = C_PLAY | face | next;
 	put_tile(face ? 1 : 0, 0x46, dst);
 	pos = dst;
     }
