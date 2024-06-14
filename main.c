@@ -255,16 +255,25 @@ static void move_hunter(word dst) {
     }
 }
 
+static byte key_state(void) {
+    return (~in_fe(0xfd) & 7) | ((~in_fe(0xfb) & 2) << 2);
+}
+
+static byte fast_forward(void) {
+    return ~in_fe(0x7f) & 1;
+}
+
 static void wait_user_input(void) {
-    byte prev, next = 0;
+    byte change, prev, next = key_state();
     do {
 	prev = next;
-	next = in_fe(0xfd) & 7;
-	next |= (in_fe(0xfb) & 2) << 2;
-	if (~in_fe(0x7f) & 1) break;
-    } while (next == prev || prev == 0);
+	next = key_state();
+	change = next & (prev ^ next);
+	if (fast_forward()) break;
+    } while (change == 0);
+
     for (byte n = 0; n < SIZE(neighbors); n++) {
-	if ((next & BIT(n)) == 0) {
+	if (change & BIT(n)) {
 	    move_hunter(pos + neighbors[n]);
 	}
     }
