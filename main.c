@@ -20,6 +20,8 @@ typedef unsigned short word;
 #define C_DONE		BIT(6)
 #define C_TILE		BIT(7)
 
+#define T_ROCK		0x0
+
 #ifdef ZXS
 #define is_vsync()	vblank
 #define SETUP_STACK()	__asm__("ld sp, #0xfdfc")
@@ -248,7 +250,7 @@ static void clean_tags(byte **ptr) {
 static void advance_cells(byte **ptr) {
     while (*ptr) {
 	byte *place = *ptr++;
-	if ((*place & (C_DONE | C_PLAY)) == 0) {
+	if ((*place & (C_TILE | C_DONE | C_PLAY)) == 0) {
 	    update_cell(place);
 	    *place |= C_DONE;
 	}
@@ -306,9 +308,24 @@ static void bite(word dst) {
     }
 }
 
+static byte roll_rock(int8 diff) {
+    word dst = pos + (diff << 1);
+    if ((forest[dst] & (C_TILE | C_SIZE)) == 0) {
+	forest[dst] = C_TILE | T_ROCK;
+	sprites = (void *) hunter;
+	put_tile(2, 6, dst);
+	return TRUE;
+    }
+    return FALSE;
+}
+
+static byte can_move_into(byte next, int8 diff) {
+    return next < C_TILE || (next == C_TILE && roll_rock(diff));
+}
+
 static void move_hunter(int8 diff) {
     word dst = pos + diff;
-    if ((forest[dst] & C_TILE) == 0) {
+    if (can_move_into(forest[dst], diff)) {
 	byte cell = forest[pos];
 	byte *place = forest + pos;
 	sprites = (void *) tiles;
