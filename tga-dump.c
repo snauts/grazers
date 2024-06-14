@@ -151,15 +151,16 @@ static void save_bitmap(struct Header *header, unsigned char *buf, int size) {
     else {
 	dump_buffer(output, size / 8, 1);
     }
+    printf("};\n");
     if (has_any_color()) {
+	printf("const byte %s_color[] = {\n", name);
 	unsigned char buf[attribute_size];
-	printf(" /* %s attributes */\n", name);
 	for (int i = 0; i < attribute_size; i++) {
 	    buf[i] = encode_ink(on[i]);
 	}
 	dump_buffer(buf, attribute_size, 1);
+	printf("};\n");
     }
-    printf("};\n");
 }
 
 int main(int argc, char **argv) {

@@ -159,8 +159,8 @@ static void inc10(word *num) {
 static void put_tile(byte cell, byte color, word n) {
     byte x = n & 0x1f;
     byte y = (n >> 2) & ~7;
-    BYTE(0x5800 + n) = color;
-    byte *addr = tiles + (cell << 3);
+    BYTE(0x5800 + n) = tiles_color[cell];
+    const byte *addr = tiles + (cell << 3);
     for (byte i = 0; i < 8; i++) {
 	map_y[y + i][x] = *addr++;
     }
