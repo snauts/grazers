@@ -20,7 +20,7 @@ typedef unsigned short word;
 #define C_DONE		BIT(6)
 #define C_TILE		BIT(7)
 
-#define T_ROCK		0x0
+#define T_ROCK		0x80
 
 #ifdef ZXS
 #define is_vsync()	vblank
@@ -315,7 +315,7 @@ static void bite(word dst) {
 static byte roll_rock(int8 diff) {
     word dst = pos + (diff << 1);
     if ((forest[dst] & (C_TILE | C_SIZE)) == 0) {
-	forest[dst] = (byte) C_TILE | T_ROCK;
+	forest[dst] = T_ROCK;
 	rolling_rock_sound();
 	put_tile(34, dst);
 	return TRUE;
@@ -324,7 +324,7 @@ static byte roll_rock(int8 diff) {
 }
 
 static byte can_move_into(byte next, int8 diff) {
-    return next < C_TILE || (next == C_TILE && roll_rock(diff));
+    return next < C_TILE || (next == T_ROCK && roll_rock(diff));
 }
 
 static void move_hunter(int8 diff) {
