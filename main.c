@@ -177,7 +177,7 @@ static void update_grass(byte cell, byte *ptr) {
 static byte migrate(byte cell, byte *ptr) {
     for (byte n = 0; n < SIZE(neighbors); n++) {
 	byte *near = ptr + neighbors[n];
-	byte info = *near & 0x8f;
+	byte info = *near & 0xaf;
 	if (info <= 3 && info > 0) {
 	    if (n == 0) cell |= 0x10;
 	    if (n == 2) cell &= ~0x10;
