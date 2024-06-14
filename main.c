@@ -244,22 +244,24 @@ static void advance_forest(byte **ptr) {
 }
 
 static void tile_ptr(byte *ptr) {
-    byte cell = *ptr & 0x2f;
-    if (cell < C_PLAY) {
+    byte cell = *ptr;
+    if ((cell & C_PLAY) == 0) {
+	cell &= (C_FACE | C_SIZE | C_FOOD);
 	byte color = cell & C_SIZE ? 7 : 4;
 	put_tile(cell, color, ptr - forest);
     }
 }
 
 static void move_hunter(word dst) {
-    if ((forest[dst] & 0x80) == 0) {
+    if ((forest[dst] & C_TILE) == 0) {
 	byte *place = forest + pos;
 	sprites = (void *) tiles;
 	*(queue++) = place;
-	*place &= ~0x2c;
+	*place &= C_FOOD;
 	tile_ptr(place);
+
 	sprites = (void *) hunter;
-	forest[dst] |= 0x20;
+	forest[dst] |= C_PLAY;
 	put_tile(0, 0x46, dst);
 	pos = dst;
     }
