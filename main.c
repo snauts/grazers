@@ -164,7 +164,10 @@ static byte **queue;
 static inline void regrow_neighbors(byte *ptr) {
     for (byte n = 0; n < SIZE(neighbors); n++) {
 	byte *near = ptr + neighbors[n];
-	if (*near == 0) *(queue++) = near;
+	if (*near == 0) {
+	    *near = 1;
+	    *(queue++) = near;
+	}
     }
 }
 
