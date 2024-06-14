@@ -405,14 +405,9 @@ static void game_loop(void) {
     pos = 200;
     move_hunter(200);
 
-    word i = 0x1234;
     for (;;) {
-	put_num(i, 1, 2);
 	game_round(update, mirror);
-	i = inc10(i);
-	put_num(i, 1, 2);
 	game_round(mirror, update);
-	i = inc10(i);
     }
 }
 
