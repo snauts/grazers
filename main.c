@@ -256,28 +256,29 @@ static void tile_ptr(byte *ptr) {
     }
 }
 
-static byte get_face(int8 diff, char *place) {
+static byte get_face(int8 diff, byte cell) {
     switch (diff) {
     case 1:
 	return 0;
     case -1:
 	return C_FACE;
     default:
-	return *place & C_FACE;
+	return cell & C_FACE;
     }
 }
 
 static void move_hunter(int8 diff) {
     word dst = pos + diff;
     if ((forest[dst] & C_TILE) == 0) {
+	byte cell = forest[pos];
 	byte *place = forest + pos;
-	byte face = get_face(diff, place);
 	sprites = (void *) tiles;
 	*place &= C_FOOD;
 	QUEUE(place);
 	tile_ptr(place);
 
 	sprites = (void *) hunter;
+	byte face = get_face(diff, cell);
 	forest[dst] = (forest[dst] & ~C_FACE) | C_PLAY | face;
 	put_tile(face ? 1 : 0, 0x46, dst);
 	pos = dst;
