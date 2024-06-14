@@ -29,8 +29,8 @@ static byte *map_y[192];
 
 static byte forest[768];
 
-static byte *update[256];
-static byte *mirror[256];
+static byte *update[512];
+static byte *mirror[512];
 
 static word pos;
 

@@ -18,7 +18,7 @@ tap:
 	bin2tap -b -r $(shell printf "%d" 0x$$($(ENTRY))) grazers.bin
 
 zxs:
-	CODE=0x8000 DATA=0xf000	TYPE=-DZXS make prg
+	CODE=0x8000 DATA=0xe000	TYPE=-DZXS make prg
 	@make tap
 
 fuse: zxs
