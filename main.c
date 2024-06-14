@@ -96,11 +96,6 @@ static void clear_screen(void) {
 #endif
 }
 
-static void wait_vblank(void) {
-    while (!is_vsync()) { }
-    vblank = 0;
-}
-
 static void precalculate(void) {
     for (byte y = 0; y < 192; y++) {
 #ifdef ZXS
@@ -267,14 +262,29 @@ static byte get_face(int8 diff, byte cell) {
     }
 }
 
+static void beep(word p0, word p1, word len) {
+    word c0 = 0;
+    word c1 = 0;
+    __asm__("di");
+    for (word i = 0; i < len; i++) {
+	out_fe(c0 >= 32768 ? 0x10 : 0x00);
+	c0 += p0;
+	out_fe(c1 >= 32768 ? 0x10 : 0x00);
+	c1 += p1;
+    }
+    __asm__("ei");
+}
+
+static void bite_sound(word distance) {
+    word offset = distance << 8;
+    beep(1024 - offset, 1024 + offset, 256);
+}
+
 static void bite(word dst) {
     for (byte i = 0; i < 4; i++) {
 	byte color = i == 3 ? 0x02 : 0x47;
 	put_tile(4 + i, color, dst);
-	wait_vblank();
-	wait_vblank();
-	wait_vblank();
-	wait_vblank();
+	bite_sound(i);
     }
 }
 
