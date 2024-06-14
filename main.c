@@ -311,7 +311,7 @@ static void bite(word dst) {
 static byte roll_rock(int8 diff) {
     word dst = pos + (diff << 1);
     if ((forest[dst] & (C_TILE | C_SIZE)) == 0) {
-	forest[dst] = C_TILE | T_ROCK;
+	forest[dst] = (byte) C_TILE | T_ROCK;
 	sprites = (void *) hunter;
 	put_tile(2, 6, dst);
 	return TRUE;
