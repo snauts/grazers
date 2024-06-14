@@ -267,6 +267,17 @@ static byte get_face(int8 diff, byte cell) {
     }
 }
 
+static void bite(word dst) {
+    for (byte i = 0; i < 4; i++) {
+	byte color = i == 3 ? 0x02 : 0x47;
+	put_tile(4 + i, color, dst);
+	wait_vblank();
+	wait_vblank();
+	wait_vblank();
+	wait_vblank();
+    }
+}
+
 static void move_hunter(int8 diff) {
     word dst = pos + diff;
     if ((forest[dst] & C_TILE) == 0) {
@@ -274,10 +285,11 @@ static void move_hunter(int8 diff) {
 	byte *place = forest + pos;
 	sprites = (void *) tiles;
 	*place &= C_FOOD;
-	QUEUE(place);
 	tile_ptr(place);
+	QUEUE(place);
 
 	sprites = (void *) hunter;
+	if (cell & C_SIZE) bite(dst);
 	byte face = get_face(diff, cell);
 	forest[dst] = (forest[dst] & ~C_FACE) | C_PLAY | face;
 	put_tile(face ? 1 : 0, 0x46, dst);
@@ -361,8 +373,8 @@ static void game_loop(void) {
     forest[0x43] = 0x07;
     update[0x01] = forest + 0x43;
 
-    pos = 600;
-    move_hunter(600);
+    pos = 200;
+    move_hunter(200);
 
     for (;;) {
 	game_round(update, mirror);
