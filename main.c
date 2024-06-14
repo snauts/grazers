@@ -154,7 +154,7 @@ static const int8 neighbors[] = { -1, 32, 1, -32 };
 
 static inline byte should_regrow(byte *ptr) {
     for (byte n = 0; n < SIZE(neighbors); n++) {
-	byte near = *(ptr + neighbors[n]) & 0xaf;
+	byte near = *(ptr + neighbors[n]) & ~C_DONE;
 	if (0 < near && near <= 3) return 1;
     }
     return 0;
@@ -185,10 +185,10 @@ static void update_grass(byte cell, byte *ptr) {
 static byte migrate(byte cell, byte *ptr) {
     for (byte n = 0; n < SIZE(neighbors); n++) {
 	byte *near = ptr + neighbors[n];
-	byte info = *near & 0xaf;
-	if (info <= 3 && info > 0) {
-	    if (n == 0) cell |= 0x10;
-	    if (n == 2) cell &= ~0x10;
+	byte food = *near & ~C_DONE;
+	if (food <= 3 && food > 0) {
+	    if (n == 0) cell |= C_FACE;
+	    if (n == 2) cell &= ~C_FACE;
 	    *(queue++) = near;
 	    *near |= cell;
 	    return 1;
