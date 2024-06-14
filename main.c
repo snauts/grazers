@@ -4,11 +4,19 @@ typedef unsigned short word;
 
 #include "data.h"
 
-#define BIT(n)		(1 << (n))
 #define ADDR(obj)	((word) (obj))
 #define BYTE(addr)	(* (volatile byte *) (addr))
 #define WORD(addr)	(* (volatile word *) (addr))
 #define SIZE(array)	(sizeof(array) / sizeof(*(array)))
+
+#define BIT(n)		(1 << (n))
+
+#define C_FOOD		0x3
+#define C_SIZE		0xc
+#define C_FACE		BIT(4)
+#define C_PLAY		BIT(5)
+#define C_DONE		BIT(6)
+#define C_TILE		BIT(7)
 
 #ifdef ZXS
 #define is_vsync()	vblank
@@ -161,7 +169,7 @@ static inline void regrow_neighbors(byte *ptr) {
 }
 
 static void update_grass(byte cell, byte *ptr) {
-    switch(cell & 3) {
+    switch(cell & C_FOOD) {
     case 0:
 	if (should_regrow(ptr)) goto grow;
     case 3:
@@ -190,25 +198,25 @@ static byte migrate(byte cell, byte *ptr) {
 }
 
 static void update_sheep(byte cell, byte *ptr) {
-    byte food = cell & 0x3;
-    byte size = cell & 0xc;
+    byte food = cell & C_FOOD;
+    byte size = cell & C_SIZE;
     if (food == 0) {
 	cell = migrate(cell - 4, ptr) ? 0 : cell - 4;
     }
-    else if (size < 0xc) {
+    else if (size < C_SIZE) {
 	cell += 3; /* inc size +4, dec food -1 */
     }
     else {
-	cell -= migrate(4 | (cell & 0x10), ptr) ? 4 : 1;
+	cell -= migrate(4 | (cell & C_FACE), ptr) ? 4 : 1;
     }
     *(queue++) = ptr;
     *ptr = cell;
 }
 
 static void update_cell(byte *ptr) {
-    byte cell = *ptr & 0x1f;
+    byte cell = *ptr & (C_FACE | C_SIZE | C_FOOD);
 
-    if (cell & 0xc) {
+    if (cell & C_SIZE) {
 	update_sheep(cell, ptr);
     }
     else {
@@ -217,15 +225,15 @@ static void update_cell(byte *ptr) {
 }
 
 static void clean_tags(byte **ptr) {
-    while (*ptr) *(*ptr++) &= ~0x40;
+    while (*ptr) *(*ptr++) &= ~C_DONE;
 }
 
 static void advance_cells(byte **ptr) {
     while (*ptr) {
 	byte *place = *ptr++;
-	if ((*place & 0x60) == 0) {
+	if ((*place & (C_DONE | C_PLAY)) == 0) {
 	    update_cell(place);
-	    *place |= 0x40;
+	    *place |= C_DONE;
 	}
     }
 }
@@ -237,8 +245,8 @@ static void advance_forest(byte **ptr) {
 
 static void tile_ptr(byte *ptr) {
     byte cell = *ptr & 0x2f;
-    if (cell < 0x20) {
-	byte color = cell & 0xc ? 7 : 4;
+    if (cell < C_PLAY) {
+	byte color = cell & C_SIZE ? 7 : 4;
 	put_tile(cell, color, ptr - forest);
     }
 }
