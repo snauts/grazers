@@ -288,10 +288,11 @@ static void move_hunter(int8 diff) {
 	tile_ptr(place);
 	QUEUE(place);
 
+	byte next = forest[dst];
 	sprites = (void *) hunter;
-	if (cell & C_SIZE) bite(dst);
+	if (next & C_SIZE) bite(dst);
 	byte face = get_face(diff, cell);
-	forest[dst] = (forest[dst] & ~C_FACE) | C_PLAY | face;
+	forest[dst] = (next & ~C_FACE) | C_PLAY | face;
 	put_tile(face ? 1 : 0, 0x46, dst);
 	pos = dst;
     }
