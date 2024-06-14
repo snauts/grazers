@@ -263,7 +263,7 @@ static void advance_forest(byte **ptr) {
 
 static void tile_ptr(byte *ptr) {
     byte cell = *ptr;
-    if ((cell & C_PLAY) == 0) {
+    if ((cell & (C_TILE | C_PLAY)) == 0) {
 	cell &= (C_FACE | C_SIZE | C_FOOD);
 	put_tile(cell, ptr - forest);
     }
