@@ -156,12 +156,11 @@ static void inc10(word *num) {
     }
 }
 
-static byte *sprites;
 static void put_tile(byte cell, byte color, word n) {
     byte x = n & 0x1f;
     byte y = (n >> 2) & ~7;
     BYTE(0x5800 + n) = color;
-    byte *addr = sprites + (cell << 3);
+    byte *addr = tiles + (cell << 3);
     for (byte i = 0; i < 8; i++) {
 	map_y[y + i][x] = *addr++;
     }
@@ -310,7 +309,7 @@ static void rolling_rock_sound(void) {
 static void bite(word dst) {
     for (byte i = 0; i < 4; i++) {
 	byte color = i == 3 ? 0x02 : 0x47;
-	put_tile(4 + i, color, dst);
+	put_tile(36 + i, color, dst);
 	bite_sound(i);
     }
 }
@@ -319,9 +318,8 @@ static byte roll_rock(int8 diff) {
     word dst = pos + (diff << 1);
     if ((forest[dst] & (C_TILE | C_SIZE)) == 0) {
 	forest[dst] = (byte) C_TILE | T_ROCK;
-	sprites = (void *) hunter;
 	rolling_rock_sound();
-	put_tile(2, 6, dst);
+	put_tile(34, 6, dst);
 	return TRUE;
     }
     return FALSE;
@@ -336,18 +334,16 @@ static void move_hunter(int8 diff) {
     if (can_move_into(forest[dst], diff)) {
 	byte cell = forest[pos];
 	byte *place = forest + pos;
-	sprites = (void *) tiles;
 	*place &= C_FOOD;
 	tile_ptr(place);
 	QUEUE(place);
 
 	byte next = forest[dst];
-	sprites = (void *) hunter;
 	if (next & C_SIZE) bite(dst);
 	byte face = get_face(diff, cell);
 	next = next & ~(C_FACE | C_TILE);
 	forest[dst] = C_PLAY | face | next;
-	put_tile(face ? 1 : 0, 0x46, dst);
+	put_tile(face ? 33 : 32, 0x46, dst);
 	pos = dst;
     }
 }
@@ -380,7 +376,6 @@ static void wait_user_input(void) {
 }
 
 static void display_forest(byte **ptr) {
-    sprites = (void *) tiles;
     while (*ptr) {
 	tile_ptr(*ptr);
 	ptr++;
@@ -437,8 +432,7 @@ static void init_variables(void) {
 
     forest[0x88] = 0x80;
     update[0x02] = forest + 0x88;
-    sprites = (void *) hunter;
-    put_tile(2, 6, 0x88);
+    put_tile(34, 6, 0x88);
 
     pos = 200;
     move_hunter(200);

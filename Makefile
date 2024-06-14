@@ -10,7 +10,6 @@ all:
 prg:
 	@gcc $(TYPE) -lm tga-dump.c -o tga-dump
 	@./tga-dump -t tiles.tga > data.h
-	@./tga-dump -t hunter.tga >> data.h
 	@sdcc $(CFLAGS) $(TYPE) main.c -o grazers.ihx
 	hex2bin grazers.ihx > /dev/null
 
