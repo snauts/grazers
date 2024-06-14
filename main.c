@@ -136,6 +136,24 @@ static void put_num(word num, word n, byte color) {
     put_str(msg, n, color);
 }
 
+static byte inc10_byte(byte *num) {
+    byte value = *num + 0x01;
+    if ((value & 0xf) > 0x09) {
+	value = (value & 0xf0) + 0x10;
+	if (value > 0x99) value = 0;
+    }
+    *num = value;
+    return value;
+}
+
+static word inc10(word num) {
+    byte *ptr = (byte *) &num;
+    if (inc10_byte(ptr + 0) == 0) {
+	inc10_byte(ptr + 1);
+    }
+    return num;
+}
+
 static byte *sprites;
 static void put_tile(byte cell, byte color, word n) {
     byte x = n & 0x1f;
@@ -387,9 +405,14 @@ static void game_loop(void) {
     pos = 200;
     move_hunter(200);
 
+    word i = 0x1234;
     for (;;) {
+	put_num(i, 1, 2);
 	game_round(update, mirror);
+	i = inc10(i);
+	put_num(i, 1, 2);
 	game_round(mirror, update);
+	i = inc10(i);
     }
 }
 
