@@ -384,7 +384,7 @@ static void update_border(void) {
 
 static void increment_epoch(void) {
     inc10(&epoch);
-    put_num(epoch, 0x2e6, 4);
+    put_num(epoch, 0x2e7, 4);
 }
 
 static void game_round(byte **src, byte **dst) {
@@ -410,7 +410,7 @@ static void game_loop(void) {
     move_hunter(200);
 
     epoch = 0;
-    put_str("EPOCH:0000", 0x2e0, 4);
+    put_str("EPOCH:0000", 0x2e1, 4);
 
     for (;;) {
 	game_round(update, mirror);
