@@ -394,10 +394,13 @@ static void game_round(byte **src, byte **dst) {
     increment_epoch();
 }
 
-static void game_loop(void) {
+static void reset_memory(void) {
     memset(update, 0x00, sizeof(update));
     memset(mirror, 0x00, sizeof(mirror));
     memset(forest, 0x00, sizeof(forest));
+}
+
+static void init_variables(void) {
     update_border();
 
     forest[0x21] = 0x01;
@@ -409,8 +412,12 @@ static void game_loop(void) {
     pos = 200;
     move_hunter(200);
 
-    epoch = 0;
     put_str("EPOCH:0000", 0x2e1, 4);
+    epoch = 0;
+}
+
+static void game_loop(void) {
+    init_variables();
 
     for (;;) {
 	game_round(update, mirror);
@@ -423,6 +430,7 @@ void reset(void) {
     setup_system();
     clear_screen();
     precalculate();
+    reset_memory();
 
     game_loop();
 }
