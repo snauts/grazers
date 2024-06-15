@@ -13,6 +13,7 @@ typedef unsigned short word;
 #define TRUE		1
 #define FALSE		0
 
+#define C_BARE		0x0
 #define C_FOOD		0x3
 #define C_SIZE		0xc
 #define C_FACE		BIT(4)
@@ -330,17 +331,15 @@ static byte can_move_into(byte next, int8 diff) {
 static void move_hunter(int8 diff) {
     word dst = pos + diff;
     if (can_move_into(forest[dst], diff)) {
-	byte cell = forest[pos];
 	byte *place = forest + pos;
-	*place &= C_FOOD;
+	byte cell = *place;
+	*place = C_BARE;
 	tile_ptr(place);
 	QUEUE(place);
 
-	byte next = forest[dst];
-	if (next & C_SIZE) bite(dst);
+	if (forest[dst] & C_SIZE) bite(dst);
 	byte face = get_face(diff, cell);
-	next = next & ~(C_FACE | C_TILE);
-	forest[dst] = C_PLAY | face | next;
+	forest[dst] = C_PLAY | face;
 	put_tile(face ? 33 : 32, dst);
 	pos = dst;
     }
