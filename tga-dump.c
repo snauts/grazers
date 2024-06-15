@@ -193,13 +193,10 @@ static void compress(unsigned char *pixels, int *pixel_size,
 
 static void save_bitmap(struct Header *header, unsigned char *buf, int size) {
     int j = 0;
-    char name[256];
     int pixel_size = size / 8;
     int attribute_size = size / 64;
     unsigned char output[pixel_size];
     unsigned short on[attribute_size];
-    remove_extension(file_name, name);
-    printf("const byte %s[] = {\n", name);
     for (int i = 0; i < size; i += 8) {
 	if (i / header->w % 8 == 0) {
 	    on[j++] = on_pixel(buf, i, header->w);
@@ -213,6 +210,10 @@ static void save_bitmap(struct Header *header, unsigned char *buf, int size) {
     if (need_compress) {
 	compress(output, &pixel_size, on, &attribute_size);
     }
+
+    char name[256];
+    remove_extension(file_name, name);
+    printf("const byte %s[] = {\n", name);
     dump_buffer(output, pixel_size, 1);
     printf("};\n");
     if (has_any_color()) {
