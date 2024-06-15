@@ -191,6 +191,25 @@ static void compress(unsigned char *pixels, int *pixel_size,
     memcpy(color, attributes, *color_size);
 }
 
+static void save(unsigned char *output, int pixel_size,
+		 unsigned short *on, int attribute_size) {
+
+    char name[256];
+    remove_extension(file_name, name);
+    printf("const byte %s[] = {\n", name);
+    dump_buffer(output, pixel_size, 1);
+    printf("};\n");
+    if (has_any_color()) {
+	printf("const byte %s_color[] = {\n", name);
+	unsigned char buf[attribute_size];
+	for (int i = 0; i < attribute_size; i++) {
+	    buf[i] = encode_ink(on[i]);
+	}
+	dump_buffer(buf, attribute_size, 1);
+	printf("};\n");
+    }
+}
+
 static void save_bitmap(struct Header *header, unsigned char *buf, int size) {
     int j = 0;
     int pixel_size = size / 8;
@@ -210,21 +229,7 @@ static void save_bitmap(struct Header *header, unsigned char *buf, int size) {
     if (need_compress) {
 	compress(output, &pixel_size, on, &attribute_size);
     }
-
-    char name[256];
-    remove_extension(file_name, name);
-    printf("const byte %s[] = {\n", name);
-    dump_buffer(output, pixel_size, 1);
-    printf("};\n");
-    if (has_any_color()) {
-	printf("const byte %s_color[] = {\n", name);
-	unsigned char buf[attribute_size];
-	for (int i = 0; i < attribute_size; i++) {
-	    buf[i] = encode_ink(on[i]);
-	}
-	dump_buffer(buf, attribute_size, 1);
-	printf("};\n");
-    }
+    save(output, pixel_size, on, attribute_size);
 }
 
 int main(int argc, char **argv) {
