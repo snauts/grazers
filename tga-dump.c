@@ -12,6 +12,7 @@ static char *file_name;
 static int color_index = 1;
 static unsigned char inkmap[256];
 static unsigned char colors[256];
+static int need_compress = 0;
 static int as_tiles = 0;
 
 struct Header {
@@ -133,11 +134,69 @@ static void convert_to_stripe(int w, int h, unsigned char *output) {
     memcpy(output, tmp, size);
 }
 
+static unsigned char flip_bits(unsigned char source) {
+    unsigned char result = 0;
+    for (int i = 0; i < 8; i++) {
+	result = result << 1;
+	result |= source & 1;
+	source = source >> 1;
+    }
+    return result;
+}
+
+static int matchDIR(void *pixels, int n, unsigned char *tiles, int i, int d) {
+    unsigned long *ptr = pixels + n;
+    unsigned long flip = 0;
+    for (int k = 0; k < 8; k++) {
+	unsigned char byte = tiles[i + ((d & 1) ? k : 7 - k)];
+	if (d & 2) byte = flip_bits(byte);
+	flip = flip << 8;
+	flip = flip | byte;
+    }
+    if (d == 4) flip = ~flip;
+    return *ptr == flip;
+}
+
+static int match(unsigned char *pixels, int n, unsigned char *tiles, int i) {
+    for (int dir = 0; dir < 5; dir++) {
+	if (matchDIR(pixels, n, tiles, i, dir)) {
+	    return 1;
+	}
+    }
+    return 0;
+}
+
+static void compress(unsigned char *pixels, int *pixel_size,
+		     unsigned short *color, int *color_size) {
+    int compress_size = 0;
+    unsigned char tiles[*pixel_size];
+    unsigned short attributes[*color_size];
+    for (int n = 0; n < *pixel_size; n += 8) {
+	int have_match = 0;
+	for (int i = 0; i < compress_size; i += 8) {
+	    if (match(pixels, n, tiles, i)) {
+		have_match = 1;
+		break;
+	    }
+	}
+	if (!have_match) {
+	    memcpy(tiles + compress_size, pixels + n, 8);
+	    attributes[compress_size / 8] = color[n / 8];
+	    compress_size += 8;
+	}
+    }
+    *pixel_size = compress_size;
+    memcpy(pixels, tiles, *pixel_size);
+    *color_size = compress_size / 8;
+    memcpy(color, attributes, *color_size);
+}
+
 static void save_bitmap(struct Header *header, unsigned char *buf, int size) {
     int j = 0;
     char name[256];
+    int pixel_size = size / 8;
     int attribute_size = size / 64;
-    unsigned char output[size / 8];
+    unsigned char output[pixel_size];
     unsigned short on[attribute_size];
     remove_extension(file_name, name);
     printf("const byte %s[] = {\n", name);
@@ -151,7 +210,10 @@ static void save_bitmap(struct Header *header, unsigned char *buf, int size) {
     if (as_tiles) {
 	convert_to_stripe(header->w, header->h, output);
     }
-    dump_buffer(output, size / 8, 1);
+    if (need_compress) {
+	compress(output, &pixel_size, on, &attribute_size);
+    }
+    dump_buffer(output, pixel_size, 1);
     printf("};\n");
     if (has_any_color()) {
 	printf("const byte %s_color[] = {\n", name);
@@ -167,6 +229,7 @@ static void save_bitmap(struct Header *header, unsigned char *buf, int size) {
 int main(int argc, char **argv) {
     if (argc < 2) {
 	printf("USAGE: tga-dump [option] file.tga\n");
+	printf("  -c   save compressed zx\n");
 	printf("  -b   save bitmap zx\n");
 	printf("  -t   save tiles zx\n");
 	return 0;
@@ -194,6 +257,9 @@ int main(int argc, char **argv) {
     close(fd);
 
     switch (argv[1][1]) {
+    case 'c':
+	need_compress = 1;
+	/* falls through */
     case 't':
 	as_tiles = 1;
 	/* falls through */
