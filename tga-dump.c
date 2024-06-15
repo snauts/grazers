@@ -119,15 +119,18 @@ static void dump_buffer(void *ptr, int size, int step) {
     if ((size & 7) != 0) printf("\n");
 }
 
-static void save_as_stripe(struct Header *header, unsigned char *output) {
-    for (int y = 0; y < header->h; y += 8) {
-	for (int x = 0; x < header->w / 8; x++) {
+static void convert_to_stripe(int w, int h, unsigned char *output) {
+    int n = 0;
+    int size = w * h / 8;
+    unsigned char tmp[size];
+    for (int y = 0; y < h; y += 8) {
+	for (int x = 0; x < w / 8; x++) {
 	    for (int i = 0; i < 8; i++) {
-		printf(" 0x%02x,", output[((y + i) * header->w / 8) + x]);
+		tmp[n++] = output[((y + i) * w / 8) + x];
 	    }
-	    printf("\n");
 	}
     }
+    memcpy(output, tmp, size);
 }
 
 static void save_bitmap(struct Header *header, unsigned char *buf, int size) {
@@ -146,11 +149,9 @@ static void save_bitmap(struct Header *header, unsigned char *buf, int size) {
 	output[i / 8] = consume_pixels(buf + i, pixel);
     }
     if (as_tiles) {
-	save_as_stripe(header, output);
+	convert_to_stripe(header->w, header->h, output);
     }
-    else {
-	dump_buffer(output, size / 8, 1);
-    }
+    dump_buffer(output, size / 8, 1);
     printf("};\n");
     if (has_any_color()) {
 	printf("const byte %s_color[] = {\n", name);
