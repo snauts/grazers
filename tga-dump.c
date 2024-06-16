@@ -24,6 +24,8 @@ struct Header {
     unsigned char desc;
 };
 
+struct Header header;
+
 static void hexdump(unsigned char *buf, int size) {
     for (int i = 0; i < size; i++) {
 	fprintf(stderr, "%02x ", buf[i]);
@@ -85,8 +87,8 @@ static unsigned short on_pixel(unsigned char *buf, int i, int w) {
     return pixel == 0 ? 0x1 : pixel;
 }
 
-static int ink_index(struct Header *header, int i) {
-    return (i / header->w / 8) * (header->w / 8) + i % header->w / 8;
+static int ink_index(int i) {
+    return (i / header.w / 8) * (header.w / 8) + i % header.w / 8;
 }
 
 static unsigned char encode_ink(unsigned short colors) {
@@ -257,7 +259,7 @@ static void save(unsigned char *pixel, int pixel_size,
     }
 }
 
-static void save_bitmap(struct Header *header, unsigned char *buf, int size) {
+static void save_bitmap(unsigned char *buf, int size) {
     int j = 0;
     int pixel_size = size / 8;
     int color_size = size / 64;
@@ -265,17 +267,17 @@ static void save_bitmap(struct Header *header, unsigned char *buf, int size) {
     unsigned char color[color_size];
     unsigned short on[color_size];
     for (int i = 0; i < size; i += 8) {
-	if (i / header->w % 8 == 0) {
-	    on[j++] = on_pixel(buf, i, header->w);
+	if (i / header.w % 8 == 0) {
+	    on[j++] = on_pixel(buf, i, header.w);
 	}
-	unsigned char data = on[ink_index(header, i)] & 0xff;
+	unsigned char data = on[ink_index(i)] & 0xff;
 	pixel[i / 8] = consume_pixels(buf + i, data);
     }
     for (int i = 0; i < color_size; i++) {
 	color[i] = encode_ink(on[i]);
     }
     if (as_tiles) {
-	convert_to_stripe(header->w, header->h, pixel);
+	convert_to_stripe(header.w, header.h, pixel);
     }
     if (as_level) {
 	to_level(pixel, &pixel_size, color, &color_size);
@@ -303,7 +305,6 @@ int main(int argc, char **argv) {
 	return -ENOENT;
     }
 
-    struct Header header;
     read(fd, &header, sizeof(header));
 
     if (header.image_type != 3 || header.depth != 8) {
@@ -334,7 +335,7 @@ int main(int argc, char **argv) {
 	    palette[i - 2] = atoi(argv[i]);
 	}
 	memset(inkmap, 0, sizeof(inkmap));
-	save_bitmap(&header, buf, size);
+	save_bitmap(buf, size);
 #endif
 	break;
     }
