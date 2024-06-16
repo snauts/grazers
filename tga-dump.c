@@ -6,8 +6,6 @@
 #include <fcntl.h>
 #include <math.h>
 
-// #define DEBUG
-
 static char *file_name;
 static int color_index = 1;
 static unsigned char inkmap[256];
@@ -26,7 +24,6 @@ struct Header {
     unsigned char desc;
 };
 
-#ifdef DEBUG
 static void hexdump(unsigned char *buf, int size) {
     for (int i = 0; i < size; i++) {
 	fprintf(stderr, "%02x ", buf[i]);
@@ -36,7 +33,6 @@ static void hexdump(unsigned char *buf, int size) {
     }
     if ((size & 0xf) != 0x0) fprintf(stderr, "\n");
 }
-#endif
 
 static void remove_extension(char *src, char *dst) {
     for (int i = 0; i < strlen(src); i++) {
@@ -101,6 +97,7 @@ static unsigned char encode_ink(unsigned short colors) {
 }
 
 static int has_any_color(void) {
+    if (as_level) return 0;
     for (int i = 0; i < 256; i++) {
 	if (palette[i] != 0) return 1;
     }
@@ -145,8 +142,8 @@ static unsigned char flip_bits(unsigned char source) {
     return result;
 }
 
-static int matchDIR(void *pixels, int n, unsigned char *tiles, int i, int d) {
-    unsigned long *ptr = pixels + n;
+static int matchDIR(void *pixel, int n, unsigned char *tiles, int i, int d) {
+    unsigned long *ptr = pixel + n;
     unsigned long flip = 0;
     for (int k = 0; k < 8; k++) {
 	unsigned char byte = tiles[i + ((d & 1) ? k : 7 - k)];
@@ -154,14 +151,19 @@ static int matchDIR(void *pixels, int n, unsigned char *tiles, int i, int d) {
 	flip = flip << 8;
 	flip = flip | byte;
     }
-    if (d == 4) flip = ~flip;
+    // if (d == 4) flip = ~flip;
     return *ptr == flip;
 }
 
-static int match(unsigned char *pixels, int n, unsigned char *tiles, int i) {
+static int match(unsigned char *pixel,
+		 unsigned char *tiles,
+		 unsigned char *color,
+		 unsigned char *extra,
+		 int n, int i) {
+
     for (int dir = 0; dir < 4; dir++) {
-	if (matchDIR(pixels, n, tiles, i, dir)) {
-	    return 1;
+	if (matchDIR(pixel, n, tiles, i, dir)) {
+	    return color[n / 8] == extra[i / 8] ? dir + 1 : 0;
 	}
     }
     return 0;
@@ -176,8 +178,7 @@ static void compress(unsigned char *pixel, int *pixel_size,
     for (int n = 0; n < *pixel_size; n += 8) {
 	int have_match = 0;
 	for (int i = 0; i < compress_size; i += 8) {
-	    int color_match = color[n / 8] == extra[i / 8];
-	    if (match(pixel, n, tiles, i) && color_match) {
+	    if (match(pixel, tiles, color, extra, n, i)) {
 		have_match = 1;
 		break;
 	    }
@@ -209,6 +210,7 @@ static void to_level(unsigned char *pixel, int *pixel_size,
     int tiles_size, extra_size;
     unsigned char tiles[*pixel_size];
     unsigned char extra[*color_size];
+    unsigned char table[*color_size];
 
     int fd = open("tileset.bin", O_RDONLY, 0644);
     if (fd >= 0) {
@@ -217,6 +219,20 @@ static void to_level(unsigned char *pixel, int *pixel_size,
 	read(fd, &extra_size, sizeof(int));
 	read(fd, extra, extra_size);
 	close(fd);
+    }
+    else {
+	fprintf(stderr, "ERROR: missing tileset.bin\n");
+	exit(-1);
+    }
+
+    for (int n = 0; n < *pixel_size; n += 8) {
+	for (int i = 0; i < tiles_size; i += 8) {
+	    int matching = match(pixel, tiles, color, extra, n, i);
+	    if (matching) {
+		table[n / 8] = (i / 8) | ((matching - 1) << 6);
+		break;
+	    }
+	}
     }
 }
 
