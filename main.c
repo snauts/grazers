@@ -9,6 +9,7 @@ typedef unsigned short word;
 #define WORD(addr)	(* (volatile word *) (addr))
 #define SIZE(array)	(sizeof(array) / sizeof(*(array)))
 
+#define POS(x, y)	(((y) << 5) + (x))
 #define BIT(n)		(1 << (n))
 #define TRUE		1
 #define FALSE		0
@@ -402,7 +403,7 @@ static void update_border(void) {
 
 static void increment_epoch(void) {
     inc10(&epoch);
-    put_num(epoch, 0x2e7, 4);
+    put_num(epoch, POS(7, 23), 4);
 }
 
 static void game_round(byte **src, byte **dst) {
@@ -434,7 +435,7 @@ static void init_variables(void) {
     pos = 200;
     move_hunter(200);
 
-    put_str("EPOCH:0000", 0x2e1, 4);
+    put_str("EPOCH:0000", POS(1, 23), 4);
     epoch = 0;
 }
 
