@@ -40,6 +40,7 @@ static byte *mirror[512];
 
 static word pos;
 static word epoch;
+static byte level;
 
 static void interrupt(void) __naked {
 #ifdef ZXS
@@ -365,6 +366,18 @@ static void put_grazer(word where) {
     put_item(where, 7, 7);
 }
 
+static byte space_of_enter(void) {
+    return (~in_fe(0x7f) & 1) | ((~in_fe(0xbf) & 1) << 1);
+}
+
+static void wait_space_or_enter(void) {
+    byte prev, next = space_of_enter();
+    do {
+	prev = next;
+	next = space_of_enter();
+    } while ((next & (prev ^ next)) == 0);
+}
+
 static byte key_state(void) {
     byte output = ~in_fe(0xfd) & 7;
     output |= (~in_fe(0xfb) & 2) << 2;
@@ -461,23 +474,54 @@ static void increment_epoch(void) {
     put_num(epoch, POS(7, 23), 7);
 }
 
-static void game_round(byte **src, byte **dst) {
+static int8 (*finish)(word *);
+
+static int8 game_round(byte **src, byte **dst) {
     queue = dst;
     advance_forest(src);
     display_forest(dst);
     increment_epoch();
+    return finish(dst);
 }
 
 static void reset_memory(void) {
     memset(update, 0x00, sizeof(update));
     memset(mirror, 0x00, sizeof(mirror));
     memset(forest, 0x00, sizeof(forest));
+    level = 0;
+}
+
+static byte is_empty(word *job) {
+    if (job[0] == 0 || job[1] == 0) {
+	word grazers = 0;
+	for (word i = 0; i < SIZE(forest); i++) {
+	    byte cell = forest[i];
+	    if (C_FOOD < cell && cell < C_PLAY) {
+		grazers++;
+	    }
+	}
+	return grazers == 0;
+    }
+    else {
+	return 0;
+    }
+}
+
+static int8 ending_500(word *job) {
+    if (epoch >= 0x500) {
+	return 1;
+    }
+    else if (is_empty(job)) {
+	return -1;
+    }
+    return 0;
 }
 
 static void init_variables(void) {
     sprite = fence;
     sprite_color = fence_color;
     display_level(level1, SIZE(level1));
+    finish = &ending_500;
 
     queue = update;
     put_hunter(POS(8, 8));
@@ -488,21 +532,38 @@ static void init_variables(void) {
     epoch = 0;
 }
 
+static void display_failure(void) {
+    put_str("FAILED", POS(13, 11), 4);
+    wait_space_or_enter();
+}
+
 static void game_loop(void) {
+    clear_screen();
     init_variables();
 
-    for (;;) {
-	game_round(update, mirror);
-	game_round(mirror, update);
+    int8 ending;
+
+    do {
+	ending = game_round(update, mirror);
+	if (ending) break;
+	ending = game_round(mirror, update);
+    } while (!ending);
+
+    switch (ending) {
+    case  1:
+	level++;
+	break;
+    case -1:
+	display_failure();
+	break;
     }
 }
 
 void reset(void) {
     SETUP_STACK();
     setup_system();
-    clear_screen();
     precalculate();
     reset_memory();
 
-    game_loop();
+    for (;;) game_loop();
 }
