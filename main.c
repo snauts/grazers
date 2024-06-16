@@ -520,11 +520,15 @@ static int8 ending_500(word *job) {
 }
 
 static void level1_init(void) {
+    put_str("- PENNED -", POS(11, 4), 0x44);
+    put_str("Prevent grazer population", POS(3, 16), 4);
+    put_str("from collapse til EPOCH:500", POS(2, 17), 4);
+    wait_space_or_enter();
+
     sprite = fence;
     sprite_color = fence_color;
     display_level(level1, SIZE(level1));
 
-    // put_rock(POS(4, 4));
     put_hunter(POS(8, 8));
     put_grazer(POS(23, 14));
     finish = &ending_500;
