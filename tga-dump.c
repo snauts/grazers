@@ -226,12 +226,18 @@ static void to_level(unsigned char *pixel, int *pixel_size,
     }
 
     for (int n = 0; n < *pixel_size; n += 8) {
+	int found = 0;
 	for (int i = 0; i < tiles_size; i += 8) {
 	    int matching = match(pixel, tiles, color, extra, n, i);
 	    if (matching) {
 		table[n / 8] = (i / 8) | ((matching - 1) << 6);
+		found = 1;
 		break;
 	    }
+	}
+	if (!found) {
+	    fprintf(stderr, "ERROR: tile not found\n");
+	    exit(-1);
 	}
     }
 }
