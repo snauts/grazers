@@ -158,7 +158,7 @@ static int matchDIR(void *pixels, int n, unsigned char *tiles, int i, int d) {
 }
 
 static int match(unsigned char *pixels, int n, unsigned char *tiles, int i) {
-    for (int dir = 0; dir < 5; dir++) {
+    for (int dir = 0; dir < 4; dir++) {
 	if (matchDIR(pixels, n, tiles, i, dir)) {
 	    return 1;
 	}
@@ -174,7 +174,8 @@ static void compress(unsigned char *pixels, int *pixel_size,
     for (int n = 0; n < *pixel_size; n += 8) {
 	int have_match = 0;
 	for (int i = 0; i < compress_size; i += 8) {
-	    if (match(pixels, n, tiles, i)) {
+	    if (match(pixels, n, tiles, i)
+		&& color[n / 8] == attributes[i / 8]) {
 		have_match = 1;
 		break;
 	    }
