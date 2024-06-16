@@ -382,22 +382,48 @@ static void display_forest(byte **ptr) {
     *queue = 0;
 }
 
-static void add_fence(word n) {
-    put_char('#', n, 4);
-    forest[n + 0x000] = 0x81;
+static byte flip_bits(byte source) {
+    byte result = 0;
+    for (byte i = 0; i < 8; i++) {
+	result = result << 1;
+	result |= source & 1;
+	source = source >> 1;
+    }
+    return result;
 }
 
-static void update_border(void) {
-    for (word x = 0; x < 32; x++) {
-	add_fence(0x000 + x);
-	add_fence(0x2c0 + x);
+static byte *sprite;
+static byte *sprite_color;
+static void put_sprite(byte cell, word n) {
+    byte x = n & 0x1f;
+    byte y = (n >> 2) & ~7;
+    byte index = cell & 0x1f;
+    BYTE(0x5800 + n) = sprite_color[index];
+    if (index) forest[n] = 0x80 | index;
+    byte *addr = sprite + (index << 3);
+    byte flipH = cell & 0x40;
+    byte flipV = cell & 0x20;
+    for (byte i = 0; i < 8; i++) {
+	byte data = *addr++;
+	if (flipH) data = flip_bits(data);
+	map_y[y + (flipV ? 7 - i : i)][x] = data;
     }
-    for (word y = 0; y < 0x2e0; y += 32) {
-	add_fence(0x000 + y);
-	add_fence(0x01f + y);
-    }
-    for (word x = 0; x < 24; x++) {
-	add_fence(0x160 + x);
+}
+
+static void display_level(byte *level, word size) {
+    word n = 0;
+    for (word i = 0; i < size; i++) {
+	byte cell = level[i];
+	if (cell & 0x80) {
+	    byte count = cell & 0x7f;
+	    byte repeat = level[++i];
+	    for (byte j = 0; j < count; j++) {
+		put_sprite(repeat, n++);
+	    }
+	}
+	else {
+	    put_sprite(cell, n++);
+	}
     }
 }
 
@@ -420,7 +446,9 @@ static void reset_memory(void) {
 }
 
 static void init_variables(void) {
-    update_border();
+    sprite = fence;
+    sprite_color = fence_color;
+    display_level(level1, SIZE(level1));
 
     forest[0x21] = 0x01;
     update[0x00] = forest + 0x21;
