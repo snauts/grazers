@@ -11,7 +11,7 @@
 static char *file_name;
 static int color_index = 1;
 static unsigned char inkmap[256];
-static unsigned char colors[256];
+static unsigned char palette[256];
 static int need_compress = 0;
 static int as_tiles = 0;
 
@@ -63,7 +63,7 @@ static unsigned char consume_pixels(unsigned char *buf, unsigned char on) {
 
 static void add_color(unsigned char pixel) {
     if (pixel > 0 && inkmap[pixel] == 0) {
-	inkmap[pixel] = colors[color_index++];
+	inkmap[pixel] = palette[color_index++];
     }
 }
 
@@ -101,7 +101,7 @@ static unsigned char encode_ink(unsigned short colors) {
 
 static int has_any_color(void) {
     for (int i = 0; i < 256; i++) {
-	if (colors[i] != 0) return 1;
+	if (palette[i] != 0) return 1;
     }
     return 0;
 }
@@ -166,56 +166,53 @@ static int match(unsigned char *pixels, int n, unsigned char *tiles, int i) {
     return 0;
 }
 
-static void compress(unsigned char *pixels, int *pixel_size,
-		     unsigned short *color, int *color_size) {
+static void compress(unsigned char *pixel, int *pixel_size,
+		     unsigned char *color, int *color_size) {
+
     int compress_size = 0;
     unsigned char tiles[*pixel_size];
-    unsigned short attributes[*color_size];
+    unsigned char extra[*color_size];
     for (int n = 0; n < *pixel_size; n += 8) {
 	int have_match = 0;
 	for (int i = 0; i < compress_size; i += 8) {
-	    if (match(pixels, n, tiles, i)
-		&& color[n / 8] == attributes[i / 8]) {
+	    int color_match = color[n / 8] == extra[i / 8];
+	    if (match(pixel, n, tiles, i) && color_match) {
 		have_match = 1;
 		break;
 	    }
 	}
 	if (!have_match) {
-	    memcpy(tiles + compress_size, pixels + n, 8);
-	    attributes[compress_size / 8] = color[n / 8];
+	    memcpy(tiles + compress_size, pixel + n, 8);
+	    extra[compress_size / 8] = color[n / 8];
 	    compress_size += 8;
 	}
     }
     *pixel_size = compress_size;
-    memcpy(pixels, tiles, *pixel_size);
+    memcpy(pixel, tiles, *pixel_size);
     *color_size = compress_size / 8;
-    memcpy(color, attributes, *color_size);
+    memcpy(color, extra, *color_size);
 
     int fd = open("tileset.bin", O_CREAT | O_RDWR, 0644);
     if (fd >= 0) {
 	write(fd, pixel_size, sizeof(int));
-	write(fd, pixels, *pixel_size);
+	write(fd, pixel, *pixel_size);
 	write(fd, color_size, sizeof(int));
-	write(fd, attributes, *color_size * sizeof(unsigned short));
+	write(fd, color, *color_size);
 	close(fd);
     }
 }
 
-static void save(unsigned char *output, int pixel_size,
-		 unsigned short *on, int attribute_size) {
+static void save(unsigned char *pixel, int pixel_size,
+		 unsigned char *color, int color_size) {
 
     char name[256];
     remove_extension(file_name, name);
     printf("const byte %s[] = {\n", name);
-    dump_buffer(output, pixel_size, 1);
+    dump_buffer(pixel, pixel_size, 1);
     printf("};\n");
     if (has_any_color()) {
 	printf("const byte %s_color[] = {\n", name);
-	unsigned char buf[attribute_size];
-	for (int i = 0; i < attribute_size; i++) {
-	    buf[i] = encode_ink(on[i]);
-	}
-	dump_buffer(buf, attribute_size, 1);
+	dump_buffer(color, color_size, 1);
 	printf("};\n");
     }
 }
@@ -223,23 +220,27 @@ static void save(unsigned char *output, int pixel_size,
 static void save_bitmap(struct Header *header, unsigned char *buf, int size) {
     int j = 0;
     int pixel_size = size / 8;
-    int attribute_size = size / 64;
-    unsigned char output[pixel_size];
-    unsigned short on[attribute_size];
+    int color_size = size / 64;
+    unsigned char pixel[pixel_size];
+    unsigned char color[color_size];
+    unsigned short on[color_size];
     for (int i = 0; i < size; i += 8) {
 	if (i / header->w % 8 == 0) {
 	    on[j++] = on_pixel(buf, i, header->w);
 	}
-	unsigned char pixel = on[ink_index(header, i)] & 0xff;
-	output[i / 8] = consume_pixels(buf + i, pixel);
+	unsigned char data = on[ink_index(header, i)] & 0xff;
+	pixel[i / 8] = consume_pixels(buf + i, data);
+    }
+    for (int i = 0; i < color_size; i++) {
+	color[i] = encode_ink(on[i]);
     }
     if (as_tiles) {
-	convert_to_stripe(header->w, header->h, output);
+	convert_to_stripe(header->w, header->h, pixel);
     }
     if (need_compress) {
-	compress(output, &pixel_size, on, &attribute_size);
+	compress(pixel, &pixel_size, color, &color_size);
     }
-    save(output, pixel_size, on, attribute_size);
+    save(pixel, pixel_size, color, color_size);
 }
 
 int main(int argc, char **argv) {
@@ -282,7 +283,7 @@ int main(int argc, char **argv) {
     case 'b':
 #ifdef ZXS
 	for (int i = 3; i < argc; i++) {
-	    colors[i - 2] = atoi(argv[i]);
+	    palette[i - 2] = atoi(argv[i]);
 	}
 	memset(inkmap, 0, sizeof(inkmap));
 	save_bitmap(&header, buf, size);
