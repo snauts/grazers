@@ -42,6 +42,8 @@ static word pos;
 static word epoch;
 static byte level;
 
+struct Level { void (*fn)(void); };
+
 static void interrupt(void) __naked {
 #ifdef ZXS
     __asm__("di");
@@ -471,7 +473,7 @@ static void display_level(byte *level, word size) {
 
 static void increment_epoch(void) {
     inc10(&epoch);
-    put_num(epoch, POS(7, 23), 7);
+    put_num(epoch, POS(7, 23), 5);
 }
 
 static int8 (*finish)(word *);
@@ -517,25 +519,32 @@ static int8 ending_500(word *job) {
     return 0;
 }
 
-static void init_variables(void) {
+static void level1_init(void) {
     sprite = fence;
     sprite_color = fence_color;
     display_level(level1, SIZE(level1));
-    finish = &ending_500;
 
-    queue = update;
+    // put_rock(POS(4, 4));
     put_hunter(POS(8, 8));
     put_grazer(POS(23, 14));
-    // put_rock(POS(4, 4));
+    finish = &ending_500;
+}
 
-    put_str("EPOCH:0000", POS(1, 23), 7);
+static const struct Level all_levels[] = {
+    { &level1_init },
+};
+
+static void init_variables(void) {
     epoch = 0;
+    queue = update;
+    all_levels[level].fn();
+    put_str("EPOCH:0000", POS(1, 23), 5);
 }
 
 static void display_failure(void) {
-    put_str("+--------+", POS(11, 10), 7);
-    put_str("| FAILED |", POS(11, 11), 7);
-    put_str("+--------+", POS(11, 12), 7);
+    put_str("+--------+", POS(11, 10), 5);
+    put_str("| FAILED |", POS(11, 11), 5);
+    put_str("+--------+", POS(11, 12), 5);
     wait_space_or_enter();
 }
 
