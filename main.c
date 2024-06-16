@@ -449,14 +449,12 @@ static void put_level(byte cell, word n) {
     if (cell) {
 	put_sprite(cell, n);
     }
-    else {
-	forest[n] = C_FOOD;
+    else if (forest[n] == C_FOOD) {
 	put_tile(C_FOOD, n);
     }
 }
 
-static void display_level(byte *level, word size) {
-    word n = 0;
+static void display_level(byte *level, word size, word n) {
     for (word i = 0; i < size; i++) {
 	byte cell = level[i];
 	if (cell & 0x80) {
@@ -528,7 +526,8 @@ static void level1_init(void) {
 
     sprite = fence;
     sprite_color = fence_color;
-    display_level(level1, SIZE(level1));
+    memset(forest, C_FOOD, SIZE(forest));
+    display_level(level1_bmp, SIZE(level1_bmp), 0);
 
     put_hunter(POS(8, 8));
     put_grazer(POS(23, 14));
@@ -596,11 +595,20 @@ static void game_loop(void) {
     }
 }
 
+static void title_screen(void) {
+    clear_screen();
+    sprite = logo;
+    sprite_color = logo_color;
+    display_level(logo_bmp, SIZE(logo_bmp), 0x100);
+    wait_space_or_enter();
+}
+
 void reset(void) {
     SETUP_STACK();
     setup_system();
     precalculate();
     reset_memory();
+    title_screen();
 
     for (;;) game_loop();
 }

@@ -276,7 +276,7 @@ static void save(unsigned char *pixel, int pixel_size,
 
     char name[256];
     remove_extension(file_name, name);
-    printf("const byte %s[] = {\n", name);
+    printf("const byte %s%s[] = {\n", name, as_level ? "_bmp" : "");
     dump_buffer(pixel, pixel_size, 1);
     printf("};\n");
     if (has_any_color()) {

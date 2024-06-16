@@ -12,6 +12,8 @@ prg:
 	@./tga-dump -t tiles.tga 4 7 70 6 71 2 > data.h
 	@./tga-dump -c fence.tga 2 0 >> data.h
 	@./tga-dump -l level1.tga 2 0 >> data.h
+	@./tga-dump -c logo.tga 4 0 >> data.h
+	@./tga-dump -l logo.tga 4 0 >> data.h
 	@sdcc $(CFLAGS) $(TYPE) main.c -o grazers.ihx
 	hex2bin grazers.ihx > /dev/null
 
