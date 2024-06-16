@@ -458,7 +458,7 @@ static void display_level(byte *level, word size) {
 
 static void increment_epoch(void) {
     inc10(&epoch);
-    put_num(epoch, POS(7, 23), 4);
+    put_num(epoch, POS(7, 23), 7);
 }
 
 static void game_round(byte **src, byte **dst) {
@@ -481,10 +481,10 @@ static void init_variables(void) {
 
     queue = update;
     put_hunter(POS(8, 8));
-    put_grazer(POS(2, 2));
-    put_rock(POS(4, 4));
+    put_grazer(POS(23, 14));
+    // put_rock(POS(4, 4));
 
-    put_str("EPOCH:0000", POS(1, 23), 4);
+    put_str("EPOCH:0000", POS(1, 23), 7);
     epoch = 0;
 }
 
