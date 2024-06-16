@@ -533,7 +533,9 @@ static void init_variables(void) {
 }
 
 static void display_failure(void) {
-    put_str("FAILED", POS(13, 11), 4);
+    put_str("+--------+", POS(11, 10), 7);
+    put_str("| FAILED |", POS(11, 11), 7);
+    put_str("+--------+", POS(11, 12), 7);
     wait_space_or_enter();
 }
 
