@@ -203,6 +203,23 @@ static void compress(unsigned char *pixel, int *pixel_size,
     }
 }
 
+static void to_level(unsigned char *pixel, int *pixel_size,
+		     unsigned char *color, int *color_size) {
+
+    int tiles_size, extra_size;
+    unsigned char tiles[*pixel_size];
+    unsigned char extra[*color_size];
+
+    int fd = open("tileset.bin", O_RDONLY, 0644);
+    if (fd >= 0) {
+	read(fd, &tiles_size, sizeof(int));
+	read(fd, tiles, tiles_size);
+	read(fd, &extra_size, sizeof(int));
+	read(fd, extra, extra_size);
+	close(fd);
+    }
+}
+
 static void save(unsigned char *pixel, int pixel_size,
 		 unsigned char *color, int color_size) {
 
@@ -237,6 +254,9 @@ static void save_bitmap(struct Header *header, unsigned char *buf, int size) {
     }
     if (as_tiles) {
 	convert_to_stripe(header->w, header->h, pixel);
+    }
+    if (as_level) {
+	to_level(pixel, &pixel_size, color, &color_size);
     }
     if (need_compress) {
 	compress(pixel, &pixel_size, color, &color_size);
