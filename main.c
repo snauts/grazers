@@ -411,15 +411,15 @@ static byte flip_bits(byte source) {
     return result;
 }
 
-static byte *sprite;
-static byte *sprite_color;
+static const byte *sprite;
+static const byte *sprite_color;
 static void put_sprite(byte cell, word n) {
     byte x = n & 0x1f;
     byte y = (n >> 2) & ~7;
     byte index = cell & 0x1f;
     BYTE(0x5800 + n) = sprite_color[index];
     if (index) forest[n] = 0x80 | index;
-    byte *addr = sprite + (index << 3);
+    const byte *addr = sprite + (index << 3);
     byte flipH = cell & 0x40;
     byte flipV = cell & 0x20;
     for (byte i = 0; i < 8; i++) {
