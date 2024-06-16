@@ -190,6 +190,15 @@ static void compress(unsigned char *pixels, int *pixel_size,
     memcpy(pixels, tiles, *pixel_size);
     *color_size = compress_size / 8;
     memcpy(color, attributes, *color_size);
+
+    int fd = open("tileset.bin", O_CREAT | O_RDWR, 0644);
+    if (fd >= 0) {
+	write(fd, pixel_size, sizeof(int));
+	write(fd, pixels, *pixel_size);
+	write(fd, color_size, sizeof(int));
+	write(fd, attributes, *color_size * sizeof(unsigned short));
+	close(fd);
+    }
 }
 
 static void save(unsigned char *output, int pixel_size,

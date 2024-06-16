@@ -24,4 +24,4 @@ fuse: zxs
 	fuse --no-confirm-actions -g 2x grazers.tap
 
 clean:
-	rm -f grazers* tga-dump
+	rm -f grazers* tga-dump tileset.bin
