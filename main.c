@@ -346,6 +346,25 @@ static void move_hunter(int8 diff) {
     }
 }
 
+static void put_hunter(word where) {
+    pos = where;
+    move_hunter(0);
+}
+
+static void put_item(word where, byte type, byte sprite) {
+    forest[where] = type;
+    QUEUE(forest + where);
+    put_tile(sprite, where);
+}
+
+static void put_rock(word where) {
+    put_item(where, T_ROCK, 34);
+}
+
+static void put_grazer(word where) {
+    put_item(where, 7, 7);
+}
+
 static byte key_state(void) {
     byte output = ~in_fe(0xfd) & 7;
     output |= (~in_fe(0xfb) & 2) << 2;
@@ -410,6 +429,16 @@ static void put_sprite(byte cell, word n) {
     }
 }
 
+static void put_level(byte cell, word n) {
+    if (cell) {
+	put_sprite(cell, n);
+    }
+    else {
+	forest[n] = C_FOOD;
+	put_tile(C_FOOD, n);
+    }
+}
+
 static void display_level(byte *level, word size) {
     word n = 0;
     for (word i = 0; i < size; i++) {
@@ -418,11 +447,11 @@ static void display_level(byte *level, word size) {
 	    byte count = cell & 0x7f;
 	    byte repeat = level[++i];
 	    for (byte j = 0; j < count; j++) {
-		put_sprite(repeat, n++);
+		put_level(repeat, n++);
 	    }
 	}
 	else {
-	    put_sprite(cell, n++);
+	    put_level(cell, n++);
 	}
     }
 }
@@ -450,18 +479,10 @@ static void init_variables(void) {
     sprite_color = fence_color;
     display_level(level1, SIZE(level1));
 
-    forest[0x21] = 0x01;
-    update[0x00] = forest + 0x21;
-
-    forest[0x43] = 0x07;
-    update[0x01] = forest + 0x43;
-
-    forest[0x88] = 0x80;
-    update[0x02] = forest + 0x88;
-    put_tile(34, 0x88);
-
-    pos = 200;
-    move_hunter(200);
+    queue = update;
+    put_hunter(POS(8, 8));
+    put_grazer(POS(2, 2));
+    put_rock(POS(4, 4));
 
     put_str("EPOCH:0000", POS(1, 23), 4);
     epoch = 0;
