@@ -600,6 +600,9 @@ static void title_screen(void) {
     sprite = logo;
     sprite_color = logo_color;
     display_level(logo_bmp, SIZE(logo_bmp), 0x100);
+    put_str("Use WASD keys to move hunter.", POS(2, 16), 5);
+    put_str("Press ENTER to fast forward.", POS(2, 17), 5);
+    put_str("SPACE will skip one epoch.", POS(3, 18), 5);
     wait_space_or_enter();
 }
 
