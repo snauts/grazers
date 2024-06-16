@@ -206,6 +206,31 @@ static void compress(unsigned char *pixel, int *pixel_size,
     }
 }
 
+static void rle_encode(unsigned char *pixel, unsigned char *table, int *size) {
+    int count = 0, done = 0;
+    unsigned char prev = 0xff;
+    void encode_pixel(void) {
+	if (count > 1) {
+	    pixel[done++] = 0x80 | count;
+	}
+	pixel[done++] = prev;
+    }
+    for (int i = 0; i < *size / 8; i++) {
+	if (table[i] == prev) {
+	    count++;
+	}
+	else {
+	    if (prev < 0xff) {
+		encode_pixel();
+	    }
+	    count = 1;
+	}
+	prev = table[i];
+    }
+    encode_pixel();
+    *size = done;
+}
+
 static void to_level(unsigned char *pixel, int *pixel_size,
 		     unsigned char *color, int *color_size) {
 
@@ -232,7 +257,7 @@ static void to_level(unsigned char *pixel, int *pixel_size,
 	for (int i = 0; i < tiles_size; i += 8) {
 	    int matching = match(pixel, tiles, color, extra, n, i);
 	    if (matching) {
-		table[n / 8] = (i / 8) | ((matching - 1) << 6);
+		table[n / 8] = (i / 8) | ((matching - 1) << 5);
 		found = 1;
 		break;
 	    }
@@ -242,6 +267,8 @@ static void to_level(unsigned char *pixel, int *pixel_size,
 	    exit(-1);
 	}
     }
+
+    rle_encode(pixel, table, pixel_size);
 }
 
 static void save(unsigned char *pixel, int pixel_size,
