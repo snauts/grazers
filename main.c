@@ -8,6 +8,7 @@ typedef unsigned short word;
 #define BYTE(addr)	(* (volatile byte *) (addr))
 #define WORD(addr)	(* (volatile word *) (addr))
 #define SIZE(array)	(sizeof(array) / sizeof(*(array)))
+#define NOTE(freq)	((2400.0 * freq) / 440.0)
 
 #define POS(x, y)	(((y) << 5) + (x))
 #define BIT(n)		(1 << (n))
@@ -551,10 +552,25 @@ static void init_variables(void) {
     put_str("EPOCH:0000", POS(1, 23), 5);
 }
 
+const word wah_wah[] = { // D4 -> C4# -> C4 -> B3
+    NOTE(293.7), NOTE(277.1), NOTE(261.6), NOTE(246.9),
+};
+
+static void sad_trombone_wah_wah_wah(void) {
+    for (byte i = 0; i < SIZE(wah_wah); i++) {
+	word period = wah_wah[i];
+	if (i > 0) beep(0, 0, 500);
+	for (byte j = 0; j < (i == 3 ? 20 : 10); j++) {
+	    beep(period >> (j & 1), period << (j & 1), 150);
+	}
+    }
+}
+
 static void display_failure(void) {
     put_str("+--------+", POS(11, 10), 5);
     put_str("| FAILED |", POS(11, 11), 5);
     put_str("+--------+", POS(11, 12), 5);
+    sad_trombone_wah_wah_wah();
     wait_space_or_enter();
 }
 
