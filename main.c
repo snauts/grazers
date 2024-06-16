@@ -561,7 +561,7 @@ static void sad_trombone_wah_wah_wah(void) {
 	word period = wah_wah[i];
 	if (i > 0) beep(0, 0, 500);
 	for (byte j = 0; j < (i == 3 ? 20 : 10); j++) {
-	    beep(period >> (j & 1), period << (j & 1), 150);
+	    beep(period >> (j & 1), period << (j & 3), 150);
 	}
     }
 }
