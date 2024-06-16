@@ -14,6 +14,7 @@ static unsigned char inkmap[256];
 static unsigned char palette[256];
 static int need_compress = 0;
 static int as_tiles = 0;
+static int as_level = 0;
 
 struct Header {
     unsigned char id;
@@ -249,6 +250,7 @@ int main(int argc, char **argv) {
 	printf("  -c   save compressed zx\n");
 	printf("  -b   save bitmap zx\n");
 	printf("  -t   save tiles zx\n");
+	printf("  -l   save level zx\n");
 	return 0;
     }
 
@@ -274,10 +276,14 @@ int main(int argc, char **argv) {
     close(fd);
 
     switch (argv[1][1]) {
+    case 'l':
+	as_level = 1;
+	goto tiles;
     case 'c':
 	need_compress = 1;
-	/* falls through */
+	goto tiles;
     case 't':
+    tiles:
 	as_tiles = 1;
 	/* falls through */
     case 'b':
