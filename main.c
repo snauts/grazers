@@ -534,8 +534,14 @@ static void level1_init(void) {
     finish = &ending_500;
 }
 
+static void level1_init(void) {
+    put_str("- LEVEL2 -", POS(11, 4), 0x44);
+    wait_space_or_enter();
+}
+
 static const struct Level all_levels[] = {
     { &level1_init },
+    { &level2_init },
 };
 
 static void init_variables(void) {
