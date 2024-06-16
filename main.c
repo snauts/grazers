@@ -493,8 +493,8 @@ static void reset_memory(void) {
     level = 0;
 }
 
-static byte is_empty(word *job) {
-    if (job[0] == 0 || job[1] == 0) {
+static byte no_grazers(word *job) {
+    if (queue - job < 8) {
 	word grazers = 0;
 	for (word i = 0; i < SIZE(forest); i++) {
 	    byte cell = forest[i];
@@ -513,7 +513,7 @@ static int8 ending_500(word *job) {
     if (epoch >= 0x500) {
 	return 1;
     }
-    else if (is_empty(job)) {
+    else if (no_grazers(job)) {
 	return -1;
     }
     return 0;
