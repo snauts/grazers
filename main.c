@@ -373,11 +373,12 @@ static byte space_of_enter(void) {
     return (~in_fe(0x7f) & 1) | ((~in_fe(0xbf) & 1) << 1);
 }
 
-static void wait_space_or_enter(void) {
+static void wait_space_or_enter(void (*callback)(void)) {
     byte prev, next = space_of_enter();
     do {
 	prev = next;
 	next = space_of_enter();
+	if (callback != 0) callback();
     } while ((next & (prev ^ next)) == 0);
 }
 
@@ -522,7 +523,7 @@ static void level1_init(void) {
     put_str("- PENNED -", POS(11, 4), 0x44);
     put_str("Prevent grazer population", POS(3, 16), 4);
     put_str("from collapse til EPOCH:500", POS(2, 17), 4);
-    wait_space_or_enter();
+    wait_space_or_enter(0);
 
     sprite = fence;
     sprite_color = fence_color;
@@ -536,7 +537,7 @@ static void level1_init(void) {
 
 static void level2_init(void) {
     put_str("- LEVEL2 -", POS(11, 4), 0x44);
-    wait_space_or_enter();
+    wait_space_or_enter(0);
 }
 
 static const struct Level all_levels[] = {
@@ -570,7 +571,7 @@ static void display_failure(void) {
     put_str("| FAILED |", POS(11, 11), 5);
     put_str("+--------+", POS(11, 12), 5);
     sad_trombone_wah_wah_wah();
-    wait_space_or_enter();
+    wait_space_or_enter(0);
 }
 
 static void game_loop(void) {
@@ -603,7 +604,7 @@ static void title_screen(void) {
     put_str("Use WASD keys to move hunter.", POS(2, 16), 5);
     put_str("Press ENTER to fast forward.", POS(2, 17), 5);
     put_str("SPACE will skip one epoch.", POS(3, 18), 5);
-    wait_space_or_enter();
+    wait_space_or_enter(0);
 }
 
 void reset(void) {
