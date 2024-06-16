@@ -216,7 +216,7 @@ static void rle_encode(unsigned char *pixel, unsigned char *table, int *size) {
 	pixel[done++] = prev;
     }
     for (int i = 0; i < *size / 8; i++) {
-	if (table[i] == prev) {
+	if (table[i] == prev && count < 127) {
 	    count++;
 	}
 	else {
