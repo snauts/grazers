@@ -575,6 +575,27 @@ static void sad_trombone_wah_wah_wah(void) {
     }
 }
 
+static void success_tune(void) {
+    static const word tune[] = {
+	NOTE(130.8), NOTE(164.8), 0,
+	NOTE(196.0), NOTE(164.8), 0,
+	NOTE(196.0),
+    };
+    static const byte delay[] = {
+	2, 1, 1, 2, 1, 1, 2
+    };
+    for (byte i = 0; i < SIZE(tune); i++) {
+	for (byte n = 0; n < 4; n++) {
+	    word period = tune[i] << n;
+	    beep(period, period, delay[i] << 8);
+	}
+    }
+    for (byte i = 0; i < 4; i++) {
+	beep(4 * NOTE(196.0), 4 * NOTE(196.0), 256);
+	beep(8 * NOTE(196.0), 8 * NOTE(196.0), 256);
+    }
+}
+
 static void display_failure(void) {
     put_str("+--------+", POS(11, 10), 5);
     put_str("| FAILED |", POS(11, 11), 5);
@@ -597,6 +618,7 @@ static void game_loop(void) {
 
     switch (ending) {
     case  1:
+	success_tune();
 	level++;
 	break;
     case -1:
