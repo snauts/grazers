@@ -643,11 +643,15 @@ struct Channel {
     byte num;
 };
 
+static byte melody;
 static void next_note(struct Channel *channel) {
     const word *tune = channel->tune;
     if (tune[1] == 0) {
 	tune = channel->base;
 	channel->tune = tune;
+	if (channel->num == 0) {
+	    melody++;
+	}
     }
 
     word length = tune[1];
@@ -709,7 +713,8 @@ static void adat_meitas(void) {
 	init_channel(channels + i, base[i]);
     }
 
-    while (!space_of_enter()) {
+    melody = 0;
+    while (!space_of_enter() && melody < 2) {
 	update_pause(channels);
 
 	word p0 = channels[0].period;
