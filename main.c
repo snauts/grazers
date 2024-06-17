@@ -604,6 +604,20 @@ static void game_loop(void) {
     }
 }
 
+static void grass_stripe(word n, byte len) {
+    for (byte i = 0; i < len; i++) {
+	byte cell = 3;
+	byte j = len - i;
+	if (i == 0) cell = 1;
+	if (j == 1) cell = 1 | C_FACE;
+	if (i == 1 | j == 2) cell = 2;
+	put_tile(cell, n++);
+    }
+}
+
+static void animate_title(void) {
+}
+
 static void title_screen(void) {
     clear_screen();
     sprite = logo;
@@ -612,7 +626,18 @@ static void title_screen(void) {
     put_str("Use WASD keys to move hunter.", POS(2, 16), 5);
     put_str("Press ENTER to fast forward.", POS(2, 17), 5);
     put_str("SPACE will skip one epoch.", POS(3, 18), 5);
-    wait_space_or_enter(0);
+
+    grass_stripe(POS( 6, 2), 11);
+    grass_stripe(POS( 3, 3), 9);
+    grass_stripe(POS(14, 3), 5);
+    grass_stripe(POS( 1, 4), 6);
+    grass_stripe(POS( 9, 4), 7);
+    grass_stripe(POS( 3, 5), 11);
+
+    grass_stripe(POS(14, 21), 8);
+    grass_stripe(POS(24, 21), 6);
+
+    wait_space_or_enter(&animate_title);
 }
 
 void reset(void) {
