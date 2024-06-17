@@ -596,6 +596,115 @@ static void success_tune(void) {
     }
 }
 
+#define D4  NOTE(293.7)
+#define B4  NOTE(493.9)
+#define PP  0
+
+#define L2  48
+#define L4  24
+#define L4t 24 | 0x8000
+#define L8  12
+
+static const word music1[] = {
+    B4, L4t, D4, L4, D4, L4, D4, L4,
+    0, 0
+};
+
+static const word music2[] = {
+    B4, L4t, D4, L4, D4, L4, D4, L4,
+    0, 0,
+};
+
+struct Channel {
+    const word *base;
+    const word *tune;
+    byte duration;
+    word period;
+    byte silent;
+    byte decay;
+    byte num;
+};
+
+static void next_note(struct Channel *channel) {
+    const word *tune = channel->tune;
+    if (tune[1] == 0) {
+	tune = channel->base;
+	channel->tune = tune;
+    }
+
+    word length = tune[1];
+    if (length & 0x8000) {
+	channel->decay = length & 0xff;
+	channel->silent = 0;
+    }
+    else {
+	byte half = length >> 1;
+	channel->decay = half;
+	channel->silent = half;
+    }
+    channel->period = tune[0];
+}
+
+static void init_channel(struct Channel *channel, const word *base) {
+    channel->base = base;
+    channel->tune = base;
+    next_note(channel);
+}
+
+static byte pause;
+static void update_pause(struct Channel *channel) {
+    pause = 0xff;
+    for (byte i = 0; i < 2; i++) {
+	byte decay = channel[i].decay;
+	byte silent = channel[i].silent;
+	if (decay > 0 && decay <= pause) {
+	    pause = decay;
+	}
+	else if (silent < pause) {
+	    pause = silent;
+	}
+    }
+}
+
+static void advance_channel(struct Channel *channel) {
+    if (channel->decay > 0) {
+	channel->decay -= pause;
+	if (channel->decay == 0) {
+	    channel->period = 0;
+	}
+    }
+    else if (channel->silent == 0) {
+	channel->tune += 2;
+	next_note(channel);
+    }
+    else {
+	channel->silent -= pause;
+    }
+}
+
+static void adat_meitas(void) {
+    const word *base[] = { music1, music2 };
+    struct Channel channels[SIZE(base)];
+
+    for (byte i = 0; i < SIZE(base); i++) {
+	channels[i].num = i;
+	init_channel(channels + i, base[i]);
+    }
+
+    while (!space_of_enter()) {
+	update_pause(channels);
+
+	word p0 = channels[0].period;
+	word p1 = channels[1].period;
+	beep(p0, p1, pause << 7);
+	vblank = 1;
+
+	for (byte i = 0; i < SIZE(base); i++) {
+	    advance_channel(channels + i);
+	}
+    }
+}
+
 static void display_failure(void) {
     put_str("+--------+", POS(11, 10), 5);
     put_str("| FAILED |", POS(11, 11), 5);
