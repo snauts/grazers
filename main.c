@@ -598,23 +598,40 @@ static void success_tune(void) {
 
 #define G3  NOTE(196.0)
 #define D4  NOTE(293.7)
+#define E4  NOTE(329.6)
 #define F4s NOTE(369.9)
 #define G4  NOTE(392.0)
 #define A4  NOTE(440.0)
 #define B4  NOTE(493.9)
 #define C5  NOTE(523.4)
+#define D5  NOTE(587.3)
+#define E5  NOTE(659.2)
+#define F5s NOTE(740.0)
+#define G5  NOTE(784.0)
+#define A5  NOTE(880.0)
 #define PP  0
 
 #define L2  40
 #define L4  20
 #define L4t 20 | 0x8000
 #define L8  10
+#define L8t 10 | 0x8000
 
 static const word music1[] = {
     B4, L4t, D4, L4, D4, L4,  D4, L4, G4, L4t, F4s, L4, G4, L4,  A4, L4,
     B4, L4t, D4, L4, D4, L4,  D4, L4, G4, L4t, F4s, L4, G4, L4,  A4, L4,
     B4, L4,  B4, L4, C5, L4t, B4, L4, B4, L4,  A4,  L4, A4, L2,
     A4, L4,  A4, L4, B4, L4t, A4, L4, A4, L4,  G4,  L4, G4, L2,
+
+    PP, L4, D5, L8t, E5,  L8, D5, L4, PP, L4,
+    PP, L4, D5, L8t, E5,  L8, D5, L4, PP, L4,
+    PP, L4, G5, L8t, E5,  L8, D5, L4, PP, L4,
+    PP, L4, C5, L8t, A4,  L8, B4, L4, PP, L4,
+
+    PP, L4, D5, L8t, E5,  L8, D5, L4, PP, L4,
+    PP, L4, A5, L8t, F5s, L8, D5, L4, PP, L4,
+    PP, L4, D4, L8t, E4,  L8, D4, L4, PP, L4,
+    PP, L4, G4, L8t, D4,  L8, G4, L4, PP, L4,
     0, 0
 };
 
@@ -623,6 +640,11 @@ static const word music2[] = {
     G3, L2, G3, L2, G3, L2, G3, L2,
     D4, L2, D4, L2, D4, L2, D4, L2,
     D4, L2, D4, L2, G3, L2, G3, L2,
+
+    B4, L4t, D4, L4, D4, L4,  D4, L4, G4, L4t, F4s, L4, G4, L4,  A4, L4,
+    B4, L4t, D4, L4, D4, L4,  D4, L4, G4, L4t, F4s, L4, G4, L4,  A4, L4,
+    B4, L4,  B4, L4, C5, L4t, B4, L4, B4, L4,  A4,  L4, A4, L2,
+    A4, L4,  A4, L4, B4, L4t, A4, L4, A4, L4,  G4,  L4, G4, L2,
     0, 0,
 };
 
