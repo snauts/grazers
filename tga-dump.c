@@ -215,8 +215,8 @@ static void rle_encode(unsigned char *pixel, unsigned char *table, int *size) {
 	}
 	pixel[done++] = prev;
     }
-    for (int i = 0; i < *size / 8; i++) {
-	if (table[i] == prev && count < 127) {
+    for (int i = 0; i < *size; i++) {
+	if (table[i] == prev && count < 63) {
 	    count++;
 	}
 	else {
@@ -252,13 +252,14 @@ static void to_level(unsigned char *pixel, int *pixel_size,
 	exit(-1);
     }
 
+    int done = 0;
     for (int n = 0; n < *pixel_size; n += 8) {
 	int found = 0;
 	for (int i = 0; i < tiles_size; i += 8) {
 	    int matching = match(pixel, tiles, color, extra, n, i);
 	    if (matching) {
 		int index = (i / 8);
-		table[n / 8] = index | ((matching - 1) << 5);
+		table[done++] = index | ((matching - 1) << 5);
 		if (index > 31) {
 		    fprintf(stderr, "ERROR: too many tiles\n");
 		    exit(-1);
@@ -273,6 +274,7 @@ static void to_level(unsigned char *pixel, int *pixel_size,
 	}
     }
 
+    *pixel_size = done;
     rle_encode(pixel, table, pixel_size);
 }
 
