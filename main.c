@@ -616,13 +616,27 @@ static void grass_stripe(word n, byte len) {
     }
 }
 
+static void title_flash(byte offset, byte color) {
+    word addr = 0x5900;
+    for (word i = 0; i < 5; i++) {
+	if (offset < 0x20) {
+	    BYTE(addr + offset) = color;
+	}
+	addr += 0x20;
+	offset++;
+    }
+}
+
 static byte eat;
 static void animate_title(void) {
+    byte roll = (eat >> 1) & 0x3f;
     byte frame = (eat & 0x3f) < 32;
     put_tile(frame ? 0x1e : 0x1f, POS(12, 3));
     put_tile(frame ? 0x1b : 0x1a, POS(22, 21));
     byte feed = (frame ? 0x0e : 0x0f);
     put_tile(eat > 192 ? 0xc : feed, POS( 7, 4));
+    title_flash(roll - 8, 0x04);
+    title_flash(roll, 0x44);
     eat++;
 }
 
