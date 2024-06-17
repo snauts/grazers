@@ -530,6 +530,33 @@ static int8 ending_500(word *job) {
     return 0;
 }
 
+static byte no_empty_spaces(void) {
+    for (word i = 0; i < 768; i++) {
+	if (forest[i] == 0) return 0;
+    }
+    return 1;
+}
+
+static byte no_vegetaion(void) {
+    for (word i = 0; i < 768; i++) {
+	byte cell = forest[i];
+	if (cell > 0 && cell <= 3) return 0;
+    }
+    return 1;
+}
+
+static int8 ending_vegetation(word *job) {
+    if (no_grazers(job)) {
+	if (no_empty_spaces()) {
+	    return 1;
+	}
+	else if (no_vegetaion()) {
+	    return -1;
+	}
+    }
+    return 0;
+}
+
 static void adat_meitas(void);
 static void finish_game(void) {
     clear_screen();
@@ -559,6 +586,15 @@ static void level2_init(void) {
     put_str("species so that vegetation", POS(3, 17), 4);
     put_str("can fully recover and regrow.", POS(2, 18), 4);
     wait_space_or_enter(0);
+
+    sprite = fence;
+    sprite_color = fence_color;
+    memset(forest, C_FOOD, SIZE(forest));
+    display_level(level2_bmp, SIZE(level2_bmp), 0);
+
+    put_hunter(POS(2, 2));
+    put_grazer(POS(29, 20));
+    finish = &ending_vegetation;
 }
 
 static const struct Level all_levels[] = {
