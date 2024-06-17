@@ -693,7 +693,7 @@ static void update_pause(struct Channel *channel) {
 	if (decay > 0 && decay <= pause) {
 	    pause = decay;
 	}
-	else if (silent < pause) {
+	else if (decay == 0 && silent < pause) {
 	    pause = silent;
 	}
     }
