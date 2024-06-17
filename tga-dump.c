@@ -257,7 +257,12 @@ static void to_level(unsigned char *pixel, int *pixel_size,
 	for (int i = 0; i < tiles_size; i += 8) {
 	    int matching = match(pixel, tiles, color, extra, n, i);
 	    if (matching) {
-		table[n / 8] = (i / 8) | ((matching - 1) << 5);
+		int index = (i / 8);
+		table[n / 8] = index | ((matching - 1) << 5);
+		if (index > 31) {
+		    fprintf(stderr, "ERROR: too many tiles\n");
+		    exit(-1);
+		}
 		found = 1;
 		break;
 	    }
