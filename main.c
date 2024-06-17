@@ -430,10 +430,10 @@ static byte flip_bits(byte source) {
 
 static const byte *sprite;
 static const byte *sprite_color;
-static void put_sprite(byte cell, word n) {
+static void put_sprite(byte cell, byte base, word n) {
     byte x = n & 0x1f;
     byte y = (n >> 2) & ~7;
-    byte index = cell & 0x1f;
+    byte index = base + (cell & 0x1f);
     BYTE(0x5800 + n) = sprite_color[index];
     if (index) forest[n] = 0x80 | index;
     const byte *addr = sprite + (index << 3);
@@ -446,9 +446,9 @@ static void put_sprite(byte cell, word n) {
     }
 }
 
-static void put_level(byte cell, word n) {
-    if (cell) {
-	put_sprite(cell, n);
+static void put_level(byte cell, byte base, word n) {
+    if (cell || base) {
+	put_sprite(cell, base, n);
     }
     else if (forest[n] == C_FOOD) {
 	put_tile(C_FOOD, n);
@@ -456,17 +456,23 @@ static void put_level(byte cell, word n) {
 }
 
 static void display_level(byte *level, word size, word n) {
+    byte base = 0;
     for (word i = 0; i < size; i++) {
 	byte cell = level[i];
-	if (cell & 0x80) {
+	switch (cell & 0xc0) {
+	case 0x80:
 	    byte count = cell & 0x7f;
 	    byte repeat = level[++i];
 	    for (byte j = 0; j < count; j++) {
-		put_level(repeat, n++);
+		put_level(repeat, base, n++);
 	    }
-	}
-	else {
-	    put_level(cell, n++);
+	    break;
+	case 0xc0:
+	    base = cell & 0x3f;
+	    break;
+	default:
+	    put_level(cell, base, n++);
+	    break;
 	}
     }
 }

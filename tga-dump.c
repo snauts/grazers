@@ -237,7 +237,7 @@ static void to_level(unsigned char *pixel, int *pixel_size,
     int tiles_size, extra_size;
     unsigned char tiles[*pixel_size];
     unsigned char extra[*color_size];
-    unsigned char table[*color_size];
+    unsigned char table[*color_size * 2];
 
     int fd = open("tileset.bin", O_RDONLY, 0644);
     if (fd >= 0) {
@@ -252,18 +252,26 @@ static void to_level(unsigned char *pixel, int *pixel_size,
 	exit(-1);
     }
 
-    int done = 0;
+    int base = 0, done = 0;
     for (int n = 0; n < *pixel_size; n += 8) {
 	int found = 0;
 	for (int i = 0; i < tiles_size; i += 8) {
 	    int matching = match(pixel, tiles, color, extra, n, i);
 	    if (matching) {
 		int index = (i / 8);
-		table[done++] = index | ((matching - 1) << 5);
-		if (index > 31) {
+		if (index > 31 + 63) {
 		    fprintf(stderr, "ERROR: too many tiles\n");
 		    exit(-1);
 		}
+		if (index > base + 31) {
+		    base = index - 31;
+		    table[done++] = 0xc0 | base;
+		}
+		if (index < base) {
+		    base = index;
+		    table[done++] = 0xc0 | base;
+		}
+		table[done++] = (index - base) | ((matching - 1) << 5);
 		found = 1;
 		break;
 	    }
