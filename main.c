@@ -45,6 +45,8 @@ static byte level;
 
 struct Level { void (*fn)(void); };
 
+void reset(void);
+
 static void interrupt(void) __naked {
 #ifdef ZXS
     __asm__("di");
@@ -528,6 +530,13 @@ static int8 ending_500(word *job) {
     return 0;
 }
 
+static void adat_meitas(void);
+static void finish_game(void) {
+    clear_screen();
+    adat_meitas();
+    reset();
+}
+
 static void level1_init(void) {
     put_str("- PENNED -", POS(11, 4), 0x44);
     put_str("Prevent grazer population", POS(3, 16), 4);
@@ -552,6 +561,7 @@ static void level2_init(void) {
 static const struct Level all_levels[] = {
     { &level1_init },
     { &level2_init },
+    { &finish_game },
 };
 
 static void init_variables(void) {
@@ -726,6 +736,7 @@ static void adat_meitas(void) {
 	    advance_channel(channels + i);
 	}
     }
+    wait_space_or_enter(0);
 }
 
 static void display_failure(void) {
