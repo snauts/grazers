@@ -380,6 +380,7 @@ static void wait_space_or_enter(void (*callback)(void)) {
 	next = space_of_enter();
 	if (callback != 0 && vblank == 1) {
 	    callback();
+	    vblank = 0;
 	}
     } while ((next & (prev ^ next)) == 0);
 }
@@ -615,7 +616,14 @@ static void grass_stripe(word n, byte len) {
     }
 }
 
+static byte eat;
 static void animate_title(void) {
+    byte frame = (eat & 0x3f) < 32;
+    put_tile(frame ? 0x1e : 0x1f, POS(12, 3));
+    put_tile(frame ? 0x1b : 0x1a, POS(22, 21));
+    byte feed = (frame ? 0x0e : 0x0f);
+    put_tile(eat > 192 ? 0xc : feed, POS( 7, 4));
+    eat++;
 }
 
 static void title_screen(void) {
@@ -629,13 +637,13 @@ static void title_screen(void) {
 
     grass_stripe(POS( 6, 2), 11);
     grass_stripe(POS( 3, 3), 9);
-    grass_stripe(POS(14, 3), 5);
+    grass_stripe(POS(13, 3), 6);
     grass_stripe(POS( 1, 4), 6);
-    grass_stripe(POS( 9, 4), 7);
+    grass_stripe(POS( 8, 4), 8);
     grass_stripe(POS( 3, 5), 11);
 
     grass_stripe(POS(14, 21), 8);
-    grass_stripe(POS(24, 21), 6);
+    grass_stripe(POS(23, 21), 6);
 
     wait_space_or_enter(&animate_title);
 }
