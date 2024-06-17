@@ -622,16 +622,6 @@ static const word music1[] = {
     B4, L4t, D4, L4, D4, L4,  D4, L4, G4, L4t, F4s, L4, G4, L4,  A4, L4,
     B4, L4,  B4, L4, C5, L4t, B4, L4, B4, L4,  A4,  L4, A4, L2,
     A4, L4,  A4, L4, B4, L4t, A4, L4, A4, L4,  G4,  L4, G4, L2,
-
-    PP, L4, D5, L8t, E5,  L8, D5, L4, PP, L4,
-    PP, L4, D5, L8t, E5,  L8, D5, L4, PP, L4,
-    PP, L4, G5, L8t, E5,  L8, D5, L4, PP, L4,
-    PP, L4, C5, L8t, A4,  L8, B4, L4, PP, L4,
-
-    PP, L4, D5, L8t, E5,  L8, D5, L4, PP, L4,
-    PP, L4, A5, L8t, F5s, L8, D5, L4, PP, L4,
-    PP, L4, D4, L8t, E4,  L8, D4, L4, PP, L4,
-    PP, L4, G4, L8t, D4,  L8, G4, L4, PP, L4,
     0, 0
 };
 
@@ -640,11 +630,6 @@ static const word music2[] = {
     G3, L2, G3, L2, G3, L2, G3, L2,
     D4, L2, D4, L2, D4, L2, D4, L2,
     D4, L2, D4, L2, G3, L2, G3, L2,
-
-    B4, L4t, D4, L4, D4, L4,  D4, L4, G4, L4t, F4s, L4, G4, L4,  A4, L4,
-    B4, L4t, D4, L4, D4, L4,  D4, L4, G4, L4t, F4s, L4, G4, L4,  A4, L4,
-    B4, L4,  B4, L4, C5, L4t, B4, L4, B4, L4,  A4,  L4, A4, L2,
-    A4, L4,  A4, L4, B4, L4t, A4, L4, A4, L4,  G4,  L4, G4, L2,
     0, 0,
 };
 
