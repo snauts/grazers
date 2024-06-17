@@ -378,7 +378,9 @@ static void wait_space_or_enter(void (*callback)(void)) {
     do {
 	prev = next;
 	next = space_of_enter();
-	if (callback != 0) callback();
+	if (callback != 0 && vblank == 1) {
+	    callback();
+	}
     } while ((next & (prev ^ next)) == 0);
 }
 
