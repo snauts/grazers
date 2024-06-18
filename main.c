@@ -564,16 +564,20 @@ static void finish_game(void) {
     reset();
 }
 
+static void fenced_level(byte *level, word size) {
+    sprite = fence;
+    sprite_color = fence_color;
+    memset(forest, C_FOOD, SIZE(forest));
+    display_level(level, size, 0);
+}
+
 static void level1_init(void) {
     put_str("- PENNED -", POS(11, 4), 0x44);
     put_str("Prevent grazer population", POS(3, 16), 4);
     put_str("from collapse til EPOCH:500", POS(2, 17), 4);
     wait_space_or_enter(0);
 
-    sprite = fence;
-    sprite_color = fence_color;
-    memset(forest, C_FOOD, SIZE(forest));
-    display_level(level1_bmp, SIZE(level1_bmp), 0);
+    fenced_level(level1_bmp, SIZE(level1_bmp));
 
     put_hunter(POS(8, 8));
     put_grazer(POS(23, 14));
@@ -587,10 +591,7 @@ static void level2_init(void) {
     put_str("can fully recover and regrow.", POS(2, 18), 4);
     wait_space_or_enter(0);
 
-    sprite = fence;
-    sprite_color = fence_color;
-    memset(forest, C_FOOD, SIZE(forest));
-    display_level(level2_bmp, SIZE(level2_bmp), 0);
+    fenced_level(level2_bmp, SIZE(level2_bmp));
 
     put_hunter(POS(2, 2));
     put_grazer(POS(29, 20));
