@@ -303,6 +303,17 @@ static void save_bitmap(unsigned char *buf, int size) {
     save(pixel, pixel_size, color, color_size);
 }
 
+static unsigned char get_color(unsigned char *color) {
+    unsigned char result = 0;
+    if (color[0] >= 0x80) result |= 0x02;
+    if (color[1] >= 0x80) result |= 0x04;
+    if (color[2] >= 0x80) result |= 0x01;
+    for (int i = 0; i < 3; i++) {
+	if (color[i] > (result ? 0xf0 : 0x40)) result |= 0x40;
+    }
+    return result;
+}
+
 static unsigned char *read_pcx(const char *file) {
     struct stat st;
     int palette_offset = 16;
@@ -335,6 +346,11 @@ static unsigned char *read_pcx(const char *file) {
 	}
     }
     free(buf);
+
+    for (i = 0; i < unpacked_size; i++) {
+	pixels[i] = get_color(buf + palette_offset + (pixels[i] * 3));
+    }
+
     return pixels;
 }
 
