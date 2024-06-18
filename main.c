@@ -596,14 +596,14 @@ static void quarantine_level(void) {
     finish = &ending_500;
 }
 
-static void level2_init(void) {
+static void gardener_level(void) {
     put_str("- GARDENER -", POS(10, 4), 0x44);
     put_str("Hunt down invasive grazer", POS(4, 16), 4);
     put_str("species so that vegetation", POS(3, 17), 4);
     put_str("can fully recover and regrow.", POS(2, 18), 4);
     wait_space_or_enter(0);
 
-    fenced_level(level2_bmp, SIZE(level2_bmp), C_FOOD);
+    fenced_level(gardener_bmp, SIZE(gardener_bmp), C_FOOD);
 
     put_hunter(POS(2, 2));
     put_life(POS(29, 20), 7);
@@ -612,7 +612,7 @@ static void level2_init(void) {
 
 static const struct Level all_levels[] = {
     { &quarantine_level },
-    { &level2_init },
+    { &gardener_level },
     { &finish_game },
 };
 
