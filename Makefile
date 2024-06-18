@@ -15,6 +15,8 @@ prg:
 	@./pcx-dump -l gardener.pcx >> data.h
 	@./pcx-dump -c logo.pcx no-color >> data.h
 	@./pcx-dump -l logo.pcx >> data.h
+	@./pcx-dump -c sunset.pcx >> data.h
+	@./pcx-dump -l sunset.pcx >> data.h
 	@sdcc $(CFLAGS) $(TYPE) main.c -o grazers.ihx
 	hex2bin grazers.ihx > /dev/null
 
