@@ -481,7 +481,7 @@ static void display_level(byte *level, word size, word n) {
 	    }
 	    break;
 	case 0xc0:
-	    base = cell & 0x3f;
+	    base = (cell & 0x3f) << 2;
 	    break;
 	default:
 	    put_level(cell, base, n++);

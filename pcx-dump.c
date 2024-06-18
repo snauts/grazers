@@ -235,17 +235,17 @@ static void to_level(unsigned char *pixel, int *pixel_size,
 	    int matching = match(pixel, tiles, color, extra, n, i);
 	    if (matching) {
 		int index = (i / 8);
-		if (index > 31 + 63) {
+		if (index > 256) {
 		    fprintf(stderr, "ERROR: too many tiles\n");
 		    exit(-1);
 		}
 		if (index > base + 31) {
-		    base = index - 31;
-		    table[done++] = 0xc0 | base;
+		    base = index & 0xf8;
+		    table[done++] = 0xc0 | (base >> 2);
 		}
 		if (index < base) {
-		    base = index;
-		    table[done++] = 0xc0 | base;
+		    base = index & 0xf8;
+		    table[done++] = 0xc0 | (base >> 2);
 		}
 		table[done++] = (index - base) | ((matching - 1) << 5);
 		found = 1;
