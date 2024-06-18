@@ -571,6 +571,13 @@ static void fenced_level(byte *level, word size) {
     display_level(level, size, 0);
 }
 
+static void put_bones(word n) {
+    static const byte id[] = { 2, 1, 35, 1, 2 };
+    for (byte i = 0; i < SIZE(id); i++) {
+	put_tile(id[i], (n - 2) + i);
+    }
+}
+
 static void level1_init(void) {
     put_str("- PENNED -", POS(11, 4), 0x44);
     put_str("Prevent grazer population", POS(3, 16), 4);
@@ -581,6 +588,11 @@ static void level1_init(void) {
 
     put_hunter(POS(8, 8));
     put_grazer(POS(23, 14));
+
+    put_bones(POS( 2,  7));
+    put_bones(POS(23, 19));
+    put_bones(POS(28,  4));
+
     finish = &ending_500;
 }
 
