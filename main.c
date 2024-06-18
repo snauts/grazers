@@ -579,7 +579,7 @@ static void put_bones(word n) {
 }
 
 static void level1_init(void) {
-    put_str("- PENNED -", POS(11, 4), 0x44);
+    put_str("- QUARANTINE -", POS(9, 4), 0x44);
     put_str("Prevent grazer population", POS(3, 16), 4);
     put_str("from collapse til EPOCH:500", POS(2, 17), 4);
     wait_space_or_enter(0);
