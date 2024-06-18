@@ -564,10 +564,10 @@ static void finish_game(void) {
     reset();
 }
 
-static void fenced_level(byte *level, word size) {
+static void fenced_level(byte *level, word size, byte init) {
     sprite = fence;
     sprite_color = fence_color;
-    memset(forest, C_FOOD, SIZE(forest));
+    memset(forest, init, SIZE(forest));
     display_level(level, size, 0);
 }
 
@@ -584,7 +584,7 @@ static void level1_init(void) {
     put_str("from collapse til EPOCH:500", POS(2, 17), 4);
     wait_space_or_enter(0);
 
-    fenced_level(level1_bmp, SIZE(level1_bmp));
+    fenced_level(level1_bmp, SIZE(level1_bmp), C_FOOD);
 
     put_hunter(POS(8, 8));
     put_grazer(POS(23, 14));
@@ -603,7 +603,7 @@ static void level2_init(void) {
     put_str("can fully recover and regrow.", POS(2, 18), 4);
     wait_space_or_enter(0);
 
-    fenced_level(level2_bmp, SIZE(level2_bmp));
+    fenced_level(level2_bmp, SIZE(level2_bmp), C_FOOD);
 
     put_hunter(POS(2, 2));
     put_grazer(POS(29, 20));
