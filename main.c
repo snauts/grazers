@@ -597,7 +597,7 @@ static void level1_init(void) {
 }
 
 static void level2_init(void) {
-    put_str("- AMAZED -", POS(11, 4), 0x44);
+    put_str("- GARDENER -", POS(10, 4), 0x44);
     put_str("Hunt down invasive grazer", POS(4, 16), 4);
     put_str("species so that vegetation", POS(3, 17), 4);
     put_str("can fully recover and regrow.", POS(2, 18), 4);
