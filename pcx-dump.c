@@ -1,3 +1,4 @@
+#include <sys/stat.h>
 #include <unistd.h>
 #include <stdlib.h>
 #include <string.h>
@@ -15,16 +16,8 @@ static int as_tiles = 0;
 static int as_level = 0;
 
 struct Header {
-    unsigned char id;
-    unsigned char color_type;
-    unsigned char image_type;
-    unsigned char color_map[5];
-    unsigned short x, y, w, h;
-    unsigned char depth;
-    unsigned char desc;
-};
-
-struct Header header;
+    unsigned short w, h;
+} header;
 
 static void hexdump(unsigned char *buf, int size) {
     for (int i = 0; i < size; i++) {
@@ -330,9 +323,44 @@ static void save_bitmap(unsigned char *buf, int size) {
     save(pixel, pixel_size, color, color_size);
 }
 
+static unsigned char *read_pcx(const char *file) {
+    struct stat st;
+    int palette_offset = 16;
+    if (stat(file, &st) != 0) {
+	printf("ERROR while opening PCX-file \"%s\"\n", file);
+	exit(-ENOENT);
+    }
+    unsigned char *buf = malloc(st.st_size);
+    int in = open(file, O_RDONLY);
+    read(in, buf, st.st_size);
+    close(in);
+
+    header.w = (* (unsigned short *) (buf + 0x8)) + 1;
+    header.h = (* (unsigned short *) (buf + 0xa)) + 1;
+    if (buf[3] == 8) palette_offset = st.st_size - 768;
+    int unpacked_size = header.w * header.h / (buf[3] == 8 ? 1 : 2);
+    unsigned char *pixels = malloc(unpacked_size);
+
+    int i = 128, j = 0;
+    while (j < unpacked_size) {
+	if ((buf[i] & 0xc0) == 0xc0) {
+	    int count = buf[i++] & 0x3f;
+	    while (count-- > 0) {
+		pixels[j++] = buf[i];
+	    }
+	    i++;
+	}
+	else {
+	    pixels[j++] = buf[i++];
+	}
+    }
+    free(buf);
+    return pixels;
+}
+
 int main(int argc, char **argv) {
     if (argc < 2) {
-	printf("USAGE: tga-dump [option] file.tga\n");
+	printf("USAGE: tga-dump [option] file.pcx\n");
 	printf("  -c   save compressed zx\n");
 	printf("  -b   save bitmap zx\n");
 	printf("  -t   save tiles zx\n");
@@ -341,24 +369,7 @@ int main(int argc, char **argv) {
     }
 
     file_name = argv[2];
-    int fd = open(file_name, O_RDONLY);
-    if (fd < 0) {
-	printf("ERROR: unable to open %s\n", file_name);
-	return -ENOENT;
-    }
-
-    read(fd, &header, sizeof(header));
-
-    if (header.image_type != 3 || header.depth != 8) {
-	printf("ERROR: not a grayscale 8-bit TGA file\n");
-	close(fd);
-	return 0;
-    }
-
-    int size = header.w * header.h;
-    unsigned char buf[size];
-    read(fd, buf, size);
-    close(fd);
+    unsigned char *buf = read_pcx(file_name);
 
     switch (argv[1][1]) {
     case 'l':
@@ -375,12 +386,12 @@ int main(int argc, char **argv) {
 #ifdef ZXS
 	for (int i = 3; i < argc; i++) {
 	    palette[i - 2] = atoi(argv[i]);
-	}
+	}	
 	memset(inkmap, 0, sizeof(inkmap));
-	save_bitmap(buf, size);
+	save_bitmap(buf, header.w * header.h);
 #endif
 	break;
     }
-
+    free(buf);
     return 0;
 }

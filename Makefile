@@ -8,13 +8,13 @@ all:
 	@echo "make fuse" - build and run fuse
 
 prg:
-	@gcc $(TYPE) -lm tga-dump.c -o tga-dump
-	@./tga-dump -t tiles.tga 4 7 70 6 71 2 > data.h
-	@./tga-dump -c fence.tga 2 0 >> data.h
-	@./tga-dump -l quarantine.tga 2 0 >> data.h
-	@./tga-dump -l gardener.tga 2 0 >> data.h
-	@./tga-dump -c logo.tga 4 0 >> data.h
-	@./tga-dump -l logo.tga 4 0 >> data.h
+	@gcc $(TYPE) -lm pcx-dump.c -o pcx-dump
+	@./pcx-dump -t tiles.pcx 4 7 70 6 71 2 > data.h
+	@./pcx-dump -c fence.pcx 2 0 >> data.h
+	@./pcx-dump -l quarantine.pcx 2 0 >> data.h
+	@./pcx-dump -l gardener.pcx 2 0 >> data.h
+	@./pcx-dump -c logo.pcx 4 0 >> data.h
+	@./pcx-dump -l logo.pcx 4 0 >> data.h
 	@sdcc $(CFLAGS) $(TYPE) main.c -o grazers.ihx
 	hex2bin grazers.ihx > /dev/null
 
@@ -29,4 +29,4 @@ fuse: zxs
 	fuse --no-confirm-actions -g 2x grazers.tap
 
 clean:
-	rm -f grazers* tga-dump tileset.bin data.h
+	rm -f grazers* pcx-dump tileset.bin data.h
