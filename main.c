@@ -791,12 +791,10 @@ static void adat_meitas(void) {
     wait_space_or_enter(0);
 }
 
-static void display_failure(void) {
+static void display_msg(const char *text_message) {
     put_str("+--------+", POS(11, 10), 5);
-    put_str("| FAILED |", POS(11, 11), 5);
+    put_str(text_message, POS(11, 11), 5);
     put_str("+--------+", POS(11, 12), 5);
-    sad_trombone_wah_wah_wah();
-    wait_space_or_enter(0);
 }
 
 static void game_loop(void) {
@@ -813,13 +811,17 @@ static void game_loop(void) {
 
     switch (ending) {
     case  1:
+	display_msg("|  DONE  |");
 	success_tune();
 	level++;
 	break;
     case -1:
-	display_failure();
+	display_msg("| FAILED |");
+	sad_trombone_wah_wah_wah();
 	break;
     }
+
+    wait_space_or_enter(0);
 }
 
 static void grass_stripe(word n, byte len) {
