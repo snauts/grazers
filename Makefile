@@ -9,12 +9,12 @@ all:
 
 prg:
 	@gcc $(TYPE) -lm pcx-dump.c -o pcx-dump
-	@./pcx-dump -t tiles.pcx 4 7 70 6 71 2 > data.h
-	@./pcx-dump -c fence.pcx 2 0 >> data.h
-	@./pcx-dump -l quarantine.pcx 2 0 >> data.h
-	@./pcx-dump -l gardener.pcx 2 0 >> data.h
-	@./pcx-dump -c logo.pcx 4 0 >> data.h
-	@./pcx-dump -l logo.pcx 4 0 >> data.h
+	@./pcx-dump -t tiles.pcx > data.h
+	@./pcx-dump -c fence.pcx >> data.h
+	@./pcx-dump -l quarantine.pcx >> data.h
+	@./pcx-dump -l gardener.pcx >> data.h
+	@./pcx-dump -c logo.pcx >> data.h
+	@./pcx-dump -l logo.pcx >> data.h
 	@sdcc $(CFLAGS) $(TYPE) main.c -o grazers.ihx
 	hex2bin grazers.ihx > /dev/null
 

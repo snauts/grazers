@@ -8,9 +8,6 @@
 #include <math.h>
 
 static char *file_name;
-static int color_index = 1;
-static unsigned char inkmap[256];
-static unsigned char palette[256];
 static int need_compress = 0;
 static int as_tiles = 0;
 static int as_level = 0;
@@ -53,12 +50,6 @@ static unsigned char consume_pixels(unsigned char *buf, unsigned char on) {
     return ret;
 }
 
-static void add_color(unsigned char pixel) {
-    if (pixel > 0 && inkmap[pixel] == 0) {
-	inkmap[pixel] = palette[color_index++];
-    }
-}
-
 static unsigned short encode_pixel(unsigned char a, unsigned char b) {
     return a > b ? (b << 8) | a : (a << 8) | b;
 }
@@ -69,14 +60,11 @@ static unsigned short on_pixel(unsigned char *buf, int i, int w) {
 	for (int x = 0; x < 8; x++) {
 	    unsigned char next = buf[i + x];
 	    if (next != pixel) {
-		add_color(next);
-		add_color(pixel);
 		return encode_pixel(next, pixel);
 	    }
 	}
 	i += w;
     }
-    add_color(pixel);
     return pixel == 0 ? 0x1 : pixel;
 }
 
@@ -85,18 +73,10 @@ static int ink_index(int i) {
 }
 
 static unsigned char encode_ink(unsigned short colors) {
-    unsigned char f = inkmap[colors & 0xff];
-    unsigned char b = inkmap[colors >> 8];
+    unsigned char b = colors >> 8;
+    unsigned char f = colors & 0xff;
     unsigned char l = (f > 7 || b > 7) ? 0x40 : 0x00;
     return l | (f & 7) | ((b & 7) << 3);
-}
-
-static int has_any_color(void) {
-    if (as_level) return 0;
-    for (int i = 0; i < 256; i++) {
-	if (palette[i] != 0) return 1;
-    }
-    return 0;
 }
 
 static void dump_buffer(void *ptr, int size, int step) {
@@ -287,7 +267,7 @@ static void save(unsigned char *pixel, int pixel_size,
     printf("const byte %s%s[] = {\n", name, as_level ? "_bmp" : "");
     dump_buffer(pixel, pixel_size, 1);
     printf("};\n");
-    if (has_any_color()) {
+    if (!as_level) {
 	printf("const byte %s_color[] = {\n", name);
 	dump_buffer(color, color_size, 1);
 	printf("};\n");
@@ -383,13 +363,7 @@ int main(int argc, char **argv) {
 	as_tiles = 1;
 	/* falls through */
     case 'b':
-#ifdef ZXS
-	for (int i = 3; i < argc; i++) {
-	    palette[i - 2] = atoi(argv[i]);
-	}	
-	memset(inkmap, 0, sizeof(inkmap));
 	save_bitmap(buf, header.w * header.h);
-#endif
 	break;
     }
     free(buf);
