@@ -611,8 +611,8 @@ static void gardener_level(void) {
 }
 
 static const struct Level all_levels[] = {
-    { &quarantine_level },
     { &gardener_level },
+    { &quarantine_level },
     { &finish_game },
 };
 
