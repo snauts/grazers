@@ -898,7 +898,7 @@ static void title_screen(void) {
     clear_screen();
     sprite = logo;
     sprite_color = mirror;
-    memset(mirror, 0, sizeof(logo_color));
+    memset(mirror, 0, sizeof(logo) / 8);
     display_level(logo_map, SIZE(logo_map), 0x100);
     put_str("Use WASD keys to move hunter.", POS(2, 16), 5);
     put_str("Press ENTER to fast forward.", POS(2, 17), 5);

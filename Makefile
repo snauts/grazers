@@ -13,7 +13,7 @@ prg:
 	@./pcx-dump -c fence.pcx >> data.h
 	@./pcx-dump -l quarantine.pcx >> data.h
 	@./pcx-dump -l gardener.pcx >> data.h
-	@./pcx-dump -c logo.pcx >> data.h
+	@./pcx-dump -c logo.pcx no-color >> data.h
 	@./pcx-dump -l logo.pcx >> data.h
 	@sdcc $(CFLAGS) $(TYPE) main.c -o grazers.ihx
 	hex2bin grazers.ihx > /dev/null

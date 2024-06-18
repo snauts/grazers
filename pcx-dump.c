@@ -9,6 +9,7 @@
 
 static char *file_name;
 static int need_compress = 0;
+static int need_color = 1;
 static int as_tiles = 0;
 static int as_level = 0;
 
@@ -267,7 +268,7 @@ static void save(unsigned char *pixel, int pixel_size,
     printf("const byte %s%s[] = {\n", name, as_level ? "_map" : "");
     dump_buffer(pixel, pixel_size, 1);
     printf("};\n");
-    if (!as_level) {
+    if (need_color && !as_level) {
 	printf("const byte %s_color[] = {\n", name);
 	dump_buffer(color, color_size, 1);
 	printf("};\n");
@@ -356,7 +357,7 @@ static unsigned char *read_pcx(const char *file) {
 
 int main(int argc, char **argv) {
     if (argc < 2) {
-	printf("USAGE: pcx-dump [option] file.pcx\n");
+	printf("USAGE: pcx-dump [option] file.pcx [no-color]\n");
 	printf("  -c   save compressed zx\n");
 	printf("  -b   save bitmap zx\n");
 	printf("  -t   save tiles zx\n");
@@ -366,6 +367,10 @@ int main(int argc, char **argv) {
 
     file_name = argv[2];
     unsigned char *buf = read_pcx(file_name);
+
+    if (argc >= 4 && strcmp(argv[3], "no-color") == 0) {
+	need_color = 0;
+    }
 
     switch (argv[1][1]) {
     case 'l':
