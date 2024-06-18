@@ -573,6 +573,7 @@ static void finish_game(void) {
 
     sprite = sunset;
     sprite_color = sunset_color;
+    memset(forest, 0, SIZE(forest));
     display_level(sunset_map, SIZE(sunset_map), 0);
     large_grass(POS(14, 13));
 
