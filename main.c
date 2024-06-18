@@ -869,6 +869,18 @@ static void title_flash(byte offset, byte color) {
     }
 }
 
+static void large_grass_patch(word n) {
+    grass_stripe(n + POS( 5, 0), 11);
+    grass_stripe(n + POS( 2, 1), 9);
+    grass_stripe(n + POS(12, 1), 6);
+    grass_stripe(n + POS( 0, 2), 6);
+    grass_stripe(n + POS( 7, 2), 8);
+    grass_stripe(n + POS( 2, 3), 11);
+
+    put_tile(0x1c, n + POS(11, 1));
+    put_tile(0x0f, n + POS( 6, 2));
+}
+
 static byte eat;
 static void animate_title(void) {
     byte roll = (eat >> 1) & 0x3f;
@@ -892,12 +904,7 @@ static void title_screen(void) {
     put_str("Press ENTER to fast forward.", POS(2, 17), 5);
     put_str("SPACE will skip one epoch.", POS(3, 18), 5);
 
-    grass_stripe(POS( 6, 2), 11);
-    grass_stripe(POS( 3, 3), 9);
-    grass_stripe(POS(13, 3), 6);
-    grass_stripe(POS( 1, 4), 6);
-    grass_stripe(POS( 8, 4), 8);
-    grass_stripe(POS( 3, 5), 11);
+    large_grass_patch(POS(1, 2));
 
     grass_stripe(POS(14, 21), 8);
     grass_stripe(POS(23, 21), 6);
