@@ -47,6 +47,10 @@ struct Level { void (*fn)(void); };
 
 void reset(void);
 
+static const byte pixel_map[] = {
+    0x80, 0x40, 0x20, 0x10, 0x08, 0x04, 0x02, 0x01
+};
+
 static void interrupt(void) __naked {
 #ifdef ZXS
     __asm__("di");
@@ -88,6 +92,10 @@ static byte in_1f(void) __naked {
 
 static void memset(byte *ptr, byte data, word len) {
     while (len-- > 0) { *ptr++ = data; }
+}
+
+static void slow_pixel(byte x, byte y) {
+    map_y[y][x >> 3] ^= pixel_map[x & 7];
 }
 
 static void setup_system(void) {
@@ -791,10 +799,25 @@ static void adat_meitas(void) {
     wait_space_or_enter(0);
 }
 
+static void line(byte x, byte y, byte dir, byte len) {
+    for (int i = 0; i < len; i++) {
+	slow_pixel(x, y);
+	if (dir) x++; else y++;
+    }
+}
+
 static void display_msg(const char *text_message) {
-    put_str("+--------+", POS(11, 10), 5);
-    put_str(text_message, POS(11, 11), 5);
-    put_str("+--------+", POS(11, 12), 5);
+    const byte x = 11;
+    for (word y = 80; y < 104; y++) {
+	byte *ptr = (byte *) 0x5800;
+	memset(map_y[y] + x, 0, 10);
+	memset(ptr + ((y >> 3) << 5) + x, 5, 10);
+    }
+    put_str(text_message, POS(13, 11), 5);
+    line(89, 81, 1, 78);
+    line(89, 102, 1, 78);
+    line(89, 82, 0, 20);
+    line(166, 82, 0, 20);
 }
 
 static void game_loop(void) {
@@ -811,12 +834,12 @@ static void game_loop(void) {
 
     switch (ending) {
     case  1:
-	display_msg("|  DONE  |");
+	display_msg(" DONE");
 	success_tune();
 	level++;
 	break;
     case -1:
-	display_msg("| FAILED |");
+	display_msg("FAILED");
 	sad_trombone_wah_wah_wah();
 	break;
     }
