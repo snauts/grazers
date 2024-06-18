@@ -584,7 +584,7 @@ static void quarantine_level(void) {
     put_str("from collapse til EPOCH:500", POS(2, 17), 4);
     wait_space_or_enter(0);
 
-    fenced_level(quarantine_bmp, SIZE(quarantine_bmp), C_FOOD);
+    fenced_level(quarantine_map, SIZE(quarantine_map), C_FOOD);
 
     put_hunter(POS(8, 8));
     put_life(POS(23, 14), 7);
@@ -603,7 +603,7 @@ static void gardener_level(void) {
     put_str("can fully recover and regrow.", POS(2, 18), 4);
     wait_space_or_enter(0);
 
-    fenced_level(gardener_bmp, SIZE(gardener_bmp), C_FOOD);
+    fenced_level(gardener_map, SIZE(gardener_map), C_FOOD);
 
     put_hunter(POS(2, 2));
     put_life(POS(29, 20), 7);
@@ -864,7 +864,7 @@ static void title_screen(void) {
     sprite = logo;
     sprite_color = mirror;
     memset(mirror, 0, sizeof(logo_color));
-    display_level(logo_bmp, SIZE(logo_bmp), 0x100);
+    display_level(logo_map, SIZE(logo_map), 0x100);
     put_str("Use WASD keys to move hunter.", POS(2, 16), 5);
     put_str("Press ENTER to fast forward.", POS(2, 17), 5);
     put_str("SPACE will skip one epoch.", POS(3, 18), 5);

@@ -264,7 +264,7 @@ static void save(unsigned char *pixel, int pixel_size,
 
     char name[256];
     remove_extension(file_name, name);
-    printf("const byte %s%s[] = {\n", name, as_level ? "_bmp" : "");
+    printf("const byte %s%s[] = {\n", name, as_level ? "_map" : "");
     dump_buffer(pixel, pixel_size, 1);
     printf("};\n");
     if (!as_level) {
