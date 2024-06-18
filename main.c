@@ -566,7 +566,6 @@ static int8 ending_vegetation(word *job) {
 }
 
 static void adat_meitas(void);
-static void large_grass(word n);
 
 static void finish_game(void) {
     clear_screen();
@@ -575,7 +574,6 @@ static void finish_game(void) {
     sprite_color = sunset_color;
     memset(forest, 0, SIZE(forest));
     display_level(sunset_map, SIZE(sunset_map), 0);
-    large_grass(POS(14, 13));
 
     adat_meitas();
     reset();
@@ -878,15 +876,6 @@ static void title_flash(byte offset, byte color) {
     }
 }
 
-static void large_grass(word n) {
-    grass_stripe(n + POS( 5, 0), 11);
-    grass_stripe(n + POS( 2, 1), 9);
-    grass_stripe(n + POS(12, 1), 6);
-    grass_stripe(n + POS( 0, 2), 6);
-    grass_stripe(n + POS( 7, 2), 8);
-    grass_stripe(n + POS( 2, 3), 11);
-}
-
 static byte eat;
 static void animate_title(void) {
     byte roll = (eat >> 1) & 0x3f;
@@ -910,7 +899,12 @@ static void title_screen(void) {
     put_str("Press ENTER to fast forward.", POS(2, 17), 5);
     put_str("SPACE will skip one epoch.", POS(3, 18), 5);
 
-    large_grass(POS(1, 2));
+    grass_stripe(POS( 6, 2), 11);
+    grass_stripe(POS( 3, 3), 9);
+    grass_stripe(POS(13, 3), 6);
+    grass_stripe(POS( 1, 4), 6);
+    grass_stripe(POS( 8, 4), 8);
+    grass_stripe(POS( 3, 5), 11);
 
     grass_stripe(POS(14, 21), 8);
     grass_stripe(POS(23, 21), 6);
