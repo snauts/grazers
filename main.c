@@ -854,8 +854,8 @@ static void animate_title(void) {
     put_tile(frame ? 0x1b : 0x1a, POS(22, 21));
     byte feed = (frame ? 0x0e : 0x0f);
     put_tile(eat > 192 ? 0xc : feed, POS( 7, 4));
-    title_flash(roll - 8, 0x04);
-    title_flash(roll, 0x44);
+    title_flash(roll - 0x10, 0x04);
+    title_flash(roll - 0x08, 0x44);
     eat++;
 }
 
