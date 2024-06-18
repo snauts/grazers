@@ -170,6 +170,8 @@ static void compress(unsigned char *pixel, int *pixel_size,
     *color_size = compress_size / 8;
     memcpy(color, extra, *color_size);
 
+    fprintf(stderr, "IMAGE %s %d\n", file_name, *color_size);
+
     int fd = open("tileset.bin", O_CREAT | O_RDWR, 0644);
     if (fd >= 0) {
 	write(fd, pixel_size, sizeof(int));
