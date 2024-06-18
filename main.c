@@ -578,13 +578,13 @@ static void put_bones(word n) {
     }
 }
 
-static void level1_init(void) {
+static void quarantine_level(void) {
     put_str("- QUARANTINE -", POS(9, 4), 0x44);
     put_str("Prevent grazer population", POS(3, 16), 4);
     put_str("from collapse til EPOCH:500", POS(2, 17), 4);
     wait_space_or_enter(0);
 
-    fenced_level(level1_bmp, SIZE(level1_bmp), C_FOOD);
+    fenced_level(quarantine_bmp, SIZE(quarantine_bmp), C_FOOD);
 
     put_hunter(POS(8, 8));
     put_life(POS(23, 14), 7);
@@ -611,7 +611,7 @@ static void level2_init(void) {
 }
 
 static const struct Level all_levels[] = {
-    { &level1_init },
+    { &quarantine_level },
     { &level2_init },
     { &finish_game },
 };

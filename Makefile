@@ -11,7 +11,7 @@ prg:
 	@gcc $(TYPE) -lm tga-dump.c -o tga-dump
 	@./tga-dump -t tiles.tga 4 7 70 6 71 2 > data.h
 	@./tga-dump -c fence.tga 2 0 >> data.h
-	@./tga-dump -l level1.tga 2 0 >> data.h
+	@./tga-dump -l quarantine.tga 2 0 >> data.h
 	@./tga-dump -l level2.tga 2 0 >> data.h
 	@./tga-dump -c logo.tga 4 0 >> data.h
 	@./tga-dump -l logo.tga 4 0 >> data.h
