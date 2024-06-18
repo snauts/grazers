@@ -885,9 +885,6 @@ static void large_grass(word n) {
     grass_stripe(n + POS( 0, 2), 6);
     grass_stripe(n + POS( 7, 2), 8);
     grass_stripe(n + POS( 2, 3), 11);
-
-    put_tile(0x1c, n + POS(11, 1));
-    put_tile(0x1c, n + POS( 6, 2));
 }
 
 static byte eat;
