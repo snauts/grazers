@@ -356,7 +356,7 @@ static unsigned char *read_pcx(const char *file) {
 
 int main(int argc, char **argv) {
     if (argc < 2) {
-	printf("USAGE: tga-dump [option] file.pcx\n");
+	printf("USAGE: pcx-dump [option] file.pcx\n");
 	printf("  -c   save compressed zx\n");
 	printf("  -b   save bitmap zx\n");
 	printf("  -t   save tiles zx\n");
