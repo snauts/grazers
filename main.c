@@ -909,6 +909,7 @@ static void title_screen(void) {
     grass_stripe(POS(14, 21), 8);
     grass_stripe(POS(23, 21), 6);
 
+    eat = 0;
     wait_space_or_enter(&animate_title);
 }
 
