@@ -367,8 +367,8 @@ static void put_rock(word where) {
     put_item(where, T_ROCK, 34);
 }
 
-static void put_grazer(word where) {
-    put_item(where, 7, 7);
+static void put_life(word where, byte cell) {
+    put_item(where, cell, cell);
 }
 
 static byte space_of_enter(void) {
@@ -587,7 +587,7 @@ static void level1_init(void) {
     fenced_level(level1_bmp, SIZE(level1_bmp), C_FOOD);
 
     put_hunter(POS(8, 8));
-    put_grazer(POS(23, 14));
+    put_life(POS(23, 14), 7);
 
     put_bones(POS( 2,  7));
     put_bones(POS(23, 19));
@@ -606,7 +606,7 @@ static void level2_init(void) {
     fenced_level(level2_bmp, SIZE(level2_bmp), C_FOOD);
 
     put_hunter(POS(2, 2));
-    put_grazer(POS(29, 20));
+    put_life(POS(29, 20), 7);
     finish = &ending_vegetation;
 }
 
