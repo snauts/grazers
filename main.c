@@ -34,7 +34,7 @@ typedef unsigned short word;
 static volatile byte vblank;
 static byte *map_y[192];
 
-static byte forest[768];
+static byte forest[0x2e0];
 
 static byte *update[512];
 static byte *mirror[512];
@@ -531,14 +531,14 @@ static int8 ending_500(word *job) {
 }
 
 static byte no_empty_spaces(void) {
-    for (word i = 0; i < 0x2e0; i++) {
+    for (word i = 0; i < SIZE(forest); i++) {
 	if (forest[i] == 0) return 0;
     }
     return 1;
 }
 
 static byte no_vegetaion(void) {
-    for (word i = 0; i < 0x2e0; i++) {
+    for (word i = 0; i < SIZE(forest); i++) {
 	byte cell = forest[i];
 	if (cell > 0 && cell <= 3) return 0;
     }
