@@ -621,9 +621,6 @@ static void quarantine_level(void) {
 
     fenced_level(quarantine_map, SIZE(quarantine_map), C_FOOD);
 
-    put_hunter(POS(8, 8));
-    queue_item(POS(23, 14), T_DEER, T_DEER);
-
     put_bones(POS( 2,  7));
     put_bones(POS(23, 19));
     put_bones(POS(28,  4));
