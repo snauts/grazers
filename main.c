@@ -565,6 +565,10 @@ static int8 ending_vegetation(word *job) {
     return 0;
 }
 
+static int8 ending_escape(word *job) {
+    return 0;
+}
+
 static void adat_meitas(void);
 
 static void finish_game(void) {
@@ -611,6 +615,18 @@ static void quarantine_level(void) {
     finish = &ending_500;
 }
 
+static void earthquake_level(void) {
+    put_str("- EARTHQUAKE -", POS(9, 4), 0x44);
+    put_str("Prevent grazers from escaping.", POS(1, 16), 4);
+    wait_space_or_enter(0);
+
+    fenced_level(earthquake_map, SIZE(earthquake_map), C_FOOD);
+
+    put_hunter(POS(28, 20));
+
+    finish = &ending_escape;
+}
+
 static void gardener_level(void) {
     put_str("- GARDENER -", POS(10, 4), 0x44);
     put_str("Hunt down invasive grazer", POS(4, 16), 4);
@@ -628,6 +644,7 @@ static void gardener_level(void) {
 static const struct Level all_levels[] = {
     { &gardener_level },
     { &quarantine_level },
+    { &earthquake_level },
     { &finish_game },
 };
 

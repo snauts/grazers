@@ -13,6 +13,7 @@ prg:
 	@./pcx-dump -c fence.pcx >> data.h
 	@./pcx-dump -l quarantine.pcx >> data.h
 	@./pcx-dump -l gardener.pcx >> data.h
+	@./pcx-dump -l earthquake.pcx >> data.h
 	@./pcx-dump -c logo.pcx no-color >> data.h
 	@./pcx-dump -l logo.pcx >> data.h
 	@./pcx-dump -c sunset.pcx >> data.h
