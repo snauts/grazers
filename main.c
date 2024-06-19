@@ -368,6 +368,7 @@ static void move_hunter(int8 diff) {
 
 static void put_hunter(word where) {
     pos = where;
+    forest[pos] = 0;
     move_hunter(0);
 }
 
