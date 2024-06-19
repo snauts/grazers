@@ -24,6 +24,7 @@ typedef unsigned short word;
 #define C_TILE		BIT(7)
 
 #define T_ROCK		0x80
+#define T_DEER		0x07
 
 #ifdef ZXS
 #define is_vsync()	vblank
@@ -375,7 +376,7 @@ static void put_rock(word where) {
     put_item(where, T_ROCK, 34);
 }
 
-static void put_life(word where, byte cell) {
+static void put_cell(word where, byte cell) {
     put_item(where, cell, cell);
 }
 
@@ -606,7 +607,7 @@ static void quarantine_level(void) {
     fenced_level(quarantine_map, SIZE(quarantine_map), C_FOOD);
 
     put_hunter(POS(8, 8));
-    put_life(POS(23, 14), 7);
+    put_cell(POS(23, 14), T_DEER);
 
     put_bones(POS( 2,  7));
     put_bones(POS(23, 19));
@@ -637,7 +638,7 @@ static void gardener_level(void) {
     fenced_level(gardener_map, SIZE(gardener_map), C_FOOD);
 
     put_hunter(POS(2, 2));
-    put_life(POS(29, 20), 7);
+    put_cell(POS(29, 20), T_DEER);
     finish = &ending_vegetation;
 }
 
