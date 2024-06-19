@@ -590,6 +590,13 @@ static int8 ending_vegetation(word *job) {
 }
 
 static int8 ending_escape(word *job) {
+    byte cell = forest[POS(5, 0)];
+    if ((cell & C_PLAY) || cell == T_ROCK) {
+	return 1;
+    }
+    else if (cell & C_SIZE) {
+	return -1;
+    }
     return job == 0;
 }
 
@@ -632,6 +639,7 @@ static void earthquake_level(void) {
     wait_space_or_enter(0);
 
     fenced_level(earthquake_map, SIZE(earthquake_map), C_FOOD);
+    QUEUE(forest + POS(5, 1));
 
     finish = &ending_escape;
 }
