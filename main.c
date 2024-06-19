@@ -606,13 +606,6 @@ static void fenced_level(byte *level, word size, byte init) {
     display_image(level, 1, size, 0);
 }
 
-static void put_bones(word n) {
-    static const byte id[] = { 2, 1, 35, 1, 2 };
-    for (byte i = 0; i < SIZE(id); i++) {
-	put_tile(id[i], (n - 2) + i);
-    }
-}
-
 static void quarantine_level(void) {
     put_str("- QUARANTINE -", POS(9, 4), 0x44);
     put_str("Prevent grazer population", POS(3, 16), 4);
@@ -620,10 +613,6 @@ static void quarantine_level(void) {
     wait_space_or_enter(0);
 
     fenced_level(quarantine_map, SIZE(quarantine_map), C_FOOD);
-
-    put_bones(POS( 2,  7));
-    put_bones(POS(23, 19));
-    put_bones(POS(28,  4));
 
     finish = &ending_500;
 }
@@ -634,8 +623,6 @@ static void earthquake_level(void) {
     wait_space_or_enter(0);
 
     fenced_level(earthquake_map, SIZE(earthquake_map), C_FOOD);
-
-    put_hunter(POS(28, 20));
 
     finish = &ending_escape;
 }
