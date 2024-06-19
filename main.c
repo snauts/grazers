@@ -614,11 +614,10 @@ static void finish_game(void) {
     reset();
 }
 
-static void fenced_level(byte *level, word size, byte init) {
+static void fenced_level(byte *level, word size) {
     clear_screen();
     sprite = fence;
     sprite_color = fence_color;
-    memset(forest, init, SIZE(forest));
     display_image(level, 1, size, 0);
 }
 
@@ -628,7 +627,7 @@ static void quarantine_level(void) {
     put_str("from collapse til EPOCH:500", POS(2, 17), 4);
     wait_space_or_enter(0);
 
-    fenced_level(quarantine_map, SIZE(quarantine_map), C_FOOD);
+    fenced_level(quarantine_map, SIZE(quarantine_map));
 
     finish = &ending_500;
 }
@@ -638,7 +637,7 @@ static void earthquake_level(void) {
     put_str("Prevent grazers from escaping.", POS(1, 16), 4);
     wait_space_or_enter(0);
 
-    fenced_level(earthquake_map, SIZE(earthquake_map), C_FOOD);
+    fenced_level(earthquake_map, SIZE(earthquake_map));
     QUEUE(forest + POS(5, 1));
 
     finish = &ending_escape;
@@ -651,7 +650,7 @@ static void gardener_level(void) {
     put_str("can fully recover and regrow.", POS(2, 18), 4);
     wait_space_or_enter(0);
 
-    fenced_level(gardener_map, SIZE(gardener_map), C_FOOD);
+    fenced_level(gardener_map, SIZE(gardener_map));
 
     finish = &ending_vegetation;
 }
