@@ -652,8 +652,6 @@ static void gardener_level(void) {
 
     fenced_level(gardener_map, SIZE(gardener_map), C_FOOD);
 
-    put_hunter(POS(2, 2));
-    queue_item(POS(29, 20), T_DEER, T_DEER);
     finish = &ending_vegetation;
 }
 
