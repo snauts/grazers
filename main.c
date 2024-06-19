@@ -459,23 +459,26 @@ static void put_sprite(byte cell, byte base, word n) {
 static void special_cell(byte cell, word n) {
     switch (cell) {
     case 0:
-	put_hunter(n);
+	forest[n] = 0;
 	break;
     case 1:
-	put_item(n, C_FOOD, C_FOOD);
+	put_hunter(n);
 	break;
     case 2:
-	queue_item(n, T_DEER, T_DEER);
+	put_item(n, C_FOOD, C_FOOD);
 	break;
     case 3:
-	queue_item(n, T_ROCK, 34);
+	queue_item(n, T_DEER, T_DEER);
+	break;
+    case 4:
+	queue_item(n, T_ROCK, rock_type(n));
 	break;
     }
 }
 
 static byte in_game;
 static void display_cell(byte cell, byte base, word n) {
-    if (in_game && cell < 4) {
+    if (in_game && cell < 5) {
 	special_cell(cell, n);
     }
     else {
@@ -600,6 +603,7 @@ static void finish_game(void) {
 }
 
 static void fenced_level(byte *level, word size, byte init) {
+    clear_screen();
     sprite = fence;
     sprite_color = fence_color;
     memset(forest, init, SIZE(forest));
