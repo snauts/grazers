@@ -348,12 +348,12 @@ static unsigned char *read_pcx(const char *file) {
 	    pixels[j++] = buf[i++];
 	}
     }
-    free(buf);
 
     for (i = 0; i < unpacked_size; i++) {
 	pixels[i] = get_color(buf + palette_offset + (pixels[i] * 3));
     }
 
+    free(buf);
     return pixels;
 }
 
