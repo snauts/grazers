@@ -368,16 +368,12 @@ static void put_hunter(word where) {
 
 static void put_item(word where, byte type, byte sprite) {
     forest[where] = type;
-    QUEUE(forest + where);
     put_tile(sprite, where);
 }
 
-static void put_rock(word where) {
-    put_item(where, T_ROCK, 34);
-}
-
-static void put_cell(word where, byte cell) {
-    put_item(where, cell, cell);
+static void queue_item(word where, byte type, byte sprite) {
+    put_item(where, type, sprite);
+    QUEUE(forest + where);
 }
 
 static byte space_of_enter(void) {
@@ -460,17 +456,36 @@ static void put_sprite(byte cell, byte base, word n) {
     }
 }
 
-static void put_level(byte cell, byte base, word n) {
-    if (cell || base) {
-	put_sprite(cell, base, n);
-    }
-    else if (forest[n] == C_FOOD) {
-	put_tile(C_FOOD, n);
+static void special_cell(byte cell, word n) {
+    switch (cell) {
+    case 0:
+	put_hunter(n);
+	break;
+    case 1:
+	put_item(n, C_FOOD, C_FOOD);
+	break;
+    case 2:
+	queue_item(n, T_DEER, T_DEER);
+	break;
+    case 3:
+	queue_item(n, T_ROCK, 34);
+	break;
     }
 }
 
-static void display_level(byte *level, word size, word n) {
+static byte in_game;
+static void display_cell(byte cell, byte base, word n) {
+    if (in_game && cell < 4) {
+	special_cell(cell, n);
+    }
+    else {
+	put_sprite(cell, base, n);
+    }
+}
+
+static void display_image(byte *level, byte game, word size, word n) {
     byte base = 0;
+    in_game = game;
     for (word i = 0; i < size; i++) {
 	byte cell = level[i];
 	switch (cell & 0xc0) {
@@ -478,14 +493,14 @@ static void display_level(byte *level, word size, word n) {
 	    byte count = cell & 0x7f;
 	    byte repeat = level[++i];
 	    for (byte j = 0; j < count; j++) {
-		put_level(repeat, base, n++);
+		display_cell(repeat, base, n++);
 	    }
 	    break;
 	case 0xc0:
 	    base = (cell & 0x3f) << 2;
 	    break;
 	default:
-	    put_level(cell, base, n++);
+	    display_cell(cell, base, n++);
 	    break;
 	}
     }
@@ -567,7 +582,7 @@ static int8 ending_vegetation(word *job) {
 }
 
 static int8 ending_escape(word *job) {
-    return 0;
+    return job == 0;
 }
 
 static void adat_meitas(void);
@@ -578,7 +593,7 @@ static void finish_game(void) {
     sprite = sunset;
     sprite_color = sunset_color;
     memset(forest, 0, SIZE(forest));
-    display_level(sunset_map, SIZE(sunset_map), 0);
+    display_image(sunset_map, 0, SIZE(sunset_map), 0);
 
     adat_meitas();
     reset();
@@ -588,7 +603,7 @@ static void fenced_level(byte *level, word size, byte init) {
     sprite = fence;
     sprite_color = fence_color;
     memset(forest, init, SIZE(forest));
-    display_level(level, size, 0);
+    display_image(level, 1, size, 0);
 }
 
 static void put_bones(word n) {
@@ -607,7 +622,7 @@ static void quarantine_level(void) {
     fenced_level(quarantine_map, SIZE(quarantine_map), C_FOOD);
 
     put_hunter(POS(8, 8));
-    put_cell(POS(23, 14), T_DEER);
+    queue_item(POS(23, 14), T_DEER, T_DEER);
 
     put_bones(POS( 2,  7));
     put_bones(POS(23, 19));
@@ -638,7 +653,7 @@ static void gardener_level(void) {
     fenced_level(gardener_map, SIZE(gardener_map), C_FOOD);
 
     put_hunter(POS(2, 2));
-    put_cell(POS(29, 20), T_DEER);
+    queue_item(POS(29, 20), T_DEER, T_DEER);
     finish = &ending_vegetation;
 }
 
@@ -912,7 +927,7 @@ static void title_screen(void) {
     sprite = logo;
     sprite_color = mirror;
     memset(mirror, 0, sizeof(logo) / 8);
-    display_level(logo_map, SIZE(logo_map), 0x100);
+    display_image(logo_map, 0, SIZE(logo_map), 0x100);
     put_str("Use WASD keys to move hunter.", POS(2, 16), 5);
     put_str("Press ENTER to fast forward.", POS(2, 17), 5);
     put_str("SPACE will skip one epoch.", POS(3, 18), 5);
