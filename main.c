@@ -705,8 +705,8 @@ static void fenced_level(byte *level, word size) {
 
 static void quarantine_level(void) {
     put_str("- QUARANTINE -", POS(9, 4), 0x44);
-    put_str("Prevent grazer population", POS(3, 16), 4);
-    put_str("from collapse til EPOCH:500", POS(2, 17), 4);
+    put_str("Prevent GRAZER population", POS(3, 16), 4);
+    put_str("from collapse til EPOCH 500", POS(2, 17), 4);
     wait_space_or_enter(0);
 
     fenced_level(quarantine_map, SIZE(quarantine_map));
@@ -716,7 +716,7 @@ static void quarantine_level(void) {
 
 static void earthquake_level(void) {
     put_str("- EARTHQUAKE -", POS(9, 4), 0x44);
-    put_str("Prevent grazers from escaping.", POS(1, 16), 4);
+    put_str("Prevent GRAZERs from escaping", POS(1, 16), 4);
     wait_space_or_enter(0);
 
     fenced_level(earthquake_map, SIZE(earthquake_map));
@@ -727,9 +727,9 @@ static void earthquake_level(void) {
 
 static void gardener_level(void) {
     put_str("- GARDENER -", POS(10, 4), 0x44);
-    put_str("Hunt down invasive grazer", POS(4, 16), 4);
+    put_str("Hunt down invasive GRAZER", POS(4, 16), 4);
     put_str("species so that vegetation", POS(3, 17), 4);
-    put_str("can fully recover and regrow.", POS(2, 18), 4);
+    put_str("can fully recover and regrow", POS(2, 18), 4);
     wait_space_or_enter(0);
 
     fenced_level(gardener_map, SIZE(gardener_map));
@@ -739,9 +739,9 @@ static void gardener_level(void) {
 
 static void flooding_level(void) {
     put_str("- FLOODING -", POS(10, 4), 0x44);
-    put_str("Recent flooding had caused ", POS(2, 16), 4);
+    put_str("Recent FLOODING had caused ", POS(2, 16), 4);
     put_str("spread of weeds that needs", POS(2, 17), 4);
-    put_str("to be eliminated completely.", POS(2, 18), 4);
+    put_str("to be eliminated completely", POS(2, 18), 4);
     wait_space_or_enter(0);
 
     fenced_level(flooding_map, SIZE(flooding_map));
@@ -755,7 +755,7 @@ static void tsunami_level(void) {
     tsunami_dir = -1;
 
     put_str("- TSUNAMI -", POS(10, 4), 0x44);
-    put_str("Help grazers survive tsunami.", POS(2, 16), 4);
+    put_str("Help GRAZERs survive TSUNAMI", POS(2, 16), 4);
     wait_space_or_enter(0);
 
     fenced_level(tsunami_map, SIZE(tsunami_map));
@@ -765,8 +765,9 @@ static void tsunami_level(void) {
 
 static void equilibrium_level(void) {
     put_str("- EQUILIBRIUM -", POS(8, 4), 0x44);
-    put_str("Prevent grazer population", POS(3, 16), 4);
-    put_str("from collapse til EPOCH:500", POS(2, 17), 4);
+    put_str("Reach EQUILIBRIUM so that you", POS(1, 16), 4);
+    put_str("stay on the same spot for 1000", POS(1, 17), 4);
+    put_str("EPOCHs and GRAZERs survive", POS(2, 18), 4);
     wait_space_or_enter(0);
 
     fenced_level(equilibrium_map, SIZE(equilibrium_map));
