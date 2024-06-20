@@ -633,6 +633,7 @@ static void recede_wave(byte x, byte y) {
 	    continue;
 	}
 	forest[n] = C_BARE;
+	QUEUE(forest + n);
 	for (byte i = 0; i < 8; i++) {
 	    map_y[(y << 3) + i][x] = fence[i];
 	}
