@@ -590,6 +590,18 @@ static int8 ending_vegetation(word *job) {
     return 0;
 }
 
+static int8 ending_empty(word *job) {
+    if (no_grazers(job)) {
+	if (no_vegetaion()) {
+	    return 1;
+	}
+	else {
+	    return -1;
+	}
+    }
+    return 0;
+}
+
 static int8 ending_escape(word *job) {
     byte cell = forest[POS(5, 0)];
     if ((cell & C_PLAY) || cell == T_ROCK) {
@@ -656,10 +668,23 @@ static void gardener_level(void) {
     finish = &ending_vegetation;
 }
 
+static void flooding_level(void) {
+    put_str("- FLOODING -", POS(10, 4), 0x44);
+    put_str("Recent flooding had caused ", POS(2, 16), 4);
+    put_str("spread of weeds that needs", POS(2, 17), 4);
+    put_str("to be eliminated completely.", POS(2, 18), 4);
+    wait_space_or_enter(0);
+
+    fenced_level(flooding_map, SIZE(flooding_map));
+
+    finish = &ending_empty;
+}
+
 static const struct Level all_levels[] = {
     { &gardener_level },
     { &quarantine_level },
     { &earthquake_level },
+    { &flooding_level },
     { &finish_game },
 };
 
