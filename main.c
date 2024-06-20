@@ -678,6 +678,10 @@ static int8 ending_tsunami(void) {
     }
 }
 
+static int8 ending_equilibrium(void) {
+    return 0;
+}
+
 static void adat_meitas(void);
 
 static void finish_game(void) {
@@ -759,12 +763,24 @@ static void tsunami_level(void) {
     finish = &ending_tsunami;
 }
 
+static void equilibrium_level(void) {
+    put_str("- EQUILIBRIUM -", POS(8, 4), 0x44);
+    put_str("Prevent grazer population", POS(3, 16), 4);
+    put_str("from collapse til EPOCH:500", POS(2, 17), 4);
+    wait_space_or_enter(0);
+
+    fenced_level(equilibrium_map, SIZE(equilibrium_map));
+
+    finish = &ending_equilibrium;
+}
+
 static const struct Level all_levels[] = {
     { &gardener_level },
     { &quarantine_level },
     { &earthquake_level },
     { &tsunami_level },
     { &flooding_level },
+    { &equilibrium_level },
     { &finish_game },
 };
 
