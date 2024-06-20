@@ -629,11 +629,12 @@ static void recede_wave(byte x, byte y) {
 	    BYTE(0x5800 + n) = 0x2;
 	    continue;
 	}
-	if (x == 0 || y == 22) {
+	if (tsunami_rnd++ == 11) {
+	    tsunami_rnd = 0;
 	    continue;
 	}
-	if (tsunami_rnd++ == 25) {
-	    tsunami_rnd = 0;
+	byte sum = x + y;
+	if (x == 0 || y == 22 || sum < 18 || sum > 36) {
 	    continue;
 	}
 	forest[n] = C_BARE;
@@ -761,7 +762,7 @@ static void flooding_level(void) {
 }
 
 static void tsunami_level(void) {
-    tsunami_rnd = 10;
+    tsunami_rnd = 11;
     tsunami_len = 24;
     tsunami_dir = -1;
 
