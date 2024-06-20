@@ -625,8 +625,13 @@ static void draw_wave(byte x, byte y) {
     }
 }
 
+static byte tsunami_rnd;
 static void recede_wave(byte x, byte y) {
     for (word n = (y << 5) + x; x < 31 && y < 22; x++, y++, n += 33) {
+	if (tsunami_rnd++ == 25) {
+	    tsunami_rnd = 0;
+	    continue;
+	}
 	forest[n] = C_BARE;
 	for (byte i = 0; i < 8; i++) {
 	    map_y[(y << 3) + i][x] = fence[i];
@@ -634,7 +639,7 @@ static void recede_wave(byte x, byte y) {
     }
 }
 
-int8 tsunami_len, tsunami_dir;
+static int8 tsunami_len, tsunami_dir;
 static int8 ending_tsunami(word *job) {
     byte x = 0, y = 0;
     if (tsunami_len < 0) {
@@ -736,6 +741,7 @@ static void flooding_level(void) {
 }
 
 static void tsunami_level(void) {
+    tsunami_rnd = 10;
     tsunami_len = 24;
     tsunami_dir = -1;
 
