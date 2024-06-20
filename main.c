@@ -678,7 +678,18 @@ static int8 ending_tsunami(void) {
     }
 }
 
+static word last_pos, stayed;
 static int8 ending_equilibrium(void) {
+    if (++stayed == 1000) {
+	return 1;
+    }
+    if (last_pos != pos) {
+	last_pos = pos;
+	stayed = 0;
+    }
+    if (no_grazers()) {
+	return -1;
+    }
     return 0;
 }
 
@@ -764,6 +775,8 @@ static void tsunami_level(void) {
 }
 
 static void equilibrium_level(void) {
+    stayed = 0;
+    last_pos = 0;
     put_str("- EQUILIBRIUM -", POS(8, 4), 0x44);
     put_str("Reach EQUILIBRIUM so that you", POS(1, 16), 4);
     put_str("stay on the same spot for 1000", POS(1, 17), 4);
