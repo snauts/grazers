@@ -521,14 +521,14 @@ static void increment_epoch(void) {
     put_num(epoch, POS(7, 23), 5);
 }
 
-static int8 (*finish)(word *);
+static int8 (*finish)(void);
 
 static int8 game_round(byte **src, byte **dst) {
     queue = dst;
     advance_forest(src);
     display_forest(dst);
     increment_epoch();
-    return finish(dst);
+    return finish();
 }
 
 static void reset_memory(void) {
@@ -538,7 +538,7 @@ static void reset_memory(void) {
     level = 0;
 }
 
-static byte no_grazers(word *job) {
+static byte no_grazers(void) {
     for (word i = 0; i < SIZE(forest); i++) {
 	byte cell = forest[i];
 	if (C_FOOD < cell && cell < C_PLAY) {
@@ -548,11 +548,11 @@ static byte no_grazers(word *job) {
     return 1;
 }
 
-static int8 ending_500(word *job) {
+static int8 ending_500(void) {
     if (epoch >= 0x500) {
 	return 1;
     }
-    else if (no_grazers(job)) {
+    else if (no_grazers()) {
 	return -1;
     }
     return 0;
@@ -573,8 +573,8 @@ static byte no_vegetaion(void) {
     return 1;
 }
 
-static int8 ending_vegetation(word *job) {
-    if (no_grazers(job)) {
+static int8 ending_vegetation(void) {
+    if (no_grazers()) {
 	if (no_empty_spaces()) {
 	    return 1;
 	}
@@ -585,8 +585,8 @@ static int8 ending_vegetation(word *job) {
     return 0;
 }
 
-static int8 ending_empty(word *job) {
-    if (no_grazers(job)) {
+static int8 ending_empty(void) {
+    if (no_grazers()) {
 	if (no_vegetaion()) {
 	    return 1;
 	}
@@ -597,7 +597,7 @@ static int8 ending_empty(word *job) {
     return 0;
 }
 
-static int8 ending_escape(word *job) {
+static int8 ending_escape(void) {
     byte cell = forest[POS(5, 0)];
     if ((cell & C_PLAY) || cell == T_ROCK) {
 	return 1;
@@ -605,7 +605,7 @@ static int8 ending_escape(word *job) {
     else if (cell & C_SIZE) {
 	return -1;
     }
-    return job == 0;
+    return 0;
 }
 
 static void draw_wave(byte x, byte y) {
@@ -645,7 +645,7 @@ static void recede_wave(byte x, byte y) {
 }
 
 static int8 tsunami_len, tsunami_dir;
-static int8 ending_tsunami(word *job) {
+static int8 ending_tsunami(void) {
     if (epoch & 1) {
 	byte x = 0, y = 0;
 	if (tsunami_len < 0) {
@@ -667,7 +667,7 @@ static int8 ending_tsunami(word *job) {
 	    tsunami_len += tsunami_dir;
 	}
     }
-    if (forest[pos] == T_WAVE || no_grazers(job)) {
+    if (forest[pos] == T_WAVE || no_grazers()) {
 	return -1;
     }
     if (tsunami_len == 24 && tsunami_dir == 1) {
