@@ -613,8 +613,59 @@ static int8 ending_escape(word *job) {
     return job == 0;
 }
 
+static void draw_wave(byte x, byte y) {
+    const byte *addr = fence + 56;
+    byte color = *(fence_color + 7);
+    for (word n = (y << 5) + x; x < 32 && y < 23; x++, y++, n += 33) {
+	forest[n] = T_WALL;
+	BYTE(0x5800 + n) = color;
+	for (byte i = 0; i < 8; i++) {
+	    map_y[(y << 3) + i][x] = addr[i];
+	}
+    }
+}
+
+static void recede_wave(byte x, byte y) {
+    for (word n = (y << 5) + x; x < 31 && y < 22; x++, y++, n += 33) {
+	forest[n] = C_BARE;
+	for (byte i = 0; i < 8; i++) {
+	    map_y[(y << 3) + i][x] = fence[i];
+	}
+    }
+}
+
+int8 tsunami_len, tsunami_dir;
 static int8 ending_tsunami(word *job) {
-    return job == 0;
+    byte x = 0, y = 0;
+    if (tsunami_len < 0) {
+	x = -tsunami_len;
+    }
+    else {
+	y = tsunami_len;
+    }
+    if (tsunami_dir < 0) {
+	draw_wave(x, y);
+    }
+    else {
+	recede_wave(x + 1, y + 1);
+    }
+    if (epoch & 1) {
+	if (tsunami_len == -24 && tsunami_dir == -1) {
+	    tsunami_dir = 1;
+	}
+	else {
+	    tsunami_len += tsunami_dir;
+	}
+    }
+    if (forest[pos] == T_WALL || no_grazers(job)) {
+	return -1;
+    }
+    if (tsunami_len == 24 && tsunami_dir == 1) {
+	return 1;
+    }
+    else {
+	return 0;
+    }
 }
 
 static void adat_meitas(void);
@@ -685,6 +736,9 @@ static void flooding_level(void) {
 }
 
 static void tsunami_level(void) {
+    tsunami_len = 24;
+    tsunami_dir = -1;
+
     put_str("- TSUNAMI -", POS(10, 4), 0x44);
     put_str("Help grazers survive tsunami.", POS(2, 16), 4);
     wait_space_or_enter(0);
