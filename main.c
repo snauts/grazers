@@ -25,6 +25,7 @@ typedef unsigned short word;
 
 #define T_ROCK		0x80
 #define T_WALL		0xff
+#define T_WAVE		0xfe
 #define T_DEER		0x07
 
 #ifdef ZXS
@@ -619,7 +620,7 @@ static void draw_wave(byte x, byte y) {
     for (word n = (y << 5) + x; x < 32 && y < 23; x++, y++, n += 33) {
 	BYTE(0x5800 + n) = color;
 	if (forest[n] != T_WALL) {
-	    forest[n] = T_WALL;
+	    forest[n] = T_WAVE;
 	    for (byte i = 0; i < 8; i++) {
 		map_y[(y << 3) + i][x] = addr[i];
 	    }
@@ -629,7 +630,14 @@ static void draw_wave(byte x, byte y) {
 
 static byte tsunami_rnd;
 static void recede_wave(byte x, byte y) {
-    for (word n = (y << 5) + x; x < 31 && y < 22; x++, y++, n += 33) {
+    for (word n = (y << 5) + x; x < 32 && y < 23; x++, y++, n += 33) {
+	if (forest[n] == T_WALL) {
+	    BYTE(0x5800 + n) = 0x2;
+	    continue;
+	}
+	if (x == 0 || y == 22) {
+	    continue;
+	}
 	if (tsunami_rnd++ == 25) {
 	    tsunami_rnd = 0;
 	    continue;
@@ -656,7 +664,7 @@ static int8 ending_tsunami(word *job) {
 	    draw_wave(x, y);
 	}
 	else {
-	    recede_wave(x + 1, y + 1);
+	    recede_wave(x, y);
 	}
 	if (tsunami_len == -24 && tsunami_dir == -1) {
 	    tsunami_dir = 1;
@@ -665,7 +673,7 @@ static int8 ending_tsunami(word *job) {
 	    tsunami_len += tsunami_dir;
 	}
     }
-    if (forest[pos] == T_WALL || no_grazers(job)) {
+    if (forest[pos] == T_WAVE || no_grazers(job)) {
 	return -1;
     }
     if (tsunami_len == 24 && tsunami_dir == 1) {
