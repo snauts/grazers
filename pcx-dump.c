@@ -253,7 +253,9 @@ static void to_level(unsigned char *pixel, int *pixel_size,
 	    }
 	}
 	if (!found) {
-	    fprintf(stderr, "ERROR: tile not found\n");
+	    int x = (n % header.w) / 8;
+	    int y = (n / header.w);
+	    fprintf(stderr, "ERROR: tile not found (%d,%d)\n", x, y);
 	    exit(-1);
 	}
     }
