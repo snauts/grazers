@@ -617,10 +617,12 @@ static void draw_wave(byte x, byte y) {
     const byte *addr = fence + 56;
     byte color = *(fence_color + 7);
     for (word n = (y << 5) + x; x < 32 && y < 23; x++, y++, n += 33) {
-	forest[n] = T_WALL;
 	BYTE(0x5800 + n) = color;
-	for (byte i = 0; i < 8; i++) {
-	    map_y[(y << 3) + i][x] = addr[i];
+	if (forest[n] != T_WALL) {
+	    forest[n] = T_WALL;
+	    for (byte i = 0; i < 8; i++) {
+		map_y[(y << 3) + i][x] = addr[i];
+	    }
 	}
     }
 }
