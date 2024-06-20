@@ -642,20 +642,20 @@ static void recede_wave(byte x, byte y) {
 
 static int8 tsunami_len, tsunami_dir;
 static int8 ending_tsunami(word *job) {
-    byte x = 0, y = 0;
-    if (tsunami_len < 0) {
-	x = -tsunami_len;
-    }
-    else {
-	y = tsunami_len;
-    }
-    if (tsunami_dir < 0) {
-	draw_wave(x, y);
-    }
-    else {
-	recede_wave(x + 1, y + 1);
-    }
     if (epoch & 1) {
+	byte x = 0, y = 0;
+	if (tsunami_len < 0) {
+	    x = -tsunami_len;
+	}
+	else {
+	    y = tsunami_len;
+	}
+	if (tsunami_dir < 0) {
+	    draw_wave(x, y);
+	}
+	else {
+	    recede_wave(x + 1, y + 1);
+	}
 	if (tsunami_len == -24 && tsunami_dir == -1) {
 	    tsunami_dir = 1;
 	}
