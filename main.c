@@ -539,19 +539,13 @@ static void reset_memory(void) {
 }
 
 static byte no_grazers(word *job) {
-    if (queue - job < 8) {
-	word grazers = 0;
-	for (word i = 0; i < SIZE(forest); i++) {
-	    byte cell = forest[i];
-	    if (C_FOOD < cell && cell < C_PLAY) {
-		grazers++;
-	    }
+    for (word i = 0; i < SIZE(forest); i++) {
+	byte cell = forest[i];
+	if (C_FOOD < cell && cell < C_PLAY) {
+	    return 0;
 	}
-	return grazers == 0;
     }
-    else {
-	return 0;
-    }
+    return 1;
 }
 
 static int8 ending_500(word *job) {
