@@ -15,6 +15,7 @@ prg:
 	@./pcx-dump -l gardener.pcx >> data.h
 	@./pcx-dump -l earthquake.pcx >> data.h
 	@./pcx-dump -l flooding.pcx >> data.h
+	@./pcx-dump -l tsunami.pcx >> data.h
 	@./pcx-dump -c logo.pcx no-color >> data.h
 	@./pcx-dump -l logo.pcx >> data.h
 	@./pcx-dump -c sunset.pcx >> data.h

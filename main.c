@@ -613,6 +613,10 @@ static int8 ending_escape(word *job) {
     return job == 0;
 }
 
+static int8 ending_tsunami(word *job) {
+    return job == 0;
+}
+
 static void adat_meitas(void);
 
 static void finish_game(void) {
@@ -680,10 +684,21 @@ static void flooding_level(void) {
     finish = &ending_empty;
 }
 
+static void tsunami_level(void) {
+    put_str("- TSUNAMI -", POS(10, 4), 0x44);
+    put_str("Help grazers survive tsunami.", POS(2, 16), 4);
+    wait_space_or_enter(0);
+
+    fenced_level(tsunami_map, SIZE(tsunami_map));
+
+    finish = &ending_tsunami;
+}
+
 static const struct Level all_levels[] = {
     { &gardener_level },
     { &quarantine_level },
     { &earthquake_level },
+    { &tsunami_level },
     { &flooding_level },
     { &finish_game },
 };
