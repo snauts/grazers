@@ -721,7 +721,7 @@ static int8 ending_migration(void) {
     if (cell & C_SIZE) {
 	return 1;
     }
-    else if (no_grazers()) {
+    else if (no_grazers() || forest[pos] == T_WAVE) {
 	return -1;
     }
     return 0;
