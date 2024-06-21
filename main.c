@@ -44,6 +44,7 @@ static byte *mirror[512];
 
 static word pos;
 static word epoch;
+static word retry;
 static byte level;
 
 struct Level { void (*fn)(void); };
@@ -536,6 +537,7 @@ static void reset_memory(void) {
     memset(mirror, 0x00, sizeof(mirror));
     memset(forest, 0x00, sizeof(forest));
     level = 0;
+    retry = 0;
 }
 
 static byte no_grazers(void) {
@@ -1010,11 +1012,13 @@ static void game_loop(void) {
     case  1:
 	display_msg(" DONE");
 	success_tune();
+	retry = 0;
 	level++;
 	break;
     case -1:
 	display_msg("FAILED");
 	sad_trombone_wah_wah_wah();
+	retry++;
 	break;
     }
 
