@@ -99,6 +99,10 @@ static void memset(byte *ptr, byte data, word len) {
     while (len-- > 0) { *ptr++ = data; }
 }
 
+static void memcpy(byte *dst, byte *src, word len) {
+    while (len-- > 0) { *dst++ = *src++; }
+}
+
 static void slow_pixel(byte x, byte y) {
     map_y[y][x >> 3] ^= pixel_map[x & 7];
 }
@@ -462,7 +466,6 @@ static byte flip_bits(byte source) {
 static const byte *sprite;
 static const byte *sprite_color;
 static void put_sprite(byte cell, byte base, word n) {
-    forest[n] = T_WALL;
     byte x = n & 0x1f;
     byte y = (n >> 2) & ~7;
     byte flipH = cell & 0x40;
@@ -507,6 +510,7 @@ static void display_cell(byte cell, byte base, word n) {
 	special_cell(cell, n);
     }
     else {
+	forest[n] = T_WALL;
 	put_sprite(cell, base, n);
     }
 }
@@ -631,8 +635,8 @@ static void draw_wave(int8 len, byte color) {
     byte y = len >= 0 ? len : 0;
     for (word n = (y << 5) + x; x < 32 && y < 23; x++, y++, n += 33) {
 	if (forest[n] != T_WALL) {
-	    put_sprite(7, 0, n);
 	    forest[n] = T_WAVE;
+	    put_sprite(7, 0, n);
 	    BYTE(0x5800 + n) = color;
 	}
     }
