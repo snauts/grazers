@@ -658,29 +658,29 @@ static void recede_wave(int8 len) {
     }
 }
 
-static int8 tsunami_len, tsunami_dir;
+static int8 wave_len, wave_dir;
 static int8 ending_tsunami(void) {
     if (epoch & 1) {
-	if (tsunami_dir < 0) {
-	    draw_wave(tsunami_len, 5);
+	if (wave_dir < 0) {
+	    draw_wave(wave_len, 5);
 	}
 	else {
-	    recede_wave(tsunami_len);
+	    recede_wave(wave_len);
 	}
-	if (tsunami_len == -24 && tsunami_dir == -1) {
-	    tsunami_dir = 1;
+	if (wave_len == -24 && wave_dir == -1) {
+	    wave_dir = 1;
 	}
 	else {
-	    tsunami_len += tsunami_dir;
+	    wave_len += wave_dir;
 	}
     }
-    else if (tsunami_dir < 0) {
-	draw_wave(tsunami_len + 2, 1);
+    else if (wave_dir < 0) {
+	draw_wave(wave_len + 2, 1);
     }
     if (forest[pos] == T_WAVE || no_grazers()) {
 	return -1;
     }
-    if (tsunami_len == 24 && tsunami_dir == 1) {
+    if (wave_len == 24 && wave_dir == 1) {
 	return 1;
     }
     else {
@@ -797,8 +797,8 @@ static void flooding_level(void) {
 
 static void tsunami_level(void) {
     tsunami_rnd = 11;
-    tsunami_len = 24;
-    tsunami_dir = -1;
+    wave_len = 24;
+    wave_dir = -1;
 
     put_str("- TSUNAMI -", POS(10, 4), 0x44);
     put_str("Help GRAZERs survive TSUNAMI", POS(2, 16), 4);
