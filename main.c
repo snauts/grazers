@@ -710,6 +710,10 @@ static int8 ending_equilibrium(void) {
     return 0;
 }
 
+static int8 ending_migration(void) {
+    return 0;
+}
+
 static void adat_meitas(void);
 
 static void finish_game(void) {
@@ -820,6 +824,16 @@ static void equilibrium_level(void) {
     finish = &ending_equilibrium;
 }
 
+static void migration_level(void) {
+    put_str("- MIGRATION -", POS(9, 4), 0x44);
+    put_str("Help GRAZERs migrate south", POS(3, 16), 4);
+    wait_space_or_enter(0);
+
+    fenced_level(migration_map, SIZE(migration_map));
+
+    finish = &ending_migration;
+}
+
 static const struct Level all_levels[] = {
     { &gardener_level },
     { &quarantine_level },
@@ -827,6 +841,7 @@ static const struct Level all_levels[] = {
     { &tsunami_level },
     { &flooding_level },
     { &equilibrium_level },
+    { &migration_level },
     { &finish_game },
 };
 
