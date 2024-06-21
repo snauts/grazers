@@ -388,7 +388,7 @@ static byte space_of_enter(void) {
     return (~in_fe(0x7f) & 1) | ((~in_fe(0xbf) & 1) << 1);
 }
 
-static void wait_space_or_enter(byte (*callback)(void)) {
+static byte wait_space_or_enter(byte (*callback)(void)) {
     byte prev, next = space_of_enter();
     do {
 	prev = next;
@@ -396,10 +396,11 @@ static void wait_space_or_enter(byte (*callback)(void)) {
 	if (callback != 0 && vblank == 1) {
 	    vblank = 0;
 	    if (callback()) {
-		break;
+		return TRUE;
 	    }
 	}
     } while ((next & (prev ^ next)) == 0);
+    return FALSE;
 }
 
 static byte key_state(void) {
@@ -778,6 +779,11 @@ static void tsunami_level(void) {
     finish = &ending_tsunami;
 }
 
+static byte check_P(void) {
+    return ~in_fe(0xdf) & 1;
+}
+
+static void load_level(byte n);
 static void equilibrium_level(void) {
     stayed = 0;
     last_pos = 0;
@@ -785,7 +791,16 @@ static void equilibrium_level(void) {
     put_str("Reach EQUILIBRIUM so that you", POS(1, 16), 4);
     put_str("stay on the same spot for 800", POS(1, 17), 4);
     put_str("EPOCHs and GRAZERs survive", POS(2, 18), 4);
-    wait_space_or_enter(0);
+    if (retry >= 3) {
+	put_str("P - load previous level", POS(4, 20), 4);
+	if (wait_space_or_enter(&check_P)) {
+	    load_level(--level);
+	    return;
+	}
+    }
+    else {
+	wait_space_or_enter(0);
+    }
 
     fenced_level(equilibrium_map, SIZE(equilibrium_map));
 
@@ -802,10 +817,15 @@ static const struct Level all_levels[] = {
     { &finish_game },
 };
 
+static void load_level(byte n) {
+    clear_screen();
+    all_levels[n].fn();
+}
+
 static void init_variables(void) {
     epoch = 0;
     queue = update;
-    all_levels[level].fn();
+    load_level(level);
     put_str("EPOCH:0000", POS(1, 23), 5);
 }
 
@@ -999,7 +1019,6 @@ static void display_msg(const char *text_message) {
 }
 
 static void game_loop(void) {
-    clear_screen();
     init_variables();
 
     int8 ending;
