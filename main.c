@@ -384,15 +384,15 @@ static void queue_item(word where, byte type, byte sprite) {
     QUEUE(forest + where);
 }
 
-static byte space_of_enter(void) {
+static byte space_or_enter(void) {
     return (~in_fe(0x7f) & 1) | ((~in_fe(0xbf) & 1) << 1);
 }
 
 static byte wait_space_or_enter(byte (*callback)(void)) {
-    byte prev, next = space_of_enter();
+    byte prev, next = space_or_enter();
     do {
 	prev = next;
-	next = space_of_enter();
+	next = space_or_enter();
 	if (callback != 0 && vblank == 1) {
 	    vblank = 0;
 	    if (callback()) {
@@ -570,7 +570,7 @@ static byte no_empty_spaces(void) {
     return 1;
 }
 
-static byte no_vegetaion(void) {
+static byte no_vegetation(void) {
     for (word i = 0; i < SIZE(forest); i++) {
 	byte cell = forest[i];
 	if (cell > 0 && cell <= 3) return 0;
@@ -583,21 +583,19 @@ static int8 ending_vegetation(void) {
 	if (no_empty_spaces()) {
 	    return 1;
 	}
-	else if (no_vegetaion()) {
+	else if (no_vegetation()) {
 	    return -1;
 	}
     }
     return 0;
 }
 
-static int8 ending_empty(void) {
+static int8 ending_no_weeds(void) {
+    if (no_vegetation()) {
+	return 1;
+    }
     if (no_grazers()) {
-	if (no_vegetaion()) {
-	    return 1;
-	}
-	else {
-	    return -1;
-	}
+	return -1;
     }
     return 0;
 }
@@ -758,11 +756,12 @@ static void flooding_level(void) {
     put_str("Recent FLOODING had caused ", POS(2, 16), 4);
     put_str("spread of weeds that needs", POS(2, 17), 4);
     put_str("to be eliminated completely", POS(2, 18), 4);
+    put_str("some GRAZERs must remain", POS(3, 19), 4);
     wait_space_or_enter(0);
 
     fenced_level(flooding_map, SIZE(flooding_map));
 
-    finish = &ending_empty;
+    finish = &ending_no_weeds;
 }
 
 static void tsunami_level(void) {
@@ -982,7 +981,7 @@ static void adat_meitas(void) {
     }
 
     melody = 0;
-    while (!space_of_enter() && melody < 2) {
+    while (!space_or_enter() && melody < 2) {
 	update_pause(channels);
 
 	word p0 = channels[0].period;
