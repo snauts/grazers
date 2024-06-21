@@ -134,8 +134,10 @@ static void put_char(char symbol, word n, byte color) {
     byte y = (n >> 2) & ~7;
     BYTE(0x5800 + n) = color;
     byte *addr = (byte *) 0x3c00 + (symbol << 3);
+    byte *ptr = map_y[y] + x;
     for (byte i = 0; i < 8; i++) {
-	map_y[y + i][x] = *addr++;
+	*ptr = *addr++;
+	ptr += 0x100;
     }
 #endif
 }
@@ -181,8 +183,10 @@ static void put_tile(byte cell, word n) {
     byte y = (n >> 2) & ~7;
     BYTE(0x5800 + n) = tiles_color[cell];
     const byte *addr = tiles + (cell << 3);
+    byte *ptr = map_y[y] + x;
     for (byte i = 0; i < 8; i++) {
-	map_y[y + i][x] = *addr++;
+	*ptr = *addr++;
+	ptr += 0x100;
     }
 }
 
@@ -455,15 +459,19 @@ static void put_sprite(byte cell, byte base, word n) {
     forest[n] = T_WALL;
     byte x = n & 0x1f;
     byte y = (n >> 2) & ~7;
+    byte flipH = cell & 0x40;
+    byte flipV = cell & 0x20;
     byte index = base + (cell & 0x1f);
     BYTE(0x5800 + n) = sprite_color[index];
     const byte *addr = sprite + (index << 3);
-    byte flipH = cell & 0x40;
-    byte flipV = cell & 0x20;
+    if (flipV) addr = addr + 7;
+    byte *ptr = map_y[y] + x;
     for (byte i = 0; i < 8; i++) {
-	byte data = *addr++;
+	byte data = *addr;
+	if (flipV) addr--; else addr++;
 	if (flipH) data = flip_bits(data);
-	map_y[y + (flipV ? 7 - i : i)][x] = data;
+	*ptr = data;
+	ptr += 0x100;
     }
 }
 
