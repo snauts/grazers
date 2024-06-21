@@ -23,9 +23,10 @@ typedef unsigned short word;
 #define C_DONE		BIT(6)
 #define C_TILE		BIT(7)
 
-#define T_WALL		0xff
-#define T_WAVE		0xfe
-#define T_ROCK		0xfd
+#define T_SAND		0x80
+#define T_ROCK		0x81
+#define T_WALL		0x82
+#define T_WAVE		0x83
 #define T_DEER		0x07
 
 #ifdef ZXS
@@ -355,6 +356,11 @@ static byte can_move_into(byte next, int8 diff) {
     return next < C_TILE || (next == T_ROCK && roll_rock(diff));
 }
 
+static byte is_grazer(word dst) {
+    byte cell = forest[dst] & (C_SIZE | C_TILE);
+    return cell > 0 && cell < C_TILE;
+}
+
 static void move_hunter(int8 diff) {
     word dst = pos + diff;
     if (can_move_into(forest[dst], diff)) {
@@ -364,7 +370,7 @@ static void move_hunter(int8 diff) {
 	tile_ptr(place);
 	QUEUE(place);
 
-	if (forest[dst] & C_SIZE) bite(dst);
+	if (is_grazer(dst)) bite(dst);
 	byte face = get_face(diff, cell);
 	forest[dst] = C_PLAY | face;
 	put_tile(face ? 33 : 32, dst);
@@ -738,7 +744,7 @@ static void quarantine_level(void) {
 
 static void earthquake_level(void) {
     put_str("- EARTHQUAKE -", POS(9, 4), 0x44);
-    put_str("Prevent GRAZERs from escaping", POS(1, 16), 4);
+    put_str("Prevent GRAZERs from escaping", POS(2, 16), 4);
     wait_space_or_enter(0);
 
     fenced_level(earthquake_map, SIZE(earthquake_map));
