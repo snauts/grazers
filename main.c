@@ -629,13 +629,15 @@ static byte tsunami_rnd;
 static void draw_wave(int8 len, byte color) {
     byte x = len < 0 ? -len : 0;
     byte y = len >= 0 ? len : 0;
-    const byte *addr = fence + 56;
     for (word n = (y << 5) + x; x < 32 && y < 23; x++, y++, n += 33) {
 	if (forest[n] != T_WALL) {
 	    forest[n] = T_WAVE;
 	    BYTE(0x5800 + n) = color;
+	    const byte *addr = fence + 56;
+	    byte *ptr = map_y[y << 3] + x;
 	    for (byte i = 0; i < 8; i++) {
-		map_y[(y << 3) + i][x] = addr[i];
+		*ptr = *addr++;
+		ptr += 0x100;
 	    }
 	}
     }
@@ -659,8 +661,10 @@ static void recede_wave(int8 len) {
 	}
 	forest[n] = C_BARE;
 	QUEUE(forest + n);
+	byte *ptr = map_y[y << 3] + x;
 	for (byte i = 0; i < 8; i++) {
-	    map_y[(y << 3) + i][x] = fence[i];
+	    *ptr = 0;
+	    ptr += 0x100;
 	}
     }
 }
