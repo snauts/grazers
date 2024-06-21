@@ -659,13 +659,7 @@ static void recede_wave(int8 len) {
 	if (x == 0 || y == 22 || sum < 18 || sum > 36) {
 	    continue;
 	}
-	forest[n] = C_BARE;
-	QUEUE(forest + n);
-	byte *ptr = map_y[y << 3] + x;
-	for (byte i = 0; i < 8; i++) {
-	    *ptr = 0;
-	    ptr += 0x100;
-	}
+	queue_item(n, C_BARE, C_BARE);
     }
 }
 
