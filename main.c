@@ -23,9 +23,9 @@ typedef unsigned short word;
 #define C_DONE		BIT(6)
 #define C_TILE		BIT(7)
 
-#define T_ROCK		0x80
 #define T_WALL		0xff
 #define T_WAVE		0xfe
+#define T_ROCK		0xfd
 #define T_DEER		0x07
 
 #ifdef ZXS
