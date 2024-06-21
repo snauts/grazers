@@ -631,14 +631,9 @@ static void draw_wave(int8 len, byte color) {
     byte y = len >= 0 ? len : 0;
     for (word n = (y << 5) + x; x < 32 && y < 23; x++, y++, n += 33) {
 	if (forest[n] != T_WALL) {
+	    put_sprite(7, 0, n);
 	    forest[n] = T_WAVE;
 	    BYTE(0x5800 + n) = color;
-	    const byte *addr = fence + 56;
-	    byte *ptr = map_y[y << 3] + x;
-	    for (byte i = 0; i < 8; i++) {
-		*ptr = *addr++;
-		ptr += 0x100;
-	    }
 	}
     }
 }
