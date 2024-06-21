@@ -388,14 +388,16 @@ static byte space_of_enter(void) {
     return (~in_fe(0x7f) & 1) | ((~in_fe(0xbf) & 1) << 1);
 }
 
-static void wait_space_or_enter(void (*callback)(void)) {
+static void wait_space_or_enter(byte (*callback)(void)) {
     byte prev, next = space_of_enter();
     do {
 	prev = next;
 	next = space_of_enter();
 	if (callback != 0 && vblank == 1) {
-	    callback();
 	    vblank = 0;
+	    if (callback()) {
+		break;
+	    }
 	}
     } while ((next & (prev ^ next)) == 0);
 }
@@ -1048,7 +1050,7 @@ static void title_flash(byte offset, byte color) {
 }
 
 static byte eat;
-static void animate_title(void) {
+static byte animate_title(void) {
     byte roll = (eat >> 1) & 0x3f;
     byte frame = (eat & 0x3f) < 32;
     put_tile(frame ? 0x1e : 0x1f, POS(12, 3));
@@ -1058,6 +1060,8 @@ static void animate_title(void) {
     title_flash(roll - 0x10, 0x04);
     title_flash(roll - 0x08, 0x44);
     eat++;
+
+    return 0;
 }
 
 static void title_screen(void) {
