@@ -711,6 +711,13 @@ static int8 ending_equilibrium(void) {
 }
 
 static int8 ending_migration(void) {
+    byte cell = forest[POS(8, 22)];
+    if (cell & C_SIZE) {
+	return 1;
+    }
+    else if (no_grazers()) {
+	return -1;
+    }
     return 0;
 }
 
