@@ -710,7 +710,20 @@ static int8 ending_equilibrium(void) {
     return 0;
 }
 
+static int8 tide[24];
+
+static const int8 tide_width[12] = {
+    4, 3, 3, 2, 2, 2, 2, 2, 2, 3, 3, 4
+};
+
+static void tidal_movement(void) {
+    for (byte i = 0; i < 12; i++) {
+    }
+}
+
 static int8 ending_migration(void) {
+    tidal_movement();
+
     byte cell = forest[POS(8, 22)];
     if (cell & C_SIZE) {
 	return 1;
