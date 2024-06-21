@@ -608,13 +608,15 @@ static int8 ending_escape(void) {
     return 0;
 }
 
-static void draw_wave(byte x, byte y) {
+static byte tsunami_rnd;
+static void draw_wave(int8 len, byte color) {
+    byte x = len < 0 ? -len : 0;
+    byte y = len >= 0 ? len : 0;
     const byte *addr = fence + 56;
-    byte color = *(fence_color + 7);
     for (word n = (y << 5) + x; x < 32 && y < 23; x++, y++, n += 33) {
-	BYTE(0x5800 + n) = color;
 	if (forest[n] != T_WALL) {
 	    forest[n] = T_WAVE;
+	    BYTE(0x5800 + n) = color;
 	    for (byte i = 0; i < 8; i++) {
 		map_y[(y << 3) + i][x] = addr[i];
 	    }
@@ -622,14 +624,15 @@ static void draw_wave(byte x, byte y) {
     }
 }
 
-static byte tsunami_rnd;
-static void recede_wave(byte x, byte y) {
+static void recede_wave(int8 len) {
+    byte x = len < 0 ? -len : 0;
+    byte y = len >= 0 ? len : 0;
     for (word n = (y << 5) + x; x < 32 && y < 23; x++, y++, n += 33) {
 	if (forest[n] == T_WALL) {
-	    BYTE(0x5800 + n) = 0x2;
 	    continue;
 	}
 	if (tsunami_rnd++ == 11) {
+	    BYTE(0x5800 + n) = 1;
 	    tsunami_rnd = 0;
 	    continue;
 	}
@@ -648,18 +651,11 @@ static void recede_wave(byte x, byte y) {
 static int8 tsunami_len, tsunami_dir;
 static int8 ending_tsunami(void) {
     if (epoch & 1) {
-	byte x = 0, y = 0;
-	if (tsunami_len < 0) {
-	    x = -tsunami_len;
-	}
-	else {
-	    y = tsunami_len;
-	}
 	if (tsunami_dir < 0) {
-	    draw_wave(x, y);
+	    draw_wave(tsunami_len, 5);
 	}
 	else {
-	    recede_wave(x, y);
+	    recede_wave(tsunami_len);
 	}
 	if (tsunami_len == -24 && tsunami_dir == -1) {
 	    tsunami_dir = 1;
@@ -667,6 +663,9 @@ static int8 ending_tsunami(void) {
 	else {
 	    tsunami_len += tsunami_dir;
 	}
+    }
+    else if (tsunami_dir < 0) {
+	draw_wave(tsunami_len + 2, 1);
     }
     if (forest[pos] == T_WAVE || no_grazers()) {
 	return -1;
