@@ -629,14 +629,18 @@ static int8 ending_escape(void) {
     return 0;
 }
 
+static void put_wave(word n) {
+    forest[n] = T_WAVE;
+    put_sprite(7, 0, n);
+}
+
 static byte tsunami_rnd;
 static void draw_wave(int8 len, byte color) {
     byte x = len < 0 ? -len : 0;
     byte y = len >= 0 ? len : 0;
     for (word n = (y << 5) + x; x < 32 && y < 23; x++, y++, n += 33) {
 	if (forest[n] != T_WALL) {
-	    forest[n] = T_WAVE;
-	    put_sprite(7, 0, n);
+	    put_wave(n);
 	    BYTE(0x5800 + n) = color;
 	}
     }
@@ -707,14 +711,51 @@ static int8 ending_equilibrium(void) {
     return 0;
 }
 
-static int8 tide[24];
-
-static const int8 tide_width[12] = {
-    4, 3, 3, 2, 2, 2, 2, 2, 2, 3, 3, 4
+static int8 tide_pos[24];
+static const int8 tide_max[24] = {
+    11, 20, 12, 19, 12, 19, 13, 18, 13, 18, 13, 18,
+    13, 18, 13, 18, 13, 18, 12, 19, 12, 19, 11, 20,
 };
 
+static int8 tidal_put(int8 *ptr, int8 y, int8 dir) {
+    word n = (y << 5) + *ptr + dir;
+    if (forest[n] < C_TILE) {
+	(*ptr) += dir;
+	put_wave(n);
+	return 1;
+    }
+    return 0;
+}
+
+static int8 recede_put(int8 *ptr, int8 y, int8 dir) {
+    word n = (y << 5) + *ptr;
+    if (forest[n] == T_WAVE) {
+	(*ptr) += dir;
+	byte *ptr = forest + n;
+	put_item(n, C_BARE, C_BARE);
+	if (should_regrow(ptr)) {
+	    QUEUE(ptr);
+	}
+	return 1;
+    }
+    return 0;
+}
+
 static void tidal_movement(void) {
-    for (byte i = 0; i < 12; i++) {
+    byte advance = 0;
+    int8 *ptr = tide_pos;
+    for (int8 y = 7; y < 19; y++) {
+	if (wave_dir > 0) {
+	    advance += tidal_put(ptr++, y, 1);
+	    advance += tidal_put(ptr++, y, -1);
+	}
+	else {
+	    advance += recede_put(ptr++, y, -1);
+	    advance += recede_put(ptr++, y, 1);
+	}
+    }
+    if (advance == 0) {
+	wave_dir = -wave_dir;
     }
 }
 
@@ -842,6 +883,9 @@ static void equilibrium_level(void) {
 }
 
 static void migration_level(void) {
+    wave_dir = 1;
+    memcpy(tide_pos, tide_max, sizeof(tide_max));
+
     put_str("- MIGRATION -", POS(9, 4), 0x44);
     put_str("Help GRAZERs migrate south", POS(3, 16), 4);
     wait_space_or_enter(0);
