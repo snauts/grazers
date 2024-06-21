@@ -363,7 +363,7 @@ static byte is_grazer(word dst) {
 
 static void move_hunter(int8 diff) {
     word dst = pos + diff;
-    if (can_move_into(forest[dst], diff)) {
+    if (dst < SIZE(forest) && can_move_into(forest[dst], diff)) {
 	byte *place = forest + pos;
 	byte cell = *place;
 	*place = C_BARE;
