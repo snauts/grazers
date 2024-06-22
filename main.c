@@ -357,7 +357,7 @@ static byte roll_rock(int8 diff) {
 }
 
 static byte can_move_into(byte next, int8 diff) {
-    return next < C_TILE || (next == T_ROCK && roll_rock(diff));
+    return next <= T_SAND || (next == T_ROCK && roll_rock(diff));
 }
 
 static byte is_grazer(word dst) {
@@ -501,12 +501,16 @@ static void special_cell(byte cell, word n) {
     case 4:
 	queue_item(n, T_ROCK, rock_type(n));
 	break;
+    case 5:
+	put_sprite(cell, 0, n);
+	forest[n] = T_SAND;
+	break;
     }
 }
 
 static byte in_game;
 static void display_cell(byte cell, byte base, word n) {
-    if (in_game && cell < 5) {
+    if (in_game && cell < 6) {
 	special_cell(cell, n);
     }
     else {
