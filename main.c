@@ -872,8 +872,8 @@ static int8 ending_lonesome(void) {
     if (no_grazers()) {
 	return -1;
     }
-    if (drying == POS(17, 16)) {
-	return is_grazer(drying) ? 1 : -1;
+    if (drying == POS(17, 15)) {
+	return 1;
     }
     return 0;
 }
@@ -1018,8 +1018,8 @@ static void lonesome_level(void) {
     put_str("- LONESOME -", POS(10, 4), 0x44);
 
     put_str("Make sure last inhabitable", POS(3, 16), 4);
-    put_str("spot is occupied by", POS(6, 17), 4);
-    put_str("lonesome GRAZER", POS(8, 18), 4);
+    put_str("four spots is occupied by", POS(3, 17), 4);
+    put_str("lonesome GRAZERs", POS(7, 18), 4);
     wait_space_or_enter(0);
 
     fenced_level(lonesome_map, SIZE(lonesome_map));
