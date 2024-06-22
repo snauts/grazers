@@ -365,15 +365,29 @@ static byte is_grazer(word dst) {
     return cell > 0 && cell < C_TILE;
 }
 
+static void put_sprite(byte cell, byte base, word n);
+
+static byte standing;
+static void leave_tile(byte *place) {
+    if (standing < C_TILE) {
+	*place = C_BARE;
+	tile_ptr(place);
+    }
+    else {
+	*place = standing;
+	put_sprite(5, 0, place - forest);
+    }
+}
+
 static void move_hunter(int8 diff) {
     word dst = pos + diff;
     if (dst < SIZE(forest) && can_move_into(forest[dst], diff)) {
 	byte *place = forest + pos;
 	byte cell = *place;
-	*place = C_BARE;
-	tile_ptr(place);
+	leave_tile(place);
 	QUEUE(place);
 
+	standing = forest[dst];
 	if (is_grazer(dst)) bite(dst);
 	byte face = get_face(diff, cell);
 	forest[dst] = C_PLAY | face;
@@ -385,6 +399,7 @@ static void move_hunter(int8 diff) {
 static void put_hunter(word where) {
     pos = where;
     forest[pos] = 0;
+    standing = C_BARE;
     move_hunter(0);
 }
 
