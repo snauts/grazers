@@ -823,7 +823,55 @@ static int8 ending_aridness(void) {
     return 0;
 }
 
+static const int8 around[] = {
+    1, -31, -32, -33, -1, 31, 32, 33
+};
+
+static word drying;
+static int8 drying_dir;
+
+static int8 hunter_on_sand(byte cell) {
+    return (cell & C_PLAY) && standing == T_SAND;
+}
+
+static byte near_sand(word n) {
+    byte count = 0;
+    for (byte i = 0; i < SIZE(neighbors); i++) {
+	byte cell = forest[n + neighbors[i]];
+	if (cell == T_SAND || hunter_on_sand(cell)) count++;
+    }
+    return count;
+}
+
+static void advance_drying(void) {
+    word best_next = 0;
+    int8 best_near = 0;
+    for (byte i = 0; i < SIZE(around); i++) {
+	word next = drying + around[i];
+	byte cell = forest[next];
+	if (cell < C_TILE && !hunter_on_sand(cell)) {
+	    int8 near = near_sand(next);
+	    if (near > best_near) {
+		best_near = near;
+		best_next = next;
+	    }
+	}
+    }
+    drying = best_next;
+    put_num(drying, 1, 2);
+}
+
 static int8 ending_lonesome(void) {
+    byte *place = forest + drying;
+    if (*place == C_BARE) {
+	put_sprite(5, 0, place - forest);
+	*place = T_SAND;
+	advance_drying();
+    }
+    else if (*place & C_PLAY) {
+	standing = T_SAND;
+	advance_drying();
+    }
     return 0;
 }
 
@@ -963,6 +1011,8 @@ static void aridness_level(void) {
 }
 
 static void lonesome_level(void) {
+    drying_dir = 0;
+    drying = POS(19, 6);
     put_str("- LONESOME -", POS(10, 4), 0x44);
 
     put_str("Make sure last inhabitable", POS(3, 16), 4);
