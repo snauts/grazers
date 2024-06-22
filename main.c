@@ -629,9 +629,10 @@ static int8 ending_escape(void) {
     return 0;
 }
 
-static void put_wave(word n) {
+static void put_wave(word n, byte color) {
     forest[n] = T_WAVE;
     put_sprite(7, 0, n);
+    BYTE(0x5800 + n) = color;
 }
 
 static byte tsunami_rnd;
@@ -640,8 +641,7 @@ static void draw_wave(int8 len, byte color) {
     byte y = len >= 0 ? len : 0;
     for (word n = (y << 5) + x; x < 32 && y < 23; x++, y++, n += 33) {
 	if (forest[n] != T_WALL) {
-	    put_wave(n);
-	    BYTE(0x5800 + n) = color;
+	    put_wave(n, color);
 	}
     }
 }
@@ -721,7 +721,7 @@ static int8 tidal_put(int8 *ptr, int8 y, int8 dir) {
     word n = (y << 5) + *ptr + dir;
     if (forest[n] < C_TILE) {
 	(*ptr) += dir;
-	put_wave(n);
+	put_wave(n, 0x41);
 	return 1;
     }
     return 0;
