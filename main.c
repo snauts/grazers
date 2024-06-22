@@ -576,7 +576,7 @@ static void reset_memory(void) {
     memset(update, 0x00, sizeof(update));
     memset(mirror, 0x00, sizeof(mirror));
     memset(forest, 0x00, sizeof(forest));
-    level = 0;
+    level = 8;
     retry = 0;
 }
 
@@ -858,7 +858,6 @@ static void advance_drying(void) {
 	}
     }
     drying = best_next;
-    put_num(drying, 1, 2);
 }
 
 static int8 ending_lonesome(void) {
@@ -1333,7 +1332,7 @@ void reset(void) {
     setup_system();
     precalculate();
     reset_memory();
-    title_screen();
+    // title_screen();
 
     for (;;) game_loop();
 }
