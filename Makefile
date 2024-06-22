@@ -18,6 +18,7 @@ prg:
 	@./pcx-dump -l tsunami.pcx >> data.h
 	@./pcx-dump -l equilibrium.pcx >> data.h
 	@./pcx-dump -l migration.pcx >> data.h
+	@./pcx-dump -l aridness.pcx >> data.h
 	@./pcx-dump -c logo.pcx no-color >> data.h
 	@./pcx-dump -l logo.pcx >> data.h
 	@./pcx-dump -c sunset.pcx >> data.h

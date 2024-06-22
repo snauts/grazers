@@ -782,6 +782,10 @@ static int8 ending_migration(void) {
     return 0;
 }
 
+static int8 ending_aridness(void) {
+    return 0;
+}
+
 static void adat_meitas(void);
 
 static void finish_game(void) {
@@ -905,6 +909,15 @@ static void migration_level(void) {
     finish = &ending_migration;
 }
 
+static void aridness_level(void) {
+    put_str("- ARIDNESS -", POS(10, 4), 0x44);
+    wait_space_or_enter(0);
+
+    fenced_level(aridness_map, SIZE(aridness_map));
+
+    finish = &ending_aridness;
+}
+
 static const struct Level all_levels[] = {
     { &gardener_level },
     { &quarantine_level },
@@ -913,6 +926,7 @@ static const struct Level all_levels[] = {
     { &flooding_level },
     { &equilibrium_level },
     { &migration_level },
+    { &aridness_level },
     { &finish_game },
 };
 
