@@ -369,7 +369,7 @@ static void put_sprite(byte cell, byte base, word n);
 
 static byte standing;
 static void leave_tile(byte *place) {
-    if (standing < C_TILE) {
+    if (standing < C_TILE || standing == T_ROCK) {
 	*place = C_BARE;
 	tile_ptr(place);
     }
