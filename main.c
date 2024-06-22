@@ -828,8 +828,6 @@ static const int8 around[] = {
 };
 
 static word drying;
-static int8 drying_dir;
-
 static int8 hunter_on_sand(byte cell) {
     return (cell & C_PLAY) && standing == T_SAND;
 }
@@ -1010,7 +1008,6 @@ static void aridness_level(void) {
 }
 
 static void lonesome_level(void) {
-    drying_dir = 0;
     drying = POS(19, 6);
     put_str("- LONESOME -", POS(10, 4), 0x44);
 
