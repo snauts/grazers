@@ -838,7 +838,7 @@ static byte near_sand(word n) {
     byte count = 0;
     for (byte i = 0; i < SIZE(neighbors); i++) {
 	byte cell = forest[n + neighbors[i]];
-	if (cell == T_SAND || hunter_on_sand(cell)) count++;
+	if (cell >= C_TILE || hunter_on_sand(cell)) count++;
     }
     return count;
 }
