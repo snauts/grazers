@@ -869,6 +869,12 @@ static int8 ending_lonesome(void) {
 	standing = T_SAND;
 	advance_drying();
     }
+    if (no_grazers()) {
+	return -1;
+    }
+    if (drying == POS(17, 16)) {
+	return is_grazer(drying) ? 1 : -1;
+    }
     return 0;
 }
 
