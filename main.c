@@ -714,7 +714,7 @@ static int8 ending_equilibrium(void) {
 static int8 tide_pos[24];
 static const int8 tide_max[24] = {
     11, 20, 12, 19, 12, 19, 13, 18, 13, 18, 13, 18,
-    13, 18, 13, 18, 13, 18, 12, 19, 12, 19, 11, 20,
+    13, 18, 13, 18, 13, 18, 12, 19, 12, 19, 10, 21,
 };
 
 static int8 tidal_put(int8 *ptr, int8 y, int8 dir) {
@@ -742,6 +742,7 @@ static int8 recede_put(int8 *ptr, int8 y, int8 dir) {
 }
 
 static void tidal_movement(void) {
+  restart_tide:
     byte advance = 0;
     int8 *ptr = tide_pos;
     for (int8 y = 7; y < 19; y++) {
@@ -756,6 +757,9 @@ static void tidal_movement(void) {
     }
     if (advance == 0) {
 	wave_dir = -wave_dir;
+	if (wave_dir < 0) {
+	    goto restart_tide;
+	}
     }
 }
 
