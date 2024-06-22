@@ -823,6 +823,10 @@ static int8 ending_aridness(void) {
     return 0;
 }
 
+static int8 ending_lonesome(void) {
+    return 0;
+}
+
 static void adat_meitas(void);
 
 static void finish_game(void) {
@@ -958,6 +962,19 @@ static void aridness_level(void) {
     finish = &ending_aridness;
 }
 
+static void lonesome_level(void) {
+    put_str("- LONESOME -", POS(10, 4), 0x44);
+
+    put_str("Make sure last inhabitable", POS(3, 16), 4);
+    put_str("spot is occupied by", POS(6, 17), 4);
+    put_str("lonesome GRAZER", POS(8, 18), 4);
+    wait_space_or_enter(0);
+
+    fenced_level(lonesome_map, SIZE(lonesome_map));
+
+    finish = &ending_lonesome;
+}
+
 static const struct Level all_levels[] = {
     { &gardener_level },
     { &quarantine_level },
@@ -967,6 +984,7 @@ static const struct Level all_levels[] = {
     { &equilibrium_level },
     { &migration_level },
     { &aridness_level },
+    { &lonesome_level },
     { &finish_game },
 };
 
