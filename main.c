@@ -801,7 +801,25 @@ static int8 ending_migration(void) {
     return 0;
 }
 
+static byte half_grazers(void) {
+    byte alive = 0;
+    for (word i = 0; i < SIZE(forest); i++) {
+	byte cell = forest[i];
+	if (C_FOOD < cell && cell < C_PLAY) {
+	    alive |= ((i & 0x1f) > 0x10) ? 1 : 2;
+	}
+	if (alive == 3) return 0;
+    }
+    return 1;
+}
+
 static int8 ending_aridness(void) {
+    if (epoch >= 0x400) {
+	return 1;
+    }
+    else if (half_grazers()) {
+	return -1;
+    }
     return 0;
 }
 
