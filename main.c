@@ -754,6 +754,12 @@ static void tidal_movement(void) {
 	    advance += recede_put(ptr++, y, -1);
 	    advance += recede_put(ptr++, y, 1);
 	}
+	else {
+	    word n = (y << 5);
+	    byte color = wave_dir == 2 ? 0x01 : 0x41;
+	    BYTE(0x5800 + n + *ptr++) = color;
+	    BYTE(0x5800 + n + *ptr++) = color;
+	}
     }
     if (advance == 0) {
 	wave_dir = (wave_dir + 1) & 3;
@@ -887,7 +893,7 @@ static void equilibrium_level(void) {
 }
 
 static void migration_level(void) {
-    wave_dir = 0;
+    wave_dir = 3;
     memcpy(tide_pos, tide_max, sizeof(tide_max));
 
     put_str("- MIGRATION -", POS(9, 4), 0x44);
