@@ -906,11 +906,17 @@ static void lava_flow(byte *ptr) {
 }
 
 static void advance_lava(void) {
+    byte count = epoch & 0xf;
     byte **ptr = queue < mirror ? mirror : update;
     while (*ptr) {
 	byte *place = *ptr++;
 	if (*place == T_LAVA) {
-	    lava_flow(place);
+	    if (count == 0) {
+		lava_flow(place);
+	    }
+	    else {
+		QUEUE(place);
+	    }
 	}
     }
 }
@@ -919,6 +925,9 @@ static int8 ending_eruption(void) {
     advance_lava();
     if (no_grazers() || forest[pos] == T_LAVA) {
 	return -1;
+    }
+    if (epoch == 0x300) {
+	return 1;
     }
     return 0;
 }
@@ -1081,6 +1090,7 @@ static void eruption_level(void) {
     put_str("- ERUPTION -", POS(10, 4), 0x44);
 
     put_str("Help GRAZERs survive ERUPTION", POS(2, 16), 4);
+    put_str("until EPOCH 300", POS(8, 17), 4);
     wait_space_or_enter(0);
 
     fenced_level(eruption_map, SIZE(eruption_map));
