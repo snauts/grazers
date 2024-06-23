@@ -872,7 +872,7 @@ static void advance_drying(void) {
 static int8 ending_lonesome(void) {
     byte *place = forest + drying;
     if (*place <= C_FOOD) {
-	put_sprite(5, 0, place - forest);
+	put_sprite(6, 0, place - forest);
 	*place = T_SAND;
 	advance_drying();
     }
