@@ -384,7 +384,7 @@ static void leave_tile(byte *place) {
     }
     else {
 	*place = T_SAND;
-	put_sprite(5, 0, place - forest);
+	put_sprite(6, 0, place - forest);
     }
 }
 
@@ -523,9 +523,11 @@ static void special_cell(byte cell, word n) {
 	queue_item(n, T_DEER, T_DEER);
 	break;
     case 4:
-	queue_item(n, T_ROCK, rock_type(n));
-	break;
     case 5:
+	byte id = cell == 4 ? T_ROCK : T_ROLL;
+	queue_item(n, id, rock_type(n));
+	break;
+    case 6:
 	put_sprite(cell, 0, n);
 	forest[n] = T_SAND;
 	break;
@@ -534,7 +536,7 @@ static void special_cell(byte cell, word n) {
 
 static byte in_game;
 static void display_cell(byte cell, byte base, word n) {
-    if (in_game && cell < 6) {
+    if (in_game && cell < 7) {
 	special_cell(cell, n);
     }
     else {
