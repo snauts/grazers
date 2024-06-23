@@ -907,10 +907,14 @@ static void finish_game(void) {
     reset();
 }
 
-static void fenced_level(byte *level, word size) {
-    clear_screen();
+static void use_fence_sprites(void) {
     sprite = fence;
     sprite_color = fence_color;
+}
+
+static void fenced_level(byte *level, word size) {
+    clear_screen();
+    use_fence_sprites();
     display_image(level, 1, size, 0);
 }
 
@@ -1054,6 +1058,8 @@ static void eruption_level(void) {
     sprite = volcano;
     sprite_color = volcano_color;
     display_image(volcano_map, 0, SIZE(volcano_map), 0xc0);
+
+    use_fence_sprites();
 
     finish = &ending_eruption;
 }
