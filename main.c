@@ -539,7 +539,7 @@ static void display_cell(byte cell, byte base, word n) {
     if (in_game && cell < 7) {
 	special_cell(cell, n);
     }
-    else {
+    else if (cell + base > 0) {
 	forest[n] = T_WALL;
 	put_sprite(cell, base, n);
     }
@@ -889,6 +889,10 @@ static int8 ending_lonesome(void) {
     return 0;
 }
 
+static int8 ending_eruption(void) {
+    return 0;
+}
+
 static void adat_meitas(void);
 
 static void finish_game(void) {
@@ -1038,6 +1042,22 @@ static void lonesome_level(void) {
     finish = &ending_lonesome;
 }
 
+static void eruption_level(void) {
+    drying = POS(19, 6);
+    put_str("- ERUPTION -", POS(10, 4), 0x44);
+
+    put_str("Help GRAZERs survive ERUPTION", POS(2, 16), 4);
+    wait_space_or_enter(0);
+
+    fenced_level(eruption_map, SIZE(eruption_map));
+
+    sprite = volcano;
+    sprite_color = volcano_color;
+    display_image(volcano_map, 0, SIZE(volcano_map), 0xc0);
+
+    finish = &ending_eruption;
+}
+
 static const struct Level all_levels[] = {
     { &gardener_level },
     { &quarantine_level },
@@ -1048,6 +1068,7 @@ static const struct Level all_levels[] = {
     { &migration_level },
     { &aridness_level },
     { &lonesome_level },
+    { &eruption_level },
     { &finish_game },
 };
 

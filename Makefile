@@ -20,10 +20,13 @@ prg:
 	@./pcx-dump -l migration.pcx >> data.h
 	@./pcx-dump -l aridness.pcx >> data.h
 	@./pcx-dump -l lonesome.pcx >> data.h
+	@./pcx-dump -l eruption.pcx >> data.h
 	@./pcx-dump -c logo.pcx no-color >> data.h
 	@./pcx-dump -l logo.pcx >> data.h
 	@./pcx-dump -c sunset.pcx >> data.h
 	@./pcx-dump -l sunset.pcx >> data.h
+	@./pcx-dump -c volcano.pcx >> data.h
+	@./pcx-dump -l volcano.pcx >> data.h
 	@sdcc $(CFLAGS) $(TYPE) main.c -o grazers.ihx
 	hex2bin grazers.ihx > /dev/null
 
