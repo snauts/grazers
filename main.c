@@ -475,8 +475,6 @@ static void display_forest(byte **ptr) {
 	tile_ptr(*ptr);
 	ptr++;
     }
-    wait_user_input();
-    *queue = 0;
 }
 
 static byte flip_bits(byte source) {
@@ -582,8 +580,11 @@ static int8 game_round(byte **src, byte **dst) {
     queue = dst;
     advance_forest(src);
     display_forest(dst);
+    int8 ret = finish();
     increment_epoch();
-    return finish();
+    wait_user_input();
+    QUEUE(0);
+    return ret;
 }
 
 static void reset_memory(void) {
