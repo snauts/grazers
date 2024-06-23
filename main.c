@@ -661,7 +661,7 @@ static int8 ending_escape(void) {
 
 static void put_wave(word n, byte color) {
     forest[n] = T_WAVE;
-    put_sprite(7, 0, n);
+    put_sprite(color == 5 ? 8 : 7, 0, n);
     BYTE(0x5800 + n) = color;
 }
 
