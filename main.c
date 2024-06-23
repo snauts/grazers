@@ -569,9 +569,9 @@ static void display_image(byte *level, byte game, word size, word n) {
 }
 
 static void increment_epoch(void) {
-    steps++;
-    inc10(&epoch);
     put_num(epoch, POS(7, 23), 5);
+    inc10(&epoch);
+    steps++;
 }
 
 static int8 (*finish)(void);
