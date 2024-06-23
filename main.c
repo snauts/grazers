@@ -49,6 +49,7 @@ static word pos;
 static word epoch;
 static word retry;
 static byte level;
+static byte steps;
 
 struct Level { void (*fn)(void); };
 
@@ -570,6 +571,7 @@ static void display_image(byte *level, byte game, word size, word n) {
 }
 
 static void increment_epoch(void) {
+    steps++;
     inc10(&epoch);
     put_num(epoch, POS(7, 23), 5);
 }
@@ -906,7 +908,7 @@ static void lava_flow(byte *ptr) {
 }
 
 static void advance_lava(void) {
-    byte count = epoch & 0xf;
+    byte count = steps & 7;
     byte **ptr = queue < mirror ? mirror : update;
     while (*ptr) {
 	byte *place = *ptr++;
@@ -1126,6 +1128,7 @@ static void load_level(byte n) {
 
 static void init_variables(void) {
     epoch = 0;
+    steps = 0;
     queue = update;
     load_level(level);
     put_str("EPOCH:0000", POS(1, 23), 5);
