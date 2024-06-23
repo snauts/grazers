@@ -28,6 +28,7 @@ typedef unsigned short word;
 #define T_WALL		0x82
 #define T_ROLL		0x83
 #define T_WAVE		0x84
+#define T_LAVA		0x85
 #define T_DEER		0x07
 
 #ifdef ZXS
@@ -889,7 +890,36 @@ static int8 ending_lonesome(void) {
     return 0;
 }
 
+static void put_lava(word n) {
+    put_sprite(10, 0, n);
+    forest[n] = T_LAVA;
+    QUEUE(forest + n);
+}
+
+static void lava_flow(byte *ptr) {
+    for (byte i = 0; i < SIZE(neighbors); i++) {
+	byte *near = ptr + neighbors[i];
+	if (*near < C_TILE || *near == T_SAND) {
+	    put_lava(near - forest);
+	}
+    }
+}
+
+static void advance_lava(void) {
+    byte **ptr = queue < mirror ? mirror : update;
+    while (*ptr) {
+	byte *place = *ptr++;
+	if (*place == T_LAVA) {
+	    lava_flow(place);
+	}
+    }
+}
+
 static int8 ending_eruption(void) {
+    advance_lava();
+    if (no_grazers() || forest[pos] == T_LAVA) {
+	return -1;
+    }
     return 0;
 }
 
@@ -1060,6 +1090,7 @@ static void eruption_level(void) {
     display_image(volcano_map, 0, SIZE(volcano_map), 0xc0);
 
     use_fence_sprites();
+    put_lava(POS(15, 6));
 
     finish = &ending_eruption;
 }
