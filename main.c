@@ -26,7 +26,8 @@ typedef unsigned short word;
 #define T_SAND		0x80
 #define T_ROCK		0x81
 #define T_WALL		0x82
-#define T_WAVE		0x83
+#define T_ROLL		0x83
+#define T_WAVE		0x84
 #define T_DEER		0x07
 
 #ifdef ZXS
@@ -349,15 +350,23 @@ static byte roll_rock(int8 diff) {
     word dst = pos + (diff << 1);
     if ((forest[dst] & (C_TILE | C_SIZE)) == 0) {
 	forest[dst] = T_ROCK;
-	rolling_rock_sound();
-	put_tile(rock_type(dst), dst);
-	return TRUE;
+	goto success;
+    }
+    if (forest[dst] == T_SAND) {
+	forest[dst] = T_ROLL;
+	goto success;
     }
     return FALSE;
+  success:
+    rolling_rock_sound();
+    put_tile(rock_type(dst), dst);
+    return TRUE;
 }
 
+#define IS_ROCK(cell) (((cell) & ~2) == T_ROCK)
+
 static byte can_move_into(byte next, int8 diff) {
-    return next <= T_SAND || (next == T_ROCK && roll_rock(diff));
+    return next <= T_SAND || (IS_ROCK(next) && roll_rock(diff));
 }
 
 static byte is_grazer(word dst) {
@@ -374,7 +383,7 @@ static void leave_tile(byte *place) {
 	tile_ptr(place);
     }
     else {
-	*place = standing;
+	*place = T_SAND;
 	put_sprite(5, 0, place - forest);
     }
 }
