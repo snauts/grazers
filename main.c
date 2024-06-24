@@ -936,7 +936,9 @@ static int8 ending_eruption(void) {
 }
 
 static const word seeding[] = {
-    POS(8, 4), POS(9, 5), POS(10, 4), POS(19, 3), POS(20, 4), POS(21, 3),
+    POS(8, 4), POS(9, 5), POS(10, 4),
+    POS(19, 3), POS(20, 4), POS(21, 3),
+    POS(14, 11), POS(15, 12), POS(16, 11),
 };
 
 static int8 ending_fertility(void) {
@@ -1128,6 +1130,8 @@ static void eruption_level(void) {
 static void fertility_level(void) {
     put_str("- FERTILITY -", POS(9, 4), 0x44);
 
+    put_str("Due to the parasitic outbreak", POS(1, 16), 4);
+    put_str("all GRAZERs must be eliminated", POS(1, 17), 4);
     wait_space_or_enter(0);
 
     fenced_level(fertility_map, SIZE(fertility_map));
