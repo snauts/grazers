@@ -1010,7 +1010,7 @@ static int8 ending_fertility(void) {
 static int8 ending_erosion(void) {
     put_str("MEAT:", POS(12, 23), 5);
     put_num(meat, POS(17, 23), 5);
-    if (meat == 0x200) {
+    if (meat >= 0x200) {
 	return  1;
     }
     if (meat == 0) {
