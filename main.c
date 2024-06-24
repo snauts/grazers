@@ -935,6 +935,10 @@ static int8 ending_eruption(void) {
     return 0;
 }
 
+static int8 ending_fertility(void) {
+    return 0;
+}
+
 static void adat_meitas(void);
 
 static void finish_game(void) {
@@ -1108,6 +1112,18 @@ static void eruption_level(void) {
     finish = &ending_eruption;
 }
 
+static void fertility_level(void) {
+    put_str("- FERTILITY -", POS(9, 4), 0x44);
+
+    wait_space_or_enter(0);
+
+    fenced_level(fertility_map, SIZE(fertility_map));
+
+    use_fence_sprites();
+
+    finish = &ending_fertility;
+}
+
 static const struct Level all_levels[] = {
     { &gardener_level },
     { &quarantine_level },
@@ -1119,6 +1135,7 @@ static const struct Level all_levels[] = {
     { &aridness_level },
     { &lonesome_level },
     { &eruption_level },
+    { &fertility_level },
     { &finish_game },
 };
 
