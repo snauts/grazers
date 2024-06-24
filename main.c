@@ -354,7 +354,9 @@ static void rolling_rock_sound(void) {
     }
 }
 
+static word meat;
 static void bite(word dst) {
+    inc10(&meat);
     for (byte i = 0; i < 4; i++) {
 	put_tile(36 + i, dst);
 	bite_sound(i);
@@ -990,7 +992,6 @@ static int8 ending_fertility(void) {
     return 0;
 }
 
-static word meat;
 static int8 ending_erosion(void) {
     put_str("MEAT:", POS(12, 23), 5);
     put_num(meat, POS(17, 23), 5);
