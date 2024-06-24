@@ -1021,7 +1021,7 @@ static void earthquake_level(void) {
 }
 
 static void gardener_level(void) {
-    put_str("- GARDENER -", POS(10, 4), 0x44);
+    put_str("- PREDATOR -", POS(10, 4), 0x44);
     put_str("Hunt down invasive GRAZER", POS(4, 16), 4);
     put_str("species so that vegetation", POS(3, 17), 4);
     put_str("can fully recover and regrow", POS(2, 18), 4);
