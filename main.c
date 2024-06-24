@@ -591,7 +591,7 @@ static void reset_memory(void) {
     memset(update, 0x00, sizeof(update));
     memset(mirror, 0x00, sizeof(mirror));
     memset(forest, 0x00, sizeof(forest));
-    level = 0;
+    level = 8;
     retry = 0;
 }
 
@@ -1115,7 +1115,7 @@ static void aridness_level(void) {
 static void lonesome_level(void) {
     drying_dir = 0;
     drying = POS(19, 6);
-    put_str("- LONESOME -", POS(10, 4), 0x44);
+    put_str("- EXTINCTION -", POS(9, 4), 0x44);
 
     put_str("Make sure last inhabitable", POS(3, 16), 4);
     put_str("four spots is occupied by", POS(3, 17), 4);
