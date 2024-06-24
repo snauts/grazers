@@ -203,6 +203,21 @@ static void dec10(word *num) {
     }
 }
 
+static void add10_digit(word *num, byte digit) {
+    byte *ptr = (byte *) num;
+    byte lo = (*ptr & 0x0f) + digit;
+    byte hi = (*ptr & 0xf0);
+    if (lo > 0x09) {
+	lo = lo - 10;
+	hi += 0x10;
+    }
+    if (hi > 0x90) {
+	inc10_byte(ptr + 1);
+	hi = 0x00;
+    }
+    *ptr = hi | lo;
+}
+
 static void put_tile(byte cell, word n) {
     byte x = n & 0x1f;
     byte y = (n >> 2) & ~7;
@@ -356,9 +371,7 @@ static void rolling_rock_sound(void) {
 
 static word meat;
 static void bite(word dst) {
-    for (byte i = 0; i < 4; i++) {
-	inc10(&meat);
-    }
+    add10_digit(&meat, 4);
     for (byte i = 0; i < 4; i++) {
 	put_tile(36 + i, dst);
 	bite_sound(i);
