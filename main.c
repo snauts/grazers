@@ -990,7 +990,14 @@ static int8 ending_fertility(void) {
     return 0;
 }
 
+static word meat;
 static int8 ending_erosion(void) {
+    put_str("MEAT:", POS(12, 23), 5);
+    put_num(meat, POS(17, 23), 5);
+    if (meat == 0) {
+	return -1;
+    }
+    dec10(&meat);
     if (no_grazers()) {
 	return -1;
     }
@@ -1185,6 +1192,8 @@ static void fertility_level(void) {
 }
 
 static void erosion_level(void) {
+    meat = 0x50;
+
     put_str("- EROSION -", POS(10, 4), 0x44);
     wait_space_or_enter(0);
 
