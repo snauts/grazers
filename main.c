@@ -186,6 +186,23 @@ static void inc10(word *num) {
     }
 }
 
+static byte dec10_byte(byte *num) {
+    byte value = *num - 0x01;
+    if ((value & 0xf) > 0x09) {
+	value = (value & 0xf0) + 0x09;
+	if (value > 0x99) value = 0x99;
+    }
+    *num = value;
+    return value;
+}
+
+static void dec10(word *num) {
+    byte *ptr = (byte *) num;
+    if (dec10_byte(ptr + 0) == 0x99) {
+	dec10_byte(ptr + 1);
+    }
+}
+
 static void put_tile(byte cell, word n) {
     byte x = n & 0x1f;
     byte y = (n >> 2) & ~7;
