@@ -356,7 +356,9 @@ static void rolling_rock_sound(void) {
 
 static word meat;
 static void bite(word dst) {
-    inc10(&meat);
+    for (byte i = 0; i < 4; i++) {
+	inc10(&meat);
+    }
     for (byte i = 0; i < 4; i++) {
 	put_tile(36 + i, dst);
 	bite_sound(i);
