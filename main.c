@@ -935,7 +935,20 @@ static int8 ending_eruption(void) {
     return 0;
 }
 
+static const word seeding[] = {
+    POS(8, 4), POS(9, 5), POS(10, 4), POS(19, 3), POS(20, 4), POS(21, 3),
+};
+
 static int8 ending_fertility(void) {
+    for (byte i = 0; i < SIZE(seeding); i++) {
+	word n = seeding[i];
+	if (forest[n] == 0) {
+	    put_item(n, 1, 1);
+	}
+    }
+    if (no_grazers()) {
+	return 1;
+    }
     return 0;
 }
 
