@@ -1154,7 +1154,7 @@ static void migration_level(void) {
 }
 
 static void aridness_level(void) {
-    put_str("- ARIDNESS -", POS(10, 4), 0x44);
+    put_str("- DROUGHT -", POS(10, 4), 0x44);
 
     put_str("Both GRAZER subpopulations", POS(2, 16), 4);
     put_str("must survive for 400 EPOCHs", POS(2, 17), 4);
