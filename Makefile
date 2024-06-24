@@ -22,6 +22,7 @@ prg:
 	@./pcx-dump -l lonesome.pcx >> data.h
 	@./pcx-dump -l eruption.pcx >> data.h
 	@./pcx-dump -l fertility.pcx >> data.h
+	@./pcx-dump -l erosion.pcx >> data.h
 	@./pcx-dump -c logo.pcx no-color >> data.h
 	@./pcx-dump -l logo.pcx >> data.h
 	@./pcx-dump -c sunset.pcx >> data.h

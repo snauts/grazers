@@ -973,6 +973,13 @@ static int8 ending_fertility(void) {
     return 0;
 }
 
+static int8 ending_erosion(void) {
+    if (no_grazers()) {
+	return -1;
+    }
+    return 0;
+}
+
 static void adat_meitas(void);
 
 static void finish_game(void) {
@@ -1160,6 +1167,17 @@ static void fertility_level(void) {
     finish = &ending_fertility;
 }
 
+static void erosion_level(void) {
+    put_str("- EROSION -", POS(10, 4), 0x44);
+    wait_space_or_enter(0);
+
+    fenced_level(erosion_map, SIZE(erosion_map));
+
+    use_fence_sprites();
+
+    finish = &ending_erosion;
+}
+
 static const struct Level all_levels[] = {
     { &gardener_level },
     { &quarantine_level },
@@ -1172,6 +1190,7 @@ static const struct Level all_levels[] = {
     { &lonesome_level },
     { &eruption_level },
     { &fertility_level },
+    { &erosion_level },
     { &finish_game },
 };
 
