@@ -1201,6 +1201,8 @@ static void erosion_level(void) {
     meat = 0x50;
 
     put_str("- EROSION -", POS(10, 4), 0x44);
+    put_str("Stock up 200 pieces of MEAT", POS(2, 16), 4);
+    put_str("Don't starve!", POS(10, 18), 4);
     wait_space_or_enter(0);
 
     fenced_level(erosion_map, SIZE(erosion_map));
