@@ -617,7 +617,9 @@ static int8 game_round(byte **src, byte **dst) {
     display_forest(dst);
     int8 ret = finish();
     increment_epoch();
-    wait_user_input();
+    if (ret == 0) {
+	wait_user_input();
+    }
     QUEUE(0);
     return ret;
 }
