@@ -355,6 +355,7 @@ static void beep(word p0, word p1, word len) {
 	c1 += p1;
     }
     __asm__("ei");
+    out_fe(0x00);
 }
 
 static void bite_sound(word distance) {
