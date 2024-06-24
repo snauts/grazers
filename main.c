@@ -839,38 +839,57 @@ static int8 ending_aridness(void) {
 }
 
 static const int8 around[] = {
-    1, -31, -32, -33, -1, 31, 32, 33
+    1, 33, 32, 31, -1, -33, -32, -31
 };
 
-static word drying;
 static int8 hunter_on_sand(byte cell) {
     return (cell & C_PLAY) && standing == T_SAND;
 }
 
-static byte near_sand(word n) {
-    byte count = 0;
-    for (byte i = 0; i < SIZE(neighbors); i++) {
-	byte cell = forest[n + neighbors[i]];
-	if (cell >= C_TILE || hunter_on_sand(cell)) count++;
+static byte is_dryable(word next) {
+    byte cell = forest[next];
+    return cell < C_TILE && !hunter_on_sand(cell);
+}
+
+static word drying;
+static int8 drying_dir;
+static void circular_drying(void) {
+  repeat:
+    for (int8 i = -1; i <= 1; i++) {
+	int8 dir = (i + drying_dir) & 7;
+	word next = drying + around[dir];
+	if (is_dryable(next)) {
+	    drying_dir = dir;
+	    drying = next;
+	    return;
+	}
     }
-    return count;
+    drying_dir++;
+    drying_dir &= 7;
+    goto repeat;
 }
 
 static void advance_drying(void) {
-    word best_next = 0;
-    int8 best_near = 0;
-    for (byte i = 0; i < SIZE(around); i++) {
-	word next = drying + around[i];
-	byte cell = forest[next];
-	if (cell < C_TILE && !hunter_on_sand(cell)) {
-	    int8 near = near_sand(next);
-	    if (near > best_near) {
-		best_near = near;
-		best_next = next;
-	    }
-	}
+    switch (drying) {
+    case POS(18, 12):
+	drying -= 1;
+	break;
+    case POS(8, 16):
+    case POS(7, 15):
+	drying -= 32;
+	break;
+    case POS(8, 7):
+    case POS(8, 8):
+    case POS(10, 7):
+    case POS(13, 8):
+    case POS(14, 9):
+    case POS(15, 10):
+    case POS(17, 12):
+	drying += 32;
+	break;
+    default:
+	circular_drying();
     }
-    drying = best_next;
 }
 
 static int8 ending_lonesome(void) {
@@ -887,7 +906,7 @@ static int8 ending_lonesome(void) {
     if (no_grazers()) {
 	return -1;
     }
-    if (drying == POS(17, 15)) {
+    if (drying == POS(20, 10)) {
 	return 1;
     }
     return 0;
@@ -1094,6 +1113,7 @@ static void aridness_level(void) {
 }
 
 static void lonesome_level(void) {
+    drying_dir = 0;
     drying = POS(19, 6);
     put_str("- LONESOME -", POS(10, 4), 0x44);
 
@@ -1108,7 +1128,6 @@ static void lonesome_level(void) {
 }
 
 static void eruption_level(void) {
-    drying = POS(19, 6);
     put_str("- ERUPTION -", POS(10, 4), 0x44);
 
     put_str("Help GRAZERs survive ERUPTION", POS(2, 16), 4);
