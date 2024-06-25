@@ -67,6 +67,7 @@ static word epoch;
 static word retry;
 static byte level;
 static byte steps;
+static byte control;
 
 struct Level { void (*fn)(void); };
 
@@ -539,9 +540,18 @@ static byte wait_space_or_enter(byte (*callback)(void)) {
 }
 
 static byte movement_keys(void) {
-    byte output = ~in_fe(0xfd) & 7;
-    output |= (~in_fe(0xfb) & 2) << 2;
-    return output;
+    if (control) {
+	byte output = in_fe(0xfd) & 7;
+	output |= (in_fe(0xfb) & 2) << 2;
+	return ~output;
+    }
+    else {
+	byte output = in_fe(0xdf);
+	output = ((output & 1) << 2) | ((output & 2) >> 1);
+	output |= (in_fe(0xfb) & 1) << 3;
+	output |= (in_fe(0xfd) & 1) << 1;
+	return ~output;
+    }
 }
 
 static byte key_state(void) {
@@ -687,6 +697,7 @@ static void reset_memory(void) {
     memset(update, 0x00, sizeof(update));
     memset(mirror, 0x00, sizeof(mirror));
     memset(forest, 0x00, sizeof(forest));
+    control = 0;
     level = 0;
     retry = 0;
 }
@@ -1576,9 +1587,10 @@ static void title_screen(void) {
     sprite_color = mirror;
     memset(mirror, 0, sizeof(logo) / 8);
     display_image(logo_map, 0, SIZE(logo_map), 0x100);
-    put_str("Use WASD keys to move hunter.", POS(2, 16), 5);
-    put_str("Press ENTER to fast forward.", POS(2, 17), 5);
-    put_str("SPACE will skip one epoch.", POS(3, 18), 5);
+    put_str("ENTER or N to fast forward", POS(3, 15), 5);
+    put_str("SPACE or M skip one epoch", POS(3, 16), 5);
+    put_str("1 - QAOP keys", POS(9, 18), 5);
+    put_str("2 - WASD keys", POS(9, 19), 5);
 
     grass_stripe(POS( 6, 2), 11);
     grass_stripe(POS( 3, 3), 9);
