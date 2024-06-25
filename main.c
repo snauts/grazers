@@ -2,6 +2,20 @@ typedef signed char int8;
 typedef unsigned char byte;
 typedef unsigned short word;
 
+#ifdef SMS
+static void rom_start(void) __naked {
+    __asm__("di");
+    __asm__("im 1");
+    __asm__("jp _reset");
+    __asm__("rom_jmp_end:");
+    __asm__(".blkb 0x38 - (rom_jmp_end - _rom_start)");
+    __asm__("reti");
+    __asm__("rom_irq_end:");
+    __asm__(".blkb 0x66 - (rom_irq_end - _rom_start)");
+    __asm__("reti");
+}
+#endif
+
 #include "data.h"
 
 #define ADDR(obj)	((word) (obj))
@@ -32,9 +46,12 @@ typedef unsigned short word;
 #define T_DEER		0x07
 
 #ifdef ZXS
-#define is_vsync()	vblank
 #define SETUP_STACK()	__asm__("ld sp, #0xfdfc")
 #define IRQ_BASE	0xfe00
+#endif
+
+#ifdef SMS
+#define SETUP_STACK()	__asm__("ld sp, #0xdff0")
 #endif
 
 static volatile byte vblank;
@@ -67,8 +84,8 @@ static void interrupt(void) __naked {
     __asm__("ld (_vblank), a");
     __asm__("pop af");
     __asm__("ei");
-#endif
     __asm__("reti");
+#endif
 }
 
 static void __sdcc_call_hl(void) __naked {
@@ -111,12 +128,14 @@ static void slow_pixel(byte x, byte y) {
 }
 
 static void setup_system(void) {
+#ifdef ZXS
     byte top = (byte) ((IRQ_BASE >> 8) - 1);
     word jmp_addr = (top << 8) | top;
     BYTE(jmp_addr + 0) = 0xc3;
     WORD(jmp_addr + 1) = ADDR(&interrupt);
     memset((byte *) IRQ_BASE, top, 0x101);
     setup_irq(IRQ_BASE >> 8);
+#endif
 }
 
 static void clear_screen(void) {
