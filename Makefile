@@ -8,6 +8,7 @@ all:
 	@echo "make sms" - build .sms for Sega Masters
 	@echo "make fuse" - build and run fuse
 	@echo "make mame" - build and run mame
+	@echo "make blast" - build and run blastem
 
 prg:
 	@gcc $(TYPE) -lm pcx-dump.c -o pcx-dump
@@ -51,6 +52,9 @@ sms:
 
 mame: sms
 	mame -w -r 640x480 sms -cart grazers.sms
+
+blast: sms
+	blastem grazers.sms
 
 clean:
 	rm -f grazers* pcx-dump tileset.bin data.h mkrom
