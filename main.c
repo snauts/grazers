@@ -67,7 +67,7 @@ static word epoch;
 static word retry;
 static byte level;
 static byte steps;
-static byte control;
+static byte wasd;
 
 struct Level { void (*fn)(void); };
 
@@ -540,18 +540,18 @@ static byte wait_space_or_enter(byte (*callback)(void)) {
 }
 
 static byte movement_keys(void) {
-    if (control) {
-	byte output = in_fe(0xfd) & 7;
+    byte output;
+    if (wasd) {
+	output = in_fe(0xfd) & 7;
 	output |= (in_fe(0xfb) & 2) << 2;
-	return ~output;
     }
     else {
-	byte output = in_fe(0xdf);
+	output = in_fe(0xdf);
 	output = ((output & 1) << 2) | ((output & 2) >> 1);
 	output |= (in_fe(0xfb) & 1) << 3;
 	output |= (in_fe(0xfd) & 1) << 1;
-	return ~output;
     }
+    return (~output) & 0xf;
 }
 
 static byte key_state(void) {
@@ -697,9 +697,9 @@ static void reset_memory(void) {
     memset(update, 0x00, sizeof(update));
     memset(mirror, 0x00, sizeof(mirror));
     memset(forest, 0x00, sizeof(forest));
-    control = 0;
     level = 0;
     retry = 0;
+    wasd = 0;
 }
 
 static byte no_grazers(void) {
@@ -1567,7 +1567,7 @@ static void title_flash(byte offset, byte color) {
 }
 
 static byte eat;
-static byte animate_title(void) {
+static void animate_title(void) {
     byte roll = (eat >> 1) & 0x3f;
     byte frame = (eat & 0x3f) < 32;
     put_tile(frame ? 0x1e : 0x1f, POS(12, 3));
@@ -1577,8 +1577,23 @@ static byte animate_title(void) {
     title_flash(roll - 0x10, 0x04);
     title_flash(roll - 0x08, 0x44);
     eat++;
+}
 
-    return 0;
+static byte read_1_or_2(void) {
+    return ~in_fe(0xf7) & 3;
+}
+
+static void wait_1_or_2(void) {
+    byte prev, next = read_1_or_2();
+    do {
+	prev = next;
+	next = read_1_or_2();
+	if (vblank == 1) {
+	    vblank = 0;
+	    animate_title();
+	}
+    } while ((next & (prev ^ next)) == 0);
+    wasd = next & 2;
 }
 
 static void title_screen(void) {
@@ -1603,7 +1618,7 @@ static void title_screen(void) {
     grass_stripe(POS(23, 21), 6);
 
     eat = 0;
-    wait_space_or_enter(&animate_title);
+    wait_1_or_2();
 }
 
 void reset(void) {
