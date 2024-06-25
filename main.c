@@ -510,8 +510,17 @@ static void queue_item(word where, byte type, byte sprite) {
     QUEUE(forest + where);
 }
 
+static byte fast_forward(void) {
+    return ((~in_fe(0xbf) & 1) << 1) | ((~in_fe(0x7f) & 8) >> 2);
+}
+
+static byte skip_epoch(void) {
+    byte reg = ~in_fe(0x7f);
+    return ((reg & 1) << 4) | ((reg & 4) << 2);
+}
+
 static byte space_or_enter(void) {
-    return (~in_fe(0x7f) & 1) | ((~in_fe(0xbf) & 1) << 1);
+    return skip_epoch() | fast_forward();
 }
 
 static byte wait_space_or_enter(byte (*callback)(void)) {
@@ -529,15 +538,14 @@ static byte wait_space_or_enter(byte (*callback)(void)) {
     return FALSE;
 }
 
-static byte key_state(void) {
+static byte movement_keys(void) {
     byte output = ~in_fe(0xfd) & 7;
     output |= (~in_fe(0xfb) & 2) << 2;
-    output |= (~in_fe(0x7f) & 1) << 4;
     return output;
 }
 
-static byte fast_forward(void) {
-    return ~in_fe(0xbf) & 1;
+static byte key_state(void) {
+    return skip_epoch() | movement_keys();
 }
 
 static void wait_user_input(void) {
