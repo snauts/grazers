@@ -5,7 +5,9 @@ ENTRY = grep _reset grazers.map | cut -d " " -f 6
 
 all:
 	@echo "make zxs" - build .tap for ZX Spectrum
+	@echo "make sms" - build .sms for Sega Masters
 	@echo "make fuse" - build and run fuse
+	@echo "make mame" - build and run mame
 
 prg:
 	@gcc $(TYPE) -lm pcx-dump.c -o pcx-dump
@@ -41,6 +43,12 @@ zxs:
 
 fuse: zxs
 	fuse --no-confirm-actions -g 2x grazers.tap
+
+sms:
+	CODE=0x0000 DATA=0xC000	TYPE=-DSMS make prg
+
+mame: sms
+	mame -w -r 640x480 sms -cart grazers.sms
 
 clean:
 	rm -f grazers* pcx-dump tileset.bin data.h
