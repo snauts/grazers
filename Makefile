@@ -46,9 +46,11 @@ fuse: zxs
 
 sms:
 	CODE=0x0000 DATA=0xC000	TYPE=-DSMS make prg
+	gcc mkrom.c -o mkrom
+	./mkrom
 
 mame: sms
 	mame -w -r 640x480 sms -cart grazers.sms
 
 clean:
-	rm -f grazers* pcx-dump tileset.bin data.h
+	rm -f grazers* pcx-dump tileset.bin data.h mkrom
