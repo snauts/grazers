@@ -9,10 +9,28 @@ static void rom_start(void) __naked {
     __asm__("jp _reset");
     __asm__("rom_jmp_end:");
     __asm__(".blkb 0x38 - (rom_jmp_end - _rom_start)");
-    __asm__("reti");
+
+    __asm__("push af");
+    __asm__("in a, (#0xbf)");
+    __asm__("bit 7, a");
+    __asm__("jp z, no_update");
+    __asm__("push bc");
+    __asm__("push de");
+    __asm__("push hl");
+
+    __asm__("call _vdp_update");
+
+    __asm__("pop hl");
+    __asm__("pop de");
+    __asm__("pop bc");
+    __asm__("no_update:");
+    __asm__("pop af");
+
+    __asm__("ei");
+    __asm__("ret");
     __asm__("rom_irq_end:");
     __asm__(".blkb 0x66 - (rom_irq_end - _rom_start)");
-    __asm__("reti");
+    __asm__("retn");
 }
 #endif
 
@@ -120,11 +138,8 @@ static byte in_1f(void) __naked {
 static void vdp_write(word addr, byte data) __naked {
     addr; data;
     __asm__("ld c, #0xbf"); // VDP_CTRL
-    __asm__("di");
     __asm__("out (c), l");
     __asm__("out (c), h");
-    __asm__("ei");
-
     __asm__("ld c, #0xbe"); // VDP_DATA
     __asm__("out (c), a"); // VDP_DATA
     __asm__("ret");
@@ -135,14 +150,26 @@ static void vdp_init(byte *ptr, byte size) __naked {
     __asm__("ld b, a");
     __asm__("ld c, #0xbf");
     __asm__("otir");
+    __asm__("ei");
     __asm__("ret");
 }
 
 static const byte vdp_registers[] = {
-    0x04, 0x80, 0xc0, 0x81, 0xff, 0x82, 0xff, 0x83,
+    0x04, 0x80, 0xe0, 0x81, 0xff, 0x82, 0xff, 0x83,
     0xff, 0x84, 0xff, 0x85, 0xfb, 0x86, 0x00, 0x87,
-    0x00, 0x88, 0x00, 0x89, 0x47, 0x8a
+    0x00, 0x88, 0x00, 0x89, 0xff, 0x8a
 };
+
+static void vdp_switch(byte value) __naked {
+    __asm__("ld c, #0xbf");
+    __asm__("out (c), a"); value;
+    __asm__("ld a, #0x81");
+    __asm__("out (c), a");
+    __asm__("ret");
+}
+
+static void vdp_update(void) {
+}
 #endif
 
 static void memset(byte *ptr, byte data, word len) {
