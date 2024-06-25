@@ -1171,8 +1171,8 @@ static void tsunami_level(void) {
     finish = &ending_tsunami;
 }
 
-static byte check_P(void) {
-    return ~in_fe(0xdf) & 1;
+static byte check_R(void) {
+    return ~in_fe(0xfb) & 8;
 }
 
 static void load_level(byte n);
@@ -1184,8 +1184,8 @@ static void equilibrium_level(void) {
     put_str("stay on the same spot for 800", POS(1, 17), 4);
     put_str("EPOCHs and GRAZERs survive", POS(2, 18), 4);
     if (retry >= 3) {
-	put_str("P - load previous level", POS(4, 20), 4);
-	if (wait_space_or_enter(&check_P)) {
+	put_str("R - load previous level", POS(4, 20), 4);
+	if (wait_space_or_enter(&check_R)) {
 	    load_level(--level);
 	    return;
 	}
