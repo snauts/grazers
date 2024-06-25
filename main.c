@@ -115,6 +115,35 @@ static byte in_1f(void) __naked {
     __asm__("ret");
 }
 
+#ifdef SMS
+static void vdp_write(word addr, byte data) __naked {
+    addr; data;
+    __asm__("ld c, #0xbf"); // VDP_CTRL
+    __asm__("di");
+    __asm__("out (c), l");
+    __asm__("out (c), h");
+    __asm__("ei");
+
+    __asm__("ld c, #0xbe"); // VDP_DATA
+    __asm__("out (c), a"); // VDP_DATA
+    __asm__("ret");
+}
+
+static void vdp_init(byte *ptr, byte size) __naked {
+    ptr; size;
+    __asm__("ld b, a");
+    __asm__("ld c, #0xbf");
+    __asm__("otir");
+    __asm__("ret");
+}
+
+static const byte vdp_registers[] = {
+    0x04, 0x80, 0xc0, 0x81, 0xff, 0x82, 0xff, 0x83,
+    0xff, 0x84, 0xff, 0x85, 0xfb, 0x86, 0x00, 0x87,
+    0x00, 0x88, 0x00, 0x89, 0x47, 0x8a
+};
+#endif
+
 static void memset(byte *ptr, byte data, word len) {
     while (len-- > 0) { *ptr++ = data; }
 }
@@ -135,6 +164,9 @@ static void setup_system(void) {
     WORD(jmp_addr + 1) = ADDR(&interrupt);
     memset((byte *) IRQ_BASE, top, 0x101);
     setup_irq(IRQ_BASE >> 8);
+#endif
+#ifdef SMS
+    vdp_init(vdp_registers, SIZE(vdp_registers));
 #endif
 }
 
