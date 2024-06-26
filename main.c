@@ -133,11 +133,16 @@ static void vdp_write(word addr, byte data) {
     __asm__("out (c), l");
     __asm__("out (c), h");
     __asm__("ld c, #0xbe"); data;
+    __asm__("ld iy, #2");
+    __asm__("add iy, sp");
+    __asm__("ld a, (iy)");
     __asm__("out (c), a");
 }
 
 static void vdp_init(byte *ptr, byte size) {
-    __asm__("ld b, a"); size;
+    __asm__("ld iy, #2");
+    __asm__("add iy, sp");
+    __asm__("ld b, (iy)"); size;
     __asm__("ld c, #0xbf");
     __asm__("otir"); ptr;
 }
