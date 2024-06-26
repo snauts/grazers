@@ -133,17 +133,6 @@ static byte in_key(byte a) {
 }
 
 #ifdef SMS
-static void vdp_write(word addr, byte data) {
-    __asm__("ld c, #0xbf"); addr;
-    __asm__("out (c), l");
-    __asm__("out (c), h");
-    __asm__("ld c, #0xbe"); data;
-    __asm__("ld iy, #2");
-    __asm__("add iy, sp");
-    __asm__("ld a, (iy)");
-    __asm__("out (c), a");
-}
-
 static void vdp_word(word addr, word data) {
     __asm__("ld c, #0xbf"); addr;
     __asm__("out (c), l");
@@ -695,17 +684,20 @@ static const byte *sprite_color;
     sprite_color = color; \
     sprite = tiles;
 #else
+static word sprite_offset;
 #define TILESET(tiles, color, offset) \
-    vdp_memcpy(0x4000 + (offset << 5), tiles, SIZE(tiles));
+    vdp_memcpy(0x4000 + (offset << 5), tiles, SIZE(tiles)); \
+    sprite_offset = offset;
 #endif
 
 static void put_sprite(byte cell, byte base, word n) {
+    byte index = base + (cell & 0x1f);
+
 #ifdef ZXS
     byte x = n & 0x1f;
     byte y = (n >> 2) & ~7;
     byte flipH = cell & 0x40;
     byte flipV = cell & 0x20;
-    byte index = base + (cell & 0x1f);
     BYTE(0x5800 + n) = sprite_color[index];
     const byte *addr = sprite + (index << 3);
     if (flipV) addr = addr + 7;
@@ -717,6 +709,10 @@ static void put_sprite(byte cell, byte base, word n) {
 	*ptr = data;
 	ptr += 0x100;
     }
+#endif
+
+#ifdef SMS
+    vdp_word(0x7800 + (n << 1), sprite_offset + index);
 #endif
 }
 
@@ -1702,10 +1698,11 @@ static void wait_start(void) {
 
 static void title_screen(void) {
     clear_screen();
-    TILESET(tiles, 0, 0);
     TILESET(logo, mirror, 72);
     memset(mirror, 0, sizeof(logo) / 8);
     display_image(logo_map, 0, SIZE(logo_map), 0x100);
+
+    TILESET(tiles, 0, 0);
     put_str("ENTER or N to fast forward", POS(3, 15), 5);
     put_str("SPACE or M skip one epoch", POS(3, 16), 5);
     put_str("1 - QAOP keys", POS(9, 18), 5);
