@@ -207,10 +207,10 @@ static void vdp_memcpy(word dst, byte *src, word count) {
     __asm__("ld c, #0xbf"); dst;
     __asm__("out (c), l");
     __asm__("out (c), h");
-    while (count > 0x80) {
-	vdp_transfer(src, 0x80);
-	count -= 0x80;
-	src += 0x80;
+    while (count > 0xff) {
+	vdp_transfer(src, 0);
+	count -= 0x100;
+	src += 0x100;
     }
     if (count > 0) {
 	vdp_transfer(src, count);
