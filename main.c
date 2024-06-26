@@ -1717,7 +1717,6 @@ static void title_screen(void) {
     display_image(logo_map, 0, SIZE(logo_map), 0x100);
 
     TILESET(tiles, 0, 0);
-    TILESET(font, 0, 0x100);
 #ifdef ZXS
     put_str("ENTER or N to fast forward", POS(3, 15), 5);
     put_str("SPACE or M skip one epoch", POS(3, 16), 5);
@@ -1726,6 +1725,7 @@ static void title_screen(void) {
 #endif
 
 #ifdef SMS
+    TILESET(font, 0, 0x100);
     put_str("Press START", POS(10, 17), 5);
 #endif
 
