@@ -301,6 +301,7 @@ static void add10_digit(word *num, byte digit) {
 }
 
 static void put_tile(byte cell, word n) {
+#ifdef ZXS
     byte x = n & 0x1f;
     byte y = (n >> 2) & ~7;
     BYTE(0x5800 + n) = tiles_color[cell];
@@ -310,6 +311,7 @@ static void put_tile(byte cell, word n) {
 	*ptr = *addr++;
 	ptr += 0x100;
     }
+#endif
 }
 
 static const int8 neighbors[] = { -1, 32, 1, -32 };
@@ -622,8 +624,16 @@ static byte flip_bits(byte source) {
 }
 
 static const byte *sprite;
+
+#ifdef ZXS
 static const byte *sprite_color;
+#define SPRITE_COLOR(x) sprite_color = x
+#else
+#define SPRITE_COLOR(x)
+#endif
+
 static void put_sprite(byte cell, byte base, word n) {
+#ifdef ZXS
     byte x = n & 0x1f;
     byte y = (n >> 2) & ~7;
     byte flipH = cell & 0x40;
@@ -640,6 +650,7 @@ static void put_sprite(byte cell, byte base, word n) {
 	*ptr = data;
 	ptr += 0x100;
     }
+#endif
 }
 
 static void special_cell(byte cell, word n) {
@@ -1132,7 +1143,7 @@ static void finish_game(void) {
     clear_screen();
 
     sprite = sunset;
-    sprite_color = sunset_color;
+    SPRITE_COLOR(sunset_color);
     memset(forest, 0, SIZE(forest));
     display_image(sunset_map, 0, SIZE(sunset_map), 0);
 
@@ -1142,7 +1153,7 @@ static void finish_game(void) {
 
 static void use_fence_sprites(void) {
     sprite = fence;
-    sprite_color = fence_color;
+    SPRITE_COLOR(sprite_color);
 }
 
 static void fenced_level(byte *level, word size) {
@@ -1290,7 +1301,7 @@ static void eruption_level(void) {
     fenced_level(eruption_map, SIZE(eruption_map));
 
     sprite = volcano;
-    sprite_color = volcano_color;
+    SPRITE_COLOR(volcano_color);
     display_image(volcano_map, 0, SIZE(volcano_map), 0xc0);
 
     use_fence_sprites();
@@ -1613,7 +1624,7 @@ static void wait_1_or_2(void) {
 static void title_screen(void) {
     clear_screen();
     sprite = logo;
-    sprite_color = mirror;
+    SPRITE_COLOR(mirror);
     memset(mirror, 0, sizeof(logo) / 8);
     display_image(logo_map, 0, SIZE(logo_map), 0x100);
     put_str("ENTER or N to fast forward", POS(3, 15), 5);
