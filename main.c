@@ -647,6 +647,7 @@ static byte wait_space_or_enter(byte (*callback)(void)) {
 }
 
 static byte movement_keys(void) {
+#ifdef ZXS
     byte output;
     if (wasd) {
 	output = in_key(0xfd) & 7;
@@ -659,6 +660,15 @@ static byte movement_keys(void) {
 	output |= (in_key(0xfd) & 1) << 1;
     }
     return (~output) & 0xf;
+#endif
+
+#ifdef SMS
+    byte output = ~in_key(0);
+    return (output & 0x02)
+	| ((output & 0x04) >> 2)
+	| ((output & 0x08) >> 1)
+	| ((output & 0x01) << 3);
+#endif
 }
 
 static byte key_state(void) {
