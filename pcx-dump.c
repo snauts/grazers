@@ -372,6 +372,10 @@ int main(int argc, char **argv) {
     file_name = argv[2];
     unsigned char *buf = read_pcx(file_name);
 
+#ifdef SMS
+    need_color = 0;
+#endif
+
     if (argc >= 4 && strcmp(argv[3], "no-color") == 0) {
 	need_color = 0;
     }
