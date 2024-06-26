@@ -159,8 +159,8 @@ static const byte vdp_registers[] = {
 static const byte sms_palette[] = {
     0x00, 0x04, 0x08, 0x0c,
     0x06, 0x01, 0x02, 0x03,
-    0x1b, 0x00, 0x00, 0x00,
-    0x00, 0x15, 0x2a, 0x3f,
+    0x1b, 0x10, 0x24, 0x38,
+    0x0f, 0x15, 0x2a, 0x3f,
 };
 
 static void vdp_switch(byte value) {
@@ -835,7 +835,7 @@ static void reset_memory(void) {
     memset(update, 0x00, sizeof(update));
     memset(mirror, 0x00, sizeof(mirror));
     memset(forest, 0x00, sizeof(forest));
-    level = 0;
+    level = 10;
     retry = 0;
     wasd = 0;
 }
