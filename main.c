@@ -177,7 +177,22 @@ static void vdp_enable_display(byte state) {
 }
 
 static void vdp_memset(word addr, word count, byte data) {
-    while (count-- > 0) vdp_write(addr++, data);
+    __asm__("ld c, #0xbf"); addr;
+    __asm__("out (c), l");
+    __asm__("out (c), h");
+    __asm__("ld c, #0xbe"); data;
+    __asm__("push iy");
+    __asm__("ld iy, #0x4");
+    __asm__("add iy, sp");
+    __asm__("ld b, (iy)");
+    __asm__("more_vdp_set:");
+    __asm__("out (c), b");
+    __asm__("dec de"); count;
+    __asm__("ld a, e");
+    __asm__("ld l, d");
+    __asm__("or a, l");
+    __asm__("jp nz, more_vdp_set");
+    __asm__("pop iy");
 }
 
 static void vdp_update(void) {
@@ -1638,12 +1653,12 @@ static void wait_start(void) {
 
 #ifdef SMS
 static void wait_start(void) {
-    while (in_key(0) & 0x30) {
+    do {
 	if (vblank) {
 	    animate_title();
 	    vblank = 0;
 	}
-    }
+    } while ((in_key(0) & 0x30) == 0x30);
 }
 #endif
 
