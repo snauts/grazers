@@ -95,8 +95,12 @@ static const byte pixel_map[] = {
     0x80, 0x40, 0x20, 0x10, 0x08, 0x04, 0x02, 0x01
 };
 
-static void interrupt(void) __naked {
+static void __sdcc_call_hl(void) __naked {
+    __asm__("jp (hl)");
+}
+
 #ifdef ZXS
+static void interrupt(void) __naked {
     __asm__("di");
     __asm__("push af");
     __asm__("ld a, #1");
@@ -104,11 +108,6 @@ static void interrupt(void) __naked {
     __asm__("pop af");
     __asm__("ei");
     __asm__("reti");
-#endif
-}
-
-static void __sdcc_call_hl(void) __naked {
-    __asm__("jp (hl)");
 }
 
 static void setup_irq(byte base) {
@@ -117,6 +116,7 @@ static void setup_irq(byte base) {
     __asm__("im 2");
     __asm__("ei");
 }
+#endif
 
 static void out_fe(byte data) __naked {
     __asm__("out (#0xfe), a"); data;
@@ -141,7 +141,7 @@ static void vdp_write(word addr, byte data) __naked {
     __asm__("out (c), l");
     __asm__("out (c), h");
     __asm__("ld c, #0xbe"); // VDP_DATA
-    __asm__("out (c), a"); // VDP_DATA
+    __asm__("out (c), a");
     __asm__("ret");
 }
 
@@ -150,12 +150,11 @@ static void vdp_init(byte *ptr, byte size) __naked {
     __asm__("ld b, a");
     __asm__("ld c, #0xbf");
     __asm__("otir");
-    __asm__("ei");
     __asm__("ret");
 }
 
 static const byte vdp_registers[] = {
-    0x04, 0x80, 0xa0, 0x81, 0xff, 0x82, 0xff, 0x83,
+    0x04, 0x80, 0x80, 0x81, 0xff, 0x82, 0xff, 0x83,
     0xff, 0x84, 0xff, 0x85, 0xff, 0x86, 0x00, 0x87,
     0x00, 0x88, 0x00, 0x89, 0xff, 0x8a
 };
@@ -166,6 +165,17 @@ static void vdp_switch(byte value) __naked {
     __asm__("ld a, #0x81");
     __asm__("out (c), a");
     __asm__("ret");
+}
+
+static void vdp_enable_display(byte state) {
+    if (state) {
+	vdp_switch(0xe0);
+	__asm__("ei");
+    }
+    else {
+	__asm__("di");
+	vdp_switch(0x80);
+    }
 }
 
 static void vdp_update(void) {
@@ -195,10 +205,7 @@ static void setup_system(void) {
 #endif
 #ifdef SMS
     vdp_init(vdp_registers, SIZE(vdp_registers));
-    for (word addr = 0x7f00; addr < 0x7f40; addr++) {
-	vdp_write(addr, 0xd0);
-    }
-    vdp_switch(0xe0);
+    vdp_enable_display(TRUE);
 #endif
 }
 
