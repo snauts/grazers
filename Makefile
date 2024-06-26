@@ -12,7 +12,7 @@ all:
 
 prg:
 	@gcc $(TYPE) -lm pcx-dump.c -o pcx-dump
-	@./pcx-dump -t tiles.pcx > data.h
+	@./pcx-dump -c tiles.pcx > data.h
 	@./pcx-dump -c fence.pcx >> data.h
 	@./pcx-dump -l quarantine.pcx >> data.h
 	@./pcx-dump -l gardener.pcx >> data.h

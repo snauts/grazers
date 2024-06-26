@@ -10,7 +10,6 @@
 static char *file_name;
 static int need_compress = 0;
 static int need_color = 1;
-static int as_tiles = 0;
 static int as_level = 0;
 
 struct Header {
@@ -296,9 +295,9 @@ static void save_bitmap(unsigned char *buf, int size) {
     for (int i = 0; i < color_size; i++) {
 	color[i] = encode_ink(on[i]);
     }
-    if (as_tiles) {
-	convert_to_stripe(header.w, header.h, pixel);
-    }
+
+    convert_to_stripe(header.w, header.h, pixel);
+
     if (as_level) {
 	to_level(pixel, &pixel_size, color, &color_size);
     }
@@ -362,9 +361,7 @@ static unsigned char *read_pcx(const char *file) {
 int main(int argc, char **argv) {
     if (argc < 2) {
 	printf("USAGE: pcx-dump [option] file.pcx [no-color]\n");
-	printf("  -c   save compressed zx\n");
-	printf("  -b   save bitmap zx\n");
-	printf("  -t   save tiles zx\n");
+	printf("  -c   save tileset zx\n");
 	printf("  -l   save level zx\n");
 	return 0;
     }
@@ -383,18 +380,13 @@ int main(int argc, char **argv) {
     switch (argv[1][1]) {
     case 'l':
 	as_level = 1;
-	goto tiles;
+	break;
     case 'c':
 	need_compress = 1;
-	goto tiles;
-    case 't':
-    tiles:
-	as_tiles = 1;
-	/* falls through */
-    case 'b':
-	save_bitmap(buf, header.w * header.h);
 	break;
     }
+
+    save_bitmap(buf, header.w * header.h);
     free(buf);
     return 0;
 }
