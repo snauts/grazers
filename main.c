@@ -166,6 +166,10 @@ static void vdp_enable_display(byte state) {
     }
 }
 
+static void vdp_memset(word addr, word count, byte data) {
+    while (count-- > 0) vdp_write(addr++, data);
+}
+
 static void vdp_update(void) {
 }
 #endif
@@ -203,15 +207,19 @@ static void clear_screen(void) {
     memset((byte *) 0x4000, 0x00, 0x1800);
     out_fe(0);
 #endif
+#ifdef SMS
+    vdp_memset(0x4000, 0x4000, 0x00);
+    vdp_memset(0x7f00, 0x0040, 0xd0); /* hide sprites */
+#endif
 }
 
 static void precalculate(void) {
-    for (byte y = 0; y < 192; y++) {
 #ifdef ZXS
+    for (byte y = 0; y < 192; y++) {
 	byte f = ((y & 7) << 3) | ((y >> 3) & 7) | (y & 0xc0);
 	map_y[y] = (byte *) (0x4000 + (f << 5));
-#endif
     }
+#endif
 }
 
 static void put_char(char symbol, word n, byte color) {
