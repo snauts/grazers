@@ -1153,7 +1153,7 @@ static void finish_game(void) {
 
 static void use_fence_sprites(void) {
     sprite = fence;
-    SPRITE_COLOR(sprite_color);
+    SPRITE_COLOR(fence_color);
 }
 
 static void fenced_level(byte *level, word size) {
