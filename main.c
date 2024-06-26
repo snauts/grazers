@@ -696,8 +696,8 @@ static void put_sprite(byte cell, byte base, word n) {
 #ifdef ZXS
     byte x = n & 0x1f;
     byte y = (n >> 2) & ~7;
-    byte flipH = cell & 0x40;
-    byte flipV = cell & 0x20;
+    byte flipH = cell & 0x20;
+    byte flipV = cell & 0x40;
     BYTE(0x5800 + n) = sprite_color[index];
     const byte *addr = sprite + (index << 3);
     if (flipV) addr = addr + 7;
@@ -712,7 +712,10 @@ static void put_sprite(byte cell, byte base, word n) {
 #endif
 
 #ifdef SMS
-    vdp_word(0x7800 + (n << 1), sprite_offset + index);
+    word id = sprite_offset + index;
+    byte *ptr = (byte *) &id;
+    ptr[1] |= (cell & 0x60) >> 4;
+    vdp_word(0x7800 + (n << 1), id);
 #endif
 }
 

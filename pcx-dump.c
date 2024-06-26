@@ -126,8 +126,8 @@ static int matchDIR(void *pixel, int n, unsigned char *tiles, int i, int d) {
     unsigned long *ptr = pixel + n;
     unsigned long flip = 0;
     for (int k = 0; k < 8; k++) {
-	unsigned char byte = tiles[i + ((d & 1) ? k : 7 - k)];
-	if (d & 2) byte = flip_bits(byte);
+	unsigned char byte = tiles[i + ((d & 2) ? k : 7 - k)];
+	if (d & 1) byte = flip_bits(byte);
 	flip = flip << 8;
 	flip = flip | byte;
     }
