@@ -181,6 +181,7 @@ static void vdp_memset(word addr, word count, byte data) {
 }
 
 static void vdp_update(void) {
+    vblank = 1;
 }
 #endif
 
@@ -1637,7 +1638,12 @@ static void wait_1_or_2(void) {
 
 #ifdef SMS
 static void wait_1_or_2(void) {
-    while (in_key(0) & 0x30) { }
+    while (in_key(0) & 0x30) {
+	if (vblank) {
+	    animate_title();
+	    vblank = 0;
+	}
+    }
 }
 #endif
 
