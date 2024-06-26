@@ -194,13 +194,12 @@ static void vdp_memset(word addr, word count, byte data) {
     __asm__("ld iy, #0x4");
     __asm__("add iy, sp");
     __asm__("ld b, (iy)");
-    __asm__("more_vdp_set:");
-    __asm__("out (c), b");
+    __asm__("more: out (c), b");
     __asm__("dec de"); count;
     __asm__("ld a, e");
     __asm__("ld l, d");
     __asm__("or a, l");
-    __asm__("jp nz, more_vdp_set");
+    __asm__("jp nz, more");
     __asm__("pop iy");
 }
 
