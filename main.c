@@ -681,13 +681,14 @@ static byte flip_bits(byte source) {
     return result;
 }
 
-static const byte *sprite;
-
 #ifdef ZXS
+static const byte *sprite;
 static const byte *sprite_color;
-#define SPRITE_COLOR(x) sprite_color = x
+#define TILESET(tiles, color, offset) \
+    sprite_color = color; \
+    sprite = tiles;
 #else
-#define SPRITE_COLOR(x)
+#define TILESET(tiles, color, offset)
 #endif
 
 static void put_sprite(byte cell, byte base, word n) {
@@ -1200,8 +1201,7 @@ static void adat_meitas(void);
 static void finish_game(void) {
     clear_screen();
 
-    sprite = sunset;
-    SPRITE_COLOR(sunset_color);
+    TILESET(sunset, sunset_color, 0);
     memset(forest, 0, SIZE(forest));
     display_image(sunset_map, 0, SIZE(sunset_map), 0);
 
@@ -1210,8 +1210,7 @@ static void finish_game(void) {
 }
 
 static void use_fence_sprites(void) {
-    sprite = fence;
-    SPRITE_COLOR(fence_color);
+    TILESET(fence, fence_color, 40);
 }
 
 static void fenced_level(byte *level, word size) {
@@ -1358,8 +1357,7 @@ static void eruption_level(void) {
 
     fenced_level(eruption_map, SIZE(eruption_map));
 
-    sprite = volcano;
-    SPRITE_COLOR(volcano_color);
+    TILESET(volcano, volcano_color, 72);
     display_image(volcano_map, 0, SIZE(volcano_map), 0xc0);
 
     use_fence_sprites();
@@ -1696,8 +1694,7 @@ static void wait_start(void) {
 
 static void title_screen(void) {
     clear_screen();
-    sprite = logo;
-    SPRITE_COLOR(mirror);
+    TILESET(logo, mirror, 72);
     memset(mirror, 0, sizeof(logo) / 8);
     display_image(logo_map, 0, SIZE(logo_map), 0x100);
     put_str("ENTER or N to fast forward", POS(3, 15), 5);
