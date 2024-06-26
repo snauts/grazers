@@ -284,6 +284,11 @@ static void put_char(char symbol, word n, byte color) {
 	ptr += 0x100;
     }
 #endif
+
+#ifdef SMS
+    vdp_word(0x7800 + (n << 1), 0xe0 + symbol);
+    color;
+#endif
 }
 
 static void put_str(const char *msg, word n, byte color) {
@@ -1647,8 +1652,8 @@ static void grass_stripe(word n, byte len) {
     }
 }
 
-static void title_flash(byte offset, byte color) {
 #ifdef ZXS
+static void title_flash(byte offset, byte color) {
     word addr = 0x5900;
     for (word i = 0; i < 5; i++) {
 	if (offset < 0x20) {
@@ -1657,19 +1662,21 @@ static void title_flash(byte offset, byte color) {
 	addr += 0x20;
 	offset++;
     }
-#endif
 }
+#endif
 
 static byte eat;
 static void animate_title(void) {
-    byte roll = (eat >> 1) & 0x3f;
     byte frame = (eat & 0x3f) < 32;
     put_tile(frame ? 0x1e : 0x1f, POS(12, 3));
     put_tile(frame ? 0x1b : 0x1a, POS(22, 21));
     byte feed = (frame ? 0x0e : 0x0f);
     put_tile(eat > 192 ? 0xc : feed, POS( 7, 4));
+#ifdef ZXS
+    byte roll = (eat >> 1) & 0x3f;
     title_flash(roll - 0x10, 0x04);
     title_flash(roll - 0x08, 0x44);
+#endif
     eat++;
 }
 
@@ -1710,10 +1717,17 @@ static void title_screen(void) {
     display_image(logo_map, 0, SIZE(logo_map), 0x100);
 
     TILESET(tiles, 0, 0);
+    TILESET(font, 0, 0x100);
+#ifdef ZXS
     put_str("ENTER or N to fast forward", POS(3, 15), 5);
     put_str("SPACE or M skip one epoch", POS(3, 16), 5);
     put_str("1 - QAOP keys", POS(9, 18), 5);
     put_str("2 - WASD keys", POS(9, 19), 5);
+#endif
+
+#ifdef SMS
+    put_str("Press START", POS(10, 17), 5);
+#endif
 
     grass_stripe(POS( 6, 2), 11);
     grass_stripe(POS( 3, 3), 9);
