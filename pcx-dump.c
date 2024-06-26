@@ -292,7 +292,7 @@ static void encode_sms_tile(unsigned char *dst, unsigned char *src) {
 		fprintf(stderr, "ERROR pixel index too large\n");
 	    }
 	    for (int i = 0; i < 4; i++) {
-		dst[i] |= (((pixel >> i) & 1) << x);
+		dst[i] |= (((pixel >> i) & 1) << (7 - x));
 	    }
 	}
 	src += header.w;
