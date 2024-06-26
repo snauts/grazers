@@ -167,6 +167,13 @@ static const byte vdp_registers[] = {
     0x00, 0x88, 0x00, 0x89, 0xff, 0x8a
 };
 
+static const byte sms_palette[] = {
+    0x00, 0x04, 0x08, 0x0c,
+    0x11, 0x01, 0x02, 0x03,
+    0x33, 0x10, 0x20, 0x30,
+    0x3c, 0x15, 0x2a, 0x3f,
+};
+
 static void vdp_switch(byte value) {
     __asm__("ld c, #0xbf");
     __asm__("out (c), a"); value;
@@ -249,6 +256,7 @@ static void setup_system(void) {
 #endif
 #ifdef SMS
     vdp_init(vdp_registers, SIZE(vdp_registers));
+    vdp_memcpy(0xc000, sms_palette, SIZE(sms_palette));
     vdp_memset(0x4000, 0x4000, 0x00);
     vdp_memset(0x7f00, 0x0040, 0xd0);
     vdp_enable_display(TRUE);
@@ -687,7 +695,8 @@ static const byte *sprite_color;
     sprite_color = color; \
     sprite = tiles;
 #else
-#define TILESET(tiles, color, offset)
+#define TILESET(tiles, color, offset) \
+    vdp_memcpy(0x4000 + (offset << 5), tiles, SIZE(tiles));
 #endif
 
 static void put_sprite(byte cell, byte base, word n) {
@@ -1693,6 +1702,7 @@ static void wait_start(void) {
 
 static void title_screen(void) {
     clear_screen();
+    TILESET(tiles, 0, 0);
     TILESET(logo, mirror, 72);
     memset(mirror, 0, sizeof(logo) / 8);
     display_image(logo_map, 0, SIZE(logo_map), 0x100);
