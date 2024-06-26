@@ -241,6 +241,8 @@ static void setup_system(void) {
 #endif
 #ifdef SMS
     vdp_init(vdp_registers, SIZE(vdp_registers));
+    vdp_memset(0x4000, 0x4000, 0x00);
+    vdp_memset(0x7f00, 0x0040, 0xd0);
     vdp_enable_display(TRUE);
 #endif
 }
@@ -252,8 +254,7 @@ static void clear_screen(void) {
     out_fe(0);
 #endif
 #ifdef SMS
-    vdp_memset(0x4000, 0x4000, 0x00);
-    vdp_memset(0x7f00, 0x0040, 0xd0); /* hide sprites */
+    vdp_memset(0x7800, 0x600, 0x00);
 #endif
 }
 
