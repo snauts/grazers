@@ -1622,7 +1622,7 @@ static byte read_1_or_2(void) {
     return ~in_key(0xf7) & 3;
 }
 
-static void wait_1_or_2(void) {
+static void wait_start(void) {
     byte prev, next = read_1_or_2();
     do {
 	prev = next;
@@ -1637,7 +1637,7 @@ static void wait_1_or_2(void) {
 #endif
 
 #ifdef SMS
-static void wait_1_or_2(void) {
+static void wait_start(void) {
     while (in_key(0) & 0x30) {
 	if (vblank) {
 	    animate_title();
@@ -1669,7 +1669,7 @@ static void title_screen(void) {
     grass_stripe(POS(23, 21), 6);
 
     eat = 0;
-    wait_1_or_2();
+    wait_start();
 }
 
 void reset(void) {
