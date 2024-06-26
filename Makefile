@@ -12,8 +12,6 @@ all:
 
 pcx:
 	@gcc $(TYPE) -lm pcx-dump.c -o pcx-dump
-
-prg:
 	@./pcx-dump -c tiles.pcx > data.h
 	@./pcx-dump -c fence.pcx >> data.h
 	@./pcx-dump -l dialog.pcx >> data.h
@@ -35,6 +33,8 @@ prg:
 	@./pcx-dump -l sunset.pcx >> data.h
 	@./pcx-dump -c volcano.pcx >> data.h
 	@./pcx-dump -l volcano.pcx >> data.h
+
+prg:
 	@sdcc $(CFLAGS) $(TYPE) main.c -o grazers.ihx
 	hex2bin grazers.ihx > /dev/null
 
@@ -51,6 +51,7 @@ fuse: zxs
 
 sms:
 	TYPE=-DSMS make pcx
+	@./pcx-dump -s font.pcx >> data.h
 	CODE=0x0000 DATA=0xc000	TYPE=-DSMS make prg
 	gcc mkrom.c -o mkrom
 	./mkrom

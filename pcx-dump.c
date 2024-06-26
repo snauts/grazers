@@ -12,8 +12,8 @@ static int need_compress = 0;
 static int need_color = 1;
 static int as_level = 0;
 
-static unsigned char *tile_idx;
-static int tile_count;
+static unsigned char *tile_idx = NULL;
+static int tile_count = 0;
 
 struct Header {
     unsigned short w, h;
@@ -300,20 +300,26 @@ static void encode_sms_tile(unsigned char *dst, unsigned char *src) {
     }
 }
 
+static void full_tileset(void) {
+    tile_count = header.w * header.h / 64;
+}
+
 static int save_sms_tileset(void) {
     int offset = 0;
     char name[256], sms_name[256];
     remove_extension(file_name, name);
     sprintf(sms_name, "%s-sms.pcx", name);
     unsigned char *buf = read_pcx(sms_name, 0);
-    unsigned char sms_tiles[32 * tile_count];
     if (buf == NULL) return -ENOENT;
+
+    if (tile_idx == NULL) full_tileset();
+    unsigned char sms_tiles[32 * tile_count];
     memset(sms_tiles, 0, 32 * tile_count);
 
     int index = 0, tile = 0;
     for (int y = 0; y < header.h; y += 8) {
 	for (int x = 0; x < header.w; x += 8) {
-	    if (index == tile_idx[tile]) {
+	    if (tile_idx == NULL || index == tile_idx[tile]) {
 		encode_sms_tile(sms_tiles + offset, buf + (y * header.w) + x);
 		offset += 32;
 		tile++;
@@ -414,14 +420,21 @@ static unsigned char *read_pcx(const char *file, int zx_color) {
 }
 
 int main(int argc, char **argv) {
-    if (argc < 2) {
+    if (argc < 3) {
 	printf("USAGE: pcx-dump [option] file.pcx [no-color]\n");
 	printf("  -c   save tileset zx\n");
 	printf("  -l   save level zx\n");
+	printf("  -s   save tiles sega\n");
 	return 0;
     }
 
     file_name = argv[2];
+
+    if (argv[1][1] == 's') {
+	save_sms_tileset();
+	return 0;
+    }
+
     unsigned char *buf = read_pcx(file_name, 1);
     if (buf == NULL) return -ENOENT;
 
