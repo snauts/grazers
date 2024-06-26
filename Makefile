@@ -10,8 +10,10 @@ all:
 	@echo "make mame" - build and run mame
 	@echo "make blast" - build and run blastem
 
-prg:
+pcx:
 	@gcc $(TYPE) -lm pcx-dump.c -o pcx-dump
+
+prg:
 	@./pcx-dump -c tiles.pcx > data.h
 	@./pcx-dump -c fence.pcx >> data.h
 	@./pcx-dump -l dialog.pcx >> data.h
@@ -39,14 +41,14 @@ prg:
 tap:
 	bin2tap -b -r $(shell printf "%d" 0x$$($(ENTRY))) grazers.bin
 
-zxs:
+zxs: pcx
 	CODE=0x8000 DATA=0xe000	TYPE=-DZXS make prg
 	@make tap
 
 fuse: zxs
 	fuse --no-confirm-actions -g 2x grazers.tap
 
-sms:
+sms: pcx
 	CODE=0x0000 DATA=0xC000	TYPE=-DSMS make prg
 	gcc mkrom.c -o mkrom
 	./mkrom
