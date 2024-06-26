@@ -19,6 +19,8 @@ struct Header {
     unsigned short w, h;
 } header;
 
+static unsigned char *read_pcx(const char *file, int zx_color);
+
 static void hexdump(unsigned char *buf, int size) {
     for (int i = 0; i < size; i++) {
 	fprintf(stderr, "%02x ", buf[i]);
@@ -275,7 +277,7 @@ static void save(unsigned char *pixel, int pixel_size,
     printf("const byte %s%s[] = {\n", name, as_level ? "_map" : "");
     dump_buffer(pixel, pixel_size, 1);
     printf("};\n");
-    if (need_color && !as_level) {
+    if (color != NULL && need_color && !as_level) {
 	printf("const byte %s_color[] = {\n", name);
 	dump_buffer(color, color_size, 1);
 	printf("};\n");
@@ -326,8 +328,8 @@ static unsigned char *read_pcx(const char *file, int zx_color) {
     struct stat st;
     int palette_offset = 16;
     if (stat(file, &st) != 0) {
-	printf("ERROR while opening PCX-file \"%s\"\n", file);
-	exit(-ENOENT);
+	fprintf(stderr, "ERROR while opening PCX-file \"%s\"\n", file);
+	return NULL;
     }
     unsigned char *buf = malloc(st.st_size);
     int in = open(file, O_RDONLY);
@@ -358,10 +360,9 @@ static unsigned char *read_pcx(const char *file, int zx_color) {
 	for (i = 0; i < unpacked_size; i++) {
 	    pixels[i] = get_color(buf + palette_offset + (pixels[i] * 3));
 	}
+	tile_idx = malloc(unpacked_size / 64);
+	tile_count = 0;
     }
-
-    tile_idx = malloc(unpacked_size / 64);
-    tile_count = 0;
 
     free(buf);
     return pixels;
@@ -377,10 +378,7 @@ int main(int argc, char **argv) {
 
     file_name = argv[2];
     unsigned char *buf = read_pcx(file_name, 1);
-
-#ifdef SMS
-    need_color = 0;
-#endif
+    if (buf == NULL) return -ENOENT;
 
     if (argc >= 4 && strcmp(argv[3], "no-color") == 0) {
 	need_color = 0;
