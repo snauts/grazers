@@ -122,8 +122,13 @@ static void out_fe(byte data) {
     __asm__("out (#0xfe), a"); data;
 }
 
-static byte in_fe(byte a) {
+static byte in_key(byte a) {
+#ifdef ZXS
     __asm__("in a, (#0xfe)");
+#endif
+#ifdef SMS
+    __asm__("in a, (#0xdc)");
+#endif
     return a;
 }
 
@@ -549,11 +554,11 @@ static void queue_item(word where, byte type, byte sprite) {
 }
 
 static byte fast_forward(void) {
-    return ((~in_fe(0xbf) & 1) << 1) | ((~in_fe(0x7f) & 8) >> 2);
+    return ((~in_key(0xbf) & 1) << 1) | ((~in_key(0x7f) & 8) >> 2);
 }
 
 static byte skip_epoch(void) {
-    byte reg = ~in_fe(0x7f);
+    byte reg = ~in_key(0x7f);
     return ((reg & 1) << 4) | ((reg & 4) << 2);
 }
 
@@ -579,14 +584,14 @@ static byte wait_space_or_enter(byte (*callback)(void)) {
 static byte movement_keys(void) {
     byte output;
     if (wasd) {
-	output = in_fe(0xfd) & 7;
-	output |= (in_fe(0xfb) & 2) << 2;
+	output = in_key(0xfd) & 7;
+	output |= (in_key(0xfb) & 2) << 2;
     }
     else {
-	output = in_fe(0xdf);
+	output = in_key(0xdf);
 	output = ((output & 1) << 2) | ((output & 2) >> 1);
-	output |= (in_fe(0xfb) & 1) << 3;
-	output |= (in_fe(0xfd) & 1) << 1;
+	output |= (in_key(0xfb) & 1) << 3;
+	output |= (in_key(0xfd) & 1) << 1;
     }
     return (~output) & 0xf;
 }
@@ -1229,7 +1234,7 @@ static void tsunami_level(void) {
 }
 
 static byte check_R(void) {
-    return ~in_fe(0xfb) & 8;
+    return ~in_key(0xfb) & 8;
 }
 
 static void load_level(byte n);
@@ -1586,6 +1591,7 @@ static void grass_stripe(word n, byte len) {
 }
 
 static void title_flash(byte offset, byte color) {
+#ifdef ZXS
     word addr = 0x5900;
     for (word i = 0; i < 5; i++) {
 	if (offset < 0x20) {
@@ -1594,6 +1600,7 @@ static void title_flash(byte offset, byte color) {
 	addr += 0x20;
 	offset++;
     }
+#endif
 }
 
 static byte eat;
@@ -1609,8 +1616,9 @@ static void animate_title(void) {
     eat++;
 }
 
+#ifdef ZXS
 static byte read_1_or_2(void) {
-    return ~in_fe(0xf7) & 3;
+    return ~in_key(0xf7) & 3;
 }
 
 static void wait_1_or_2(void) {
@@ -1625,6 +1633,13 @@ static void wait_1_or_2(void) {
     } while ((next & (prev ^ next)) == 0);
     wasd = next & 2;
 }
+#endif
+
+#ifdef SMS
+static void wait_1_or_2(void) {
+    while (in_key(0) & 0x30) { }
+}
+#endif
 
 static void title_screen(void) {
     clear_screen();
