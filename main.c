@@ -139,7 +139,7 @@ static void vdp_word(word addr, word data) {
     __asm__("out (c), h");
     __asm__("ld c, #0xbe"); data;
     __asm__("out (c), e");
-    __asm__("out (c), b");
+    __asm__("out (c), d");
 }
 
 static void vdp_init(byte *ptr, byte size) {
