@@ -118,39 +118,28 @@ static void setup_irq(byte base) {
 }
 #endif
 
-static void out_fe(byte data) __naked {
+static void out_fe(byte data) {
     __asm__("out (#0xfe), a"); data;
-    __asm__("ret");
 }
 
-static byte in_fe(byte a) __naked {
-    __asm__("in a, (#0xfe)"); a;
-    __asm__("ret");
-}
-
-static byte in_1f(void) __naked {
-    __asm__("ld bc, #0x1f");
-    __asm__("in a, (c)");
-    __asm__("ret");
+static byte in_fe(byte a) {
+    __asm__("in a, (#0xfe)");
+    return a;
 }
 
 #ifdef SMS
-static void vdp_write(word addr, byte data) __naked {
-    addr; data;
-    __asm__("ld c, #0xbf"); // VDP_CTRL
+static void vdp_write(word addr, byte data) {
+    __asm__("ld c, #0xbf"); addr;
     __asm__("out (c), l");
     __asm__("out (c), h");
-    __asm__("ld c, #0xbe"); // VDP_DATA
+    __asm__("ld c, #0xbe"); data;
     __asm__("out (c), a");
-    __asm__("ret");
 }
 
-static void vdp_init(byte *ptr, byte size) __naked {
-    ptr; size;
-    __asm__("ld b, a");
+static void vdp_init(byte *ptr, byte size) {
+    __asm__("ld b, a"); size;
     __asm__("ld c, #0xbf");
-    __asm__("otir");
-    __asm__("ret");
+    __asm__("otir"); ptr;
 }
 
 static const byte vdp_registers[] = {
@@ -159,12 +148,11 @@ static const byte vdp_registers[] = {
     0x00, 0x88, 0x00, 0x89, 0xff, 0x8a
 };
 
-static void vdp_switch(byte value) __naked {
+static void vdp_switch(byte value) {
     __asm__("ld c, #0xbf");
     __asm__("out (c), a"); value;
     __asm__("ld a, #0x81");
     __asm__("out (c), a");
-    __asm__("ret");
 }
 
 static void vdp_enable_display(byte state) {
