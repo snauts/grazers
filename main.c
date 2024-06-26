@@ -195,6 +195,28 @@ static void vdp_memset(word addr, word count, byte data) {
     __asm__("pop iy");
 }
 
+static void vdp_transfer(void *ptr, byte size) {
+    __asm__("ld iy, #2");
+    __asm__("add iy, sp");
+    __asm__("ld b, (iy)"); size;
+    __asm__("ld c, #0xbe");
+    __asm__("otir"); ptr;
+}
+
+static void vdp_memcpy(word dst, byte *src, word count) {
+    __asm__("ld c, #0xbf"); dst;
+    __asm__("out (c), l");
+    __asm__("out (c), h");
+    while (count > 0x80) {
+	vdp_transfer(src, 0x80);
+	count -= 0x80;
+	src += 0x80;
+    }
+    if (count > 0) {
+	vdp_transfer(src, count);
+    }
+}
+
 static void vdp_update(void) {
     vblank = 1;
 }
