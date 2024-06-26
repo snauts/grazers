@@ -284,6 +284,42 @@ static void save(unsigned char *pixel, int pixel_size,
     }
 }
 
+static void encode_sms_tile(unsigned char *dst, unsigned char *src) {
+    for (int y = 0; y < 8; y++) {
+	for (int x = 0; x < 8; x++) {
+	    unsigned char pixel = src[x];
+	    if (pixel >= 0x10) {
+		fprintf(stderr, "ERROR pixel index too large\n");
+	    }
+	    for (int i = 0; i < 4; i++) {
+		dst[i] |= (((pixel >> i) & 1) << x);
+	    }
+	}
+	src += header.w;
+	dst += 4;
+    }
+}
+
+static int save_sms_tileset(void) {
+    int offset = 0;
+    char name[256], sms_name[256];
+    remove_extension(file_name, name);
+    sprintf(sms_name, "%s-sms.pcx", name);
+    unsigned char *buf = read_pcx(sms_name, 0);
+    unsigned char sms_tiles[32 * tile_count];
+    if (buf == NULL) return -ENOENT;
+    memset(sms_tiles, 0, 32 * tile_count);
+    for (int y = 0; y < header.h; y += 8) {
+	for (int x = 0; x < header.w; x += 8) {
+	    encode_sms_tile(sms_tiles + offset, buf + (y * header.w) + x);
+	    offset += 32;
+	}
+    }
+    save(sms_tiles, 32 * tile_count, NULL, 0);
+    free(buf);
+    return 0;
+}
+
 static void save_bitmap(unsigned char *buf, int size) {
     int j = 0;
     int pixel_size = size / 8;
@@ -309,6 +345,9 @@ static void save_bitmap(unsigned char *buf, int size) {
     }
     if (need_compress) {
 	compress(pixel, &pixel_size, color, &color_size);
+#ifdef SMS
+	if (save_sms_tileset() >= 0) return;
+#endif
     }
     save(pixel, pixel_size, color, color_size);
 }
