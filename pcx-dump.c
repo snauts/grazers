@@ -318,7 +318,7 @@ static unsigned char get_color(unsigned char *color) {
     return result;
 }
 
-static unsigned char *read_pcx(const char *file) {
+static unsigned char *read_pcx(const char *file, int zx_color) {
     struct stat st;
     int palette_offset = 16;
     if (stat(file, &st) != 0) {
@@ -350,8 +350,10 @@ static unsigned char *read_pcx(const char *file) {
 	}
     }
 
-    for (i = 0; i < unpacked_size; i++) {
-	pixels[i] = get_color(buf + palette_offset + (pixels[i] * 3));
+    if (zx_color) {
+	for (i = 0; i < unpacked_size; i++) {
+	    pixels[i] = get_color(buf + palette_offset + (pixels[i] * 3));
+	}
     }
 
     free(buf);
@@ -367,7 +369,7 @@ int main(int argc, char **argv) {
     }
 
     file_name = argv[2];
-    unsigned char *buf = read_pcx(file_name);
+    unsigned char *buf = read_pcx(file_name, 1);
 
 #ifdef SMS
     need_color = 0;
