@@ -12,6 +12,9 @@ static int need_compress = 0;
 static int need_color = 1;
 static int as_level = 0;
 
+static unsigned char *tile_idx;
+static int tile_count;
+
 struct Header {
     unsigned short w, h;
 } header;
@@ -159,6 +162,7 @@ static void compress(unsigned char *pixel, int *pixel_size,
 	    }
 	}
 	if (!have_match) {
+	    tile_idx[tile_count++] = n / 8;
 	    memcpy(tiles + compress_size, pixel + n, 8);
 	    extra[compress_size / 8] = color[n / 8];
 	    compress_size += 8;
@@ -356,6 +360,9 @@ static unsigned char *read_pcx(const char *file, int zx_color) {
 	}
     }
 
+    tile_idx = malloc(unpacked_size / 64);
+    tile_count = 0;
+
     free(buf);
     return pixels;
 }
@@ -389,6 +396,7 @@ int main(int argc, char **argv) {
     }
 
     save_bitmap(buf, header.w * header.h);
+    free(tile_idx);
     free(buf);
     return 0;
 }
