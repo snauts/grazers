@@ -366,6 +366,10 @@ static void put_tile(byte cell, word n) {
 	ptr += 0x100;
     }
 #endif
+
+#ifdef SMS
+    vdp_word(0x7800 + (n << 1), cell);
+#endif
 }
 
 static const int8 neighbors[] = { -1, 32, 1, -32 };
