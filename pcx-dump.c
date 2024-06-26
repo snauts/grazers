@@ -309,10 +309,16 @@ static int save_sms_tileset(void) {
     unsigned char sms_tiles[32 * tile_count];
     if (buf == NULL) return -ENOENT;
     memset(sms_tiles, 0, 32 * tile_count);
+
+    int index = 0, tile = 0;
     for (int y = 0; y < header.h; y += 8) {
 	for (int x = 0; x < header.w; x += 8) {
-	    encode_sms_tile(sms_tiles + offset, buf + (y * header.w) + x);
-	    offset += 32;
+	    if (index == tile_idx[tile]) {
+		encode_sms_tile(sms_tiles + offset, buf + (y * header.w) + x);
+		offset += 32;
+		tile++;
+	    }
+	    index++;
 	}
     }
     save(sms_tiles, 32 * tile_count, NULL, 0);
