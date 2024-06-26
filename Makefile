@@ -14,6 +14,7 @@ prg:
 	@gcc $(TYPE) -lm pcx-dump.c -o pcx-dump
 	@./pcx-dump -c tiles.pcx > data.h
 	@./pcx-dump -c fence.pcx >> data.h
+	@./pcx-dump -l dialog.pcx >> data.h
 	@./pcx-dump -l quarantine.pcx >> data.h
 	@./pcx-dump -l gardener.pcx >> data.h
 	@./pcx-dump -l earthquake.pcx >> data.h

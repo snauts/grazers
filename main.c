@@ -182,10 +182,6 @@ static void memcpy(byte *dst, byte *src, word len) {
     while (len-- > 0) { *dst++ = *src++; }
 }
 
-static void slow_pixel(byte x, byte y) {
-    map_y[y][x >> 3] ^= pixel_map[x & 7];
-}
-
 static void setup_system(void) {
 #ifdef ZXS
     byte top = (byte) ((IRQ_BASE >> 8) - 1);
@@ -1529,25 +1525,9 @@ static void adat_meitas(void) {
     wait_space_or_enter(0);
 }
 
-static void line(byte x, byte y, byte dir, byte len) {
-    for (int i = 0; i < len; i++) {
-	slow_pixel(x, y);
-	if (dir) x++; else y++;
-    }
-}
-
 static void display_msg(const char *text_message) {
-    const byte x = 11;
-    for (word y = 80; y < 104; y++) {
-	byte *ptr = (byte *) 0x5800;
-	memset(map_y[y] + x, 0, 10);
-	memset(ptr + ((y >> 3) << 5) + x, 5, 10);
-    }
-    put_str(text_message, POS(13, 11), 5);
-    line(89, 81, 1, 78);
-    line(89, 102, 1, 78);
-    line(89, 82, 0, 20);
-    line(166, 82, 0, 20);
+    display_image(dialog_map, 0, SIZE(dialog_map), 0x140);
+    put_str(text_message, POS(12, 11), 5);
 }
 
 static void game_loop(void) {
@@ -1563,13 +1543,13 @@ static void game_loop(void) {
 
     switch (ending) {
     case  1:
-	display_msg(" DONE");
+	display_msg("  DONE  ");
 	success_tune();
 	retry = 0;
 	level++;
 	break;
     case -1:
-	display_msg("FAILED");
+	display_msg(" FAILED ");
 	sad_trombone_wah_wah_wah();
 	retry++;
 	break;
