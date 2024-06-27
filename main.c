@@ -1022,13 +1022,14 @@ static void recede_wave(int8 len) {
 	if (forest[n] == T_WALL) {
 	    continue;
 	}
-	if (tsunami_rnd++ == 11) {
-	    BYTE(0x5800 + n) = 1;
-	    tsunami_rnd = 0;
-	    continue;
-	}
 	byte sum = x + y;
 	if (x == 0 || y == 22 || sum < 18 || sum > 36) {
+	    continue;
+	}
+	if (tsunami_rnd++ == 11) {
+	    put_sprite(6, 0, n);
+	    forest[n] = T_SAND;
+	    tsunami_rnd = 0;
 	    continue;
 	}
 	queue_item(n, C_BARE, C_BARE);
