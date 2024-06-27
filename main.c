@@ -116,11 +116,11 @@ static void setup_irq(byte base) {
     __asm__("im 2");
     __asm__("ei");
 }
-#endif
 
 static void out_fe(byte data) {
     __asm__("out (#0xfe), a"); data;
 }
+#endif
 
 static byte in_key(byte a) {
 #ifdef ZXS
@@ -496,6 +496,7 @@ static byte get_face(int8 diff, byte cell) {
 }
 
 static void beep(word p0, word p1, word len) {
+#ifdef ZXS
     word c0 = 0;
     word c1 = 0;
     __asm__("di");
@@ -507,6 +508,7 @@ static void beep(word p0, word p1, word len) {
     }
     __asm__("ei");
     out_fe(0x00);
+#endif
 }
 
 static void bite_sound(word distance) {
@@ -1261,6 +1263,9 @@ static void finish_game(void) {
 
 static void use_fence_sprites(void) {
     TILESET(tiles, 0, 0);
+#ifdef SMS
+    TILESET(font, 0, 0x100);
+#endif
     TILESET(fence, fence_color, 40);
 }
 
