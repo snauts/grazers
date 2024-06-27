@@ -231,12 +231,25 @@ static void vdp_memcpy(word dst, byte *src, word count) {
     }
 }
 
+static word vdp_addr[256];
+static word vdp_data[256];
+static byte vdp_head, vdp_tail;
+
 static void vdp_put_tile(word n, word tile) {
-    vdp_word(0x7800 + (n << 1), tile);
+    while (vdp_head + 1 == vdp_tail) { }
+    vdp_addr[vdp_head] = 0x7800 + (n << 1);
+    vdp_data[vdp_head] = tile;
+    vdp_head++;
 }
 
 static void vdp_update(void) {
     vblank = 1;
+    byte count = 0;
+    while (vdp_head != vdp_tail) {
+	if (count++ > 24) break;
+	vdp_word(vdp_addr[vdp_tail], vdp_data[vdp_tail]);
+	vdp_tail++;
+    }
 }
 
 static void out_7f(byte data) {
@@ -289,7 +302,10 @@ static void clear_screen(void) {
     out_fe(0);
 #endif
 #ifdef SMS
+    vdp_enable_display(FALSE);
     vdp_memset(0x7800, 0x600, 0x00);
+    vdp_head = vdp_tail = 0;
+    vdp_enable_display(TRUE);
 #endif
 }
 
