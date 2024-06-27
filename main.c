@@ -546,8 +546,9 @@ static void beep(word p0, word p1, word len) {
 }
 
 static void bite_sound(word distance) {
-    word offset = distance << 8;
-    beep(1024 - offset, 1024 + offset, 256);
+    word offset = 3 * NOTE(187.8) / 2;
+    offset = SCALE_LO(offset, 4 - distance);
+    beep(NOTE(187.8) - offset, NOTE(187.8) + offset, 256);
 }
 
 static void rolling_rock_sound(void) {
