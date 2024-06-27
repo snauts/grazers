@@ -42,10 +42,14 @@ static void rom_start(void) __naked {
 #define SIZE(array)	(sizeof(array) / sizeof(*(array)))
 
 #ifdef ZXS
-#define NOTE(freq)	((2400.0 * freq) / 440.0)
+#define NOTE(freq)	((word) ((2400.0 * freq) / 440.0))
+#define SCALE_HI(n, x)	((n) << (x))
+#define SCALE_LO(n, x)	((n) >> (x))
 #endif
 #ifdef SMS
-#define NOTE(freq)	(125000.0 / freq)
+#define NOTE(freq)	((word) (125000.0 / freq))
+#define SCALE_HI(n, x)	((n) >> (x))
+#define SCALE_LO(n, x)	((n) << (x))
 #endif
 
 #define POS(x, y)	(((y) << 5) + (x))
@@ -1519,7 +1523,7 @@ static void sad_trombone_wah_wah_wah(void) {
 	word period = wah_wah[i];
 	if (i > 0) beep(0, 0, 500);
 	for (byte j = 0; j < (i == 3 ? 20 : 10); j++) {
-	    beep(period >> (j & 1), period << (j & 3), 150);
+	    beep(SCALE_LO(period, j & 1), SCALE_HI(period, j & 3), 150);
 	}
     }
 }
@@ -1535,13 +1539,13 @@ static void success_tune(void) {
     };
     for (byte i = 0; i < SIZE(tune); i++) {
 	for (byte n = 0; n < 4; n++) {
-	    word period = tune[i] << n;
+	    word period = SCALE_HI(tune[i], n);
 	    beep(period, period, delay[i] << 8);
 	}
     }
     for (byte i = 0; i < 4; i++) {
-	beep(4 * NOTE(196.0), 4 * NOTE(196.0), 256);
-	beep(8 * NOTE(196.0), 8 * NOTE(196.0), 256);
+	beep(SCALE_HI(NOTE(196.0), 2), SCALE_HI(NOTE(196.0), 2), 256);
+	beep(SCALE_HI(NOTE(196.0), 3), SCALE_HI(NOTE(196.0), 3), 256);
     }
 }
 
