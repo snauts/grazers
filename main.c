@@ -862,12 +862,9 @@ static void display_cell(byte cell, byte base, word n) {
     }
 }
 
-static void display_image(byte *level, byte game, word size, word n) {
+static void raw_image(byte *level, byte game, word size, word n) {
     byte base = 0;
     in_game = game;
-#ifdef SMS
-    vdp_enable_display(FALSE);
-#endif
     for (word i = 0; i < size; i++) {
 	byte cell = level[i];
 	switch (cell & 0xc0) {
@@ -886,6 +883,13 @@ static void display_image(byte *level, byte game, word size, word n) {
 	    break;
 	}
     }
+}
+
+static void display_image(byte *level, byte game, word size, word n) {
+#ifdef SMS
+    vdp_enable_display(FALSE);
+#endif
+    raw_image(level, game, size, n);
 #ifdef SMS
     vdp_enable_display(TRUE);
 #endif
@@ -1713,7 +1717,7 @@ static void adat_meitas(void) {
 }
 
 static void display_msg(const char *text_message) {
-    display_image(dialog_map, 0, SIZE(dialog_map), 0x140);
+    raw_image(dialog_map, 0, SIZE(dialog_map), 0x140);
     put_str(text_message, POS(12, 11), 5);
 }
 
