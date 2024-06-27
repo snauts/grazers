@@ -717,7 +717,9 @@ static const byte *sprite_color;
 #else
 static word sprite_offset;
 #define TILESET(tiles, color, offset) \
+    vdp_enable_display(FALSE); \
     vdp_memcpy(0x4000 + (offset << 5), tiles, SIZE(tiles)); \
+    vdp_enable_display(TRUE); \
     sprite_offset = offset;
 #endif
 
@@ -790,6 +792,9 @@ static void display_cell(byte cell, byte base, word n) {
 static void display_image(byte *level, byte game, word size, word n) {
     byte base = 0;
     in_game = game;
+#ifdef SMS
+    vdp_enable_display(FALSE);
+#endif
     for (word i = 0; i < size; i++) {
 	byte cell = level[i];
 	switch (cell & 0xc0) {
@@ -808,6 +813,9 @@ static void display_image(byte *level, byte game, word size, word n) {
 	    break;
 	}
     }
+#ifdef SMS
+    vdp_enable_display(TRUE);
+#endif
 }
 
 static void increment_epoch(void) {
@@ -1248,6 +1256,7 @@ static void finish_game(void) {
 }
 
 static void use_fence_sprites(void) {
+    TILESET(tiles, 0, 0);
     TILESET(fence, fence_color, 40);
 }
 
