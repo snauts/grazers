@@ -897,6 +897,11 @@ static int8 game_round(byte **src, byte **dst) {
 }
 
 static void reset_memory(void) {
+#ifdef SMS
+    TILESET(tiles, 0, 0);
+    TILESET(font, 0, 0x100);
+#endif
+
     memset(update, 0x00, sizeof(update));
     memset(mirror, 0x00, sizeof(mirror));
     memset(forest, 0x00, sizeof(forest));
@@ -1313,10 +1318,6 @@ static void finish_game(void) {
 }
 
 static void use_fence_sprites(void) {
-    TILESET(tiles, 0, 0);
-#ifdef SMS
-    TILESET(font, 0, 0x100);
-#endif
     TILESET(fence, fence_color, 40);
 }
 
@@ -1803,7 +1804,6 @@ static void title_screen(void) {
     memset(mirror, 0, sizeof(logo) / 8);
     display_image(logo_map, 0, SIZE(logo_map), 0x100);
 
-    TILESET(tiles, 0, 0);
 #ifdef ZXS
     put_str("ENTER or N to fast forward", POS(3, 15), 5);
     put_str("SPACE or M skip one epoch", POS(3, 16), 5);
@@ -1812,7 +1812,6 @@ static void title_screen(void) {
 #endif
 
 #ifdef SMS
-    TILESET(font, 0, 0x100);
     put_str("Press START", POS(10, 17), 5);
 #endif
 
