@@ -533,9 +533,9 @@ static void beep(word p0, word p1, word len) {
 #endif
 
 #ifdef SMS
-    sms_psg(0, p0, 12);
-    sms_psg(1, p1, 12);
-    len = (len - (len >> 2)) << 4;
+    sms_psg(0, p0, 15);
+    sms_psg(1, p1, 15);
+    len = (len << 3) - (len >> 1);
     for (word i = 0; i < len; i++) { }
     sound_off();
 #endif
