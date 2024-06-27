@@ -1341,6 +1341,7 @@ static void finish_game(void) {
     clear_screen();
 
     TILESET(sunset, sunset_color, 0);
+    sprite_offset |= 0x800;
     memset(forest, 0, SIZE(forest));
     display_image(sunset_map, 0, SIZE(sunset_map), 0);
 
@@ -1497,6 +1498,7 @@ static void eruption_level(void) {
     fenced_level(eruption_map, SIZE(eruption_map));
 
     TILESET(volcano, volcano_color, 72);
+    sprite_offset |= 0x800;
     display_image(volcano_map, 0, SIZE(volcano_map), 0xc0);
 
     use_fence_sprites();
