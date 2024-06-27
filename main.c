@@ -1011,7 +1011,7 @@ static void put_wave(word n, byte tile, byte color) {
 
 #ifdef ZXS
     put_sprite(tile, 0, n);
-    BYTE(0x5800 + n) = color ? 0x41 : 0x01;
+    BYTE(0x5800 + n) = color ? 0x05 : 0x01;
 #endif
 
 #ifdef SMS
@@ -1108,7 +1108,7 @@ static int8 tidal_put(int8 *ptr, int8 y, int8 dir) {
     word n = (y << 5) + *ptr + dir;
     if (forest[n] < C_TILE) {
 	(*ptr) += dir;
-	put_wave(n, 8, 1);
+	put_wave(n, 7, 1);
 	return 1;
     }
     return 0;
@@ -1140,12 +1140,6 @@ static void tidal_movement(void) {
 	else if (wave_dir == 1) {
 	    advance += recede_put(ptr++, y, -1);
 	    advance += recede_put(ptr++, y, 1);
-	}
-	else {
-	    word n = (y << 5);
-	    byte color = wave_dir == 2 ? 0x01 : 0x41;
-	    BYTE(0x5800 + n + *ptr++) = color;
-	    BYTE(0x5800 + n + *ptr++) = color;
 	}
     }
     if (advance == 0) {
