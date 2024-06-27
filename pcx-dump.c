@@ -12,7 +12,7 @@ static int need_compress = 0;
 static int need_color = 1;
 static int as_level = 0;
 
-static unsigned char *tile_idx = NULL;
+static int *tile_idx = NULL;
 static int tile_count = 0;
 
 struct Header {
@@ -304,6 +304,13 @@ static void full_tileset(void) {
     tile_count = header.w * header.h / 64;
 }
 
+static int good_tile(int index) {
+    for (int i = 0; i < tile_count; i++) {
+	if (tile_idx[i] == index) return 1;
+    }
+    return 0;
+}
+
 static int save_sms_tileset(void) {
     int offset = 0;
     char name[256], sms_name[256];
@@ -316,13 +323,12 @@ static int save_sms_tileset(void) {
     unsigned char sms_tiles[32 * tile_count];
     memset(sms_tiles, 0, 32 * tile_count);
 
-    int index = 0, tile = 0;
+    int index = 0;
     for (int y = 0; y < header.h; y += 8) {
 	for (int x = 0; x < header.w; x += 8) {
-	    if (tile_idx == NULL || index == tile_idx[tile]) {
+	    if (tile_idx == NULL || good_tile(index)) {
 		encode_sms_tile(sms_tiles + offset, buf + (y * header.w) + x);
 		offset += 32;
-		tile++;
 	    }
 	    index++;
 	}
@@ -411,7 +417,7 @@ static unsigned char *read_pcx(const char *file, int zx_color) {
 	for (i = 0; i < unpacked_size; i++) {
 	    pixels[i] = get_color(buf + palette_offset + (pixels[i] * 3));
 	}
-	tile_idx = malloc(unpacked_size / 64);
+	tile_idx = malloc(unpacked_size * sizeof(int) / 64);
 	tile_count = 0;
     }
 
