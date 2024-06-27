@@ -638,6 +638,11 @@ static byte is_grazer(word dst) {
 
 static void put_sprite(byte cell, byte base, word n);
 
+static void put_sand(word n) {
+    forest[n] = T_SAND;
+    put_sprite(6, 0, n);
+}
+
 static byte standing;
 static void leave_tile(byte *place) {
     if (standing < C_TILE || standing == T_ROCK) {
@@ -645,8 +650,7 @@ static void leave_tile(byte *place) {
 	tile_ptr(place);
     }
     else {
-	*place = T_SAND;
-	put_sprite(6, 0, place - forest);
+	put_sand(place - forest);
     }
 }
 
@@ -850,8 +854,7 @@ static void special_cell(byte cell, word n) {
 	queue_item(n, id, rock_type(n));
 	break;
     case 6:
-	put_sprite(cell, 0, n);
-	forest[n] = T_SAND;
+	put_sand(n);
 	break;
     }
 }
@@ -1042,9 +1045,8 @@ static void recede_wave(int8 len) {
 	    continue;
 	}
 	if (tsunami_rnd++ == 11) {
-	    put_sprite(6, 0, n);
-	    forest[n] = T_SAND;
 	    tsunami_rnd = 0;
+	    put_sand(n);
 	    continue;
 	}
 	queue_item(n, C_BARE, C_BARE);
@@ -1061,6 +1063,7 @@ static int8 ending_tsunami(void) {
 	    recede_wave(wave_len);
 	}
 	if (wave_len == -24 && wave_dir == -1) {
+	    put_sand(POS(30, 7));
 	    wave_dir = 1;
 	}
 	else {
@@ -1246,8 +1249,7 @@ static void advance_drying(void) {
 static int8 ending_lonesome(void) {
     byte *place = forest + drying;
     if (*place <= C_FOOD) {
-	put_sprite(6, 0, place - forest);
-	*place = T_SAND;
+	put_sand(drying);
 	advance_drying();
     }
     else if (*place & C_PLAY) {
