@@ -793,11 +793,14 @@ static byte flip_bits(byte source) {
 #ifdef ZXS
 static const byte *sprite;
 static const byte *sprite_color;
+#define TILE_ATTRIBURE(x)
 #define TILESET(tiles, color, offset) \
     sprite_color = color; \
     sprite = tiles;
 #else
 static word sprite_offset;
+#define TILE_ATTRIBURE(x) \
+    sprite_offset |= (x);
 #define TILESET(tiles, color, offset) \
     vdp_enable_display(FALSE); \
     vdp_memcpy(0x4000 + (offset << 5), tiles, SIZE(tiles)); \
@@ -1341,7 +1344,7 @@ static void finish_game(void) {
     clear_screen();
 
     TILESET(sunset, sunset_color, 0);
-    sprite_offset |= 0x800;
+    TILE_ATTRIBURE(0x800);
     memset(forest, 0, SIZE(forest));
     display_image(sunset_map, 0, SIZE(sunset_map), 0);
 
@@ -1498,7 +1501,7 @@ static void eruption_level(void) {
     fenced_level(eruption_map, SIZE(eruption_map));
 
     TILESET(volcano, volcano_color, 72);
-    sprite_offset |= 0x800;
+    TILE_ATTRIBURE(0x800);
     display_image(volcano_map, 0, SIZE(volcano_map), 0xc0);
 
     use_fence_sprites();
