@@ -254,7 +254,7 @@ static void vdp_update(void) {
     vblank = 1;
     byte count = 0;
     while (vdp_head != vdp_tail) {
-	if (count++ > 24) break;
+	if (count++ > 30) break;
 	vdp_word(vdp_addr[vdp_tail], vdp_data[vdp_tail]);
 	vdp_tail++;
     }
