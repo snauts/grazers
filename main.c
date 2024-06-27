@@ -835,7 +835,7 @@ static void reset_memory(void) {
     memset(update, 0x00, sizeof(update));
     memset(mirror, 0x00, sizeof(mirror));
     memset(forest, 0x00, sizeof(forest));
-    level = 10;
+    level = 0;
     retry = 0;
     wasd = 0;
 }
