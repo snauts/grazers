@@ -221,6 +221,10 @@ static void vdp_memcpy(word dst, byte *src, word count) {
     }
 }
 
+static void vdp_put_tile(word n, word tile) {
+    vdp_word(0x7800 + (n << 1), tile);
+}
+
 static void vdp_update(void) {
     vblank = 1;
 }
@@ -286,7 +290,7 @@ static void put_char(char symbol, word n, byte color) {
 #endif
 
 #ifdef SMS
-    vdp_word(0x7800 + (n << 1), 0xe0 + symbol);
+    vdp_put_tile(n, 0xe0 + symbol);
     color;
 #endif
 }
@@ -373,7 +377,7 @@ static void put_tile(byte cell, word n) {
 #endif
 
 #ifdef SMS
-    vdp_word(0x7800 + (n << 1), cell);
+    vdp_put_tile(n, cell);
 #endif
 }
 
@@ -748,7 +752,7 @@ static void put_sprite(byte cell, byte base, word n) {
     word id = sprite_offset + index;
     byte *ptr = (byte *) &id;
     ptr[1] |= (cell & 0x60) >> 4;
-    vdp_word(0x7800 + (n << 1), id);
+    vdp_put_tile(n, id);
 #endif
 }
 
