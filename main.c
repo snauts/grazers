@@ -1005,8 +1005,18 @@ static int8 ending_escape(void) {
 
 static void put_wave(word n, byte color) {
     forest[n] = T_WAVE;
-    put_sprite(color == 5 ? 8 : 7, 0, n);
+    byte tile = color == 5 ? 8 : 7;
+
+#ifdef ZXS
+    put_sprite(tile, 0, n);
     BYTE(0x5800 + n) = color;
+#endif
+
+#ifdef SMS
+    word id = 40 + tile;
+    if (color != 1) id |= 0x800;
+    vdp_put_tile(n, id);
+#endif
 }
 
 static byte tsunami_rnd;
