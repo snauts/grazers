@@ -182,14 +182,15 @@ static void vdp_switch(byte value) {
 
 static byte vdp_state;
 static void vdp_enable_display(byte state) {
-    if (state) {
-	vdp_state = state;
-	vdp_switch(0xe0);
-	__asm__("ei");
-    }
-    else {
-	__asm__("di");
-	vdp_switch(0x80);
+    if (state != vdp_state) {
+	if (state) {
+	    vdp_switch(0xe0);
+	    __asm__("ei");
+	}
+	else {
+	    __asm__("di");
+	    vdp_switch(0x80);
+	}
 	vdp_state = state;
     }
 }
@@ -299,6 +300,8 @@ static void setup_system(void) {
     vdp_memcpy(0xc000, sms_palette, SIZE(sms_palette));
     vdp_memset(0x4000, 0x4000, 0x00);
     vdp_memset(0x7f00, 0x0040, 0xd0);
+
+    vdp_state = FALSE;
     vdp_enable_display(TRUE);
 #endif
 }
