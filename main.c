@@ -1426,7 +1426,7 @@ static void equilibrium_level(void) {
     put_str("Reach EQUILIBRIUM so that you", POS(1, 16), 4);
     put_str("stay on the same spot for 800", POS(1, 17), 4);
     put_str("EPOCHs and GRAZERs survive", POS(2, 18), 4);
-    if (retry >= 0) {
+    if (retry >= 3) {
 	put_str("LEFT - load previous level", POS(3, 20), 4);
 	if (wait_space_or_enter(&check_R)) {
 	    load_level(--level);
