@@ -1006,18 +1006,17 @@ static int8 ending_escape(void) {
     return 0;
 }
 
-static void put_wave(word n, byte color) {
+static void put_wave(word n, byte tile, byte color) {
     forest[n] = T_WAVE;
-    byte tile = color == 5 ? 8 : 7;
 
 #ifdef ZXS
     put_sprite(tile, 0, n);
-    BYTE(0x5800 + n) = color;
+    BYTE(0x5800 + n) = color ? 0x41 : 0x01;
 #endif
 
 #ifdef SMS
     word id = 40 + tile;
-    if (color != 1) id |= 0x800;
+    if (color) id |= 0x800;
     vdp_put_tile(n, id);
 #endif
 }
@@ -1028,7 +1027,7 @@ static void draw_wave(int8 len, byte color) {
     byte y = len >= 0 ? len : 0;
     for (word n = (y << 5) + x; x < 32 && y < 23; x++, y++, n += 33) {
 	if (forest[n] != T_WALL) {
-	    put_wave(n, color);
+	    put_wave(n, color ? 8 : 7, color);
 	}
     }
 }
@@ -1057,7 +1056,7 @@ static int8 wave_len, wave_dir;
 static int8 ending_tsunami(void) {
     if (epoch & 1) {
 	if (wave_dir < 0) {
-	    draw_wave(wave_len, 5);
+	    draw_wave(wave_len, 1);
 	}
 	else {
 	    recede_wave(wave_len);
@@ -1071,7 +1070,7 @@ static int8 ending_tsunami(void) {
 	}
     }
     else if (wave_dir < 0) {
-	draw_wave(wave_len + 2, 1);
+	draw_wave(wave_len + 2, 0);
     }
     if (forest[pos] == T_WAVE || no_grazers()) {
 	return -1;
@@ -1109,7 +1108,7 @@ static int8 tidal_put(int8 *ptr, int8 y, int8 dir) {
     word n = (y << 5) + *ptr + dir;
     if (forest[n] < C_TILE) {
 	(*ptr) += dir;
-	put_wave(n, 0x41);
+	put_wave(n, 8, 1);
 	return 1;
     }
     return 0;
