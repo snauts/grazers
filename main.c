@@ -1466,8 +1466,6 @@ static void fertility_level(void) {
 
     fenced_level(fertility_map, SIZE(fertility_map));
 
-    use_fence_sprites();
-
     finish = &ending_fertility;
 }
 
@@ -1480,8 +1478,6 @@ static void erosion_level(void) {
     wait_space_or_enter(0);
 
     fenced_level(erosion_map, SIZE(erosion_map));
-
-    use_fence_sprites();
 
     finish = &ending_erosion;
 }
