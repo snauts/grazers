@@ -254,10 +254,15 @@ static void vdp_put_tile(word n, word tile) {
 static void vdp_update(void) {
     vblank = 1;
     byte count = 0;
+    word *addr = vdp_addr + vdp_tail;
+    word *data = vdp_data + vdp_tail;
     while (vdp_head != vdp_tail) {
-	if (count++ > 30) break;
-	vdp_word(vdp_addr[vdp_tail], vdp_data[vdp_tail]);
-	vdp_tail++;
+	if (count++ > 32) break;
+	vdp_word(*addr++, *data++);
+	if (++vdp_tail == 0x00) {
+	    addr = vdp_addr;
+	    data = vdp_data;
+	}
     }
 }
 
