@@ -40,7 +40,13 @@ static void rom_start(void) __naked {
 #define BYTE(addr)	(* (volatile byte *) (addr))
 #define WORD(addr)	(* (volatile word *) (addr))
 #define SIZE(array)	(sizeof(array) / sizeof(*(array)))
+
+#ifdef ZXS
 #define NOTE(freq)	((2400.0 * freq) / 440.0)
+#endif
+#ifdef SMS
+#define NOTE(freq)	(125000.0 / freq)
+#endif
 
 #define POS(x, y)	(((y) << 5) + (x))
 #define BIT(n)		(1 << (n))
@@ -227,6 +233,17 @@ static void vdp_put_tile(word n, word tile) {
 
 static void vdp_update(void) {
     vblank = 1;
+}
+
+static void out_7f(byte data) {
+    __asm__("out (#0x7f), a"); data;
+}
+
+static void sms_psg(byte channel, word frequency, byte volume) {
+    channel <<= 5;
+    out_7f(0x80 | channel | (frequency & 0xf));
+    out_7f(frequency >> 4);
+    out_7f(0x90 | channel | (15 - volume));
 }
 #endif
 
@@ -508,6 +525,13 @@ static void beep(word p0, word p1, word len) {
     }
     __asm__("ei");
     out_fe(0x00);
+#endif
+
+#ifdef SMS
+    sms_psg(0, p0, 12);
+    sms_psg(1, p1, 12);
+    len -= len >> 2;
+    for (word i = 0; i < len << 4; i++) { }
 #endif
 }
 
