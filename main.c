@@ -245,6 +245,11 @@ static void sms_psg(byte channel, word frequency, byte volume) {
     out_7f(frequency >> 4);
     out_7f(0x90 | channel | (15 - volume));
 }
+
+static void sound_off(void) {
+    out_7f(0x9f);
+    out_7f(0xbf);
+}
 #endif
 
 static void memset(byte *ptr, byte data, word len) {
@@ -530,8 +535,9 @@ static void beep(word p0, word p1, word len) {
 #ifdef SMS
     sms_psg(0, p0, 12);
     sms_psg(1, p1, 12);
-    len -= len >> 2;
-    for (word i = 0; i < len << 4; i++) { }
+    len = (len - (len >> 2)) << 4;
+    for (word i = 0; i < len; i++) { }
+    sound_off();
 #endif
 }
 
