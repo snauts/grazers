@@ -180,14 +180,17 @@ static void vdp_switch(byte value) {
     __asm__("out (c), a");
 }
 
+static byte vdp_state;
 static void vdp_enable_display(byte state) {
     if (state) {
+	vdp_state = state;
 	vdp_switch(0xe0);
 	__asm__("ei");
     }
     else {
 	__asm__("di");
 	vdp_switch(0x80);
+	vdp_state = state;
     }
 }
 
@@ -236,10 +239,15 @@ static word vdp_data[256];
 static byte vdp_head, vdp_tail;
 
 static void vdp_put_tile(word n, word tile) {
-    while (vdp_head + 1 == vdp_tail) { }
-    vdp_addr[vdp_head] = 0x7800 + (n << 1);
-    vdp_data[vdp_head] = tile;
-    vdp_head++;
+    if (!vdp_state) {
+	vdp_word(0x7800 + (n << 1), tile);
+    }
+    else {
+	while (vdp_head + 1 == vdp_tail) { }
+	vdp_addr[vdp_head] = 0x7800 + (n << 1);
+	vdp_data[vdp_head] = tile;
+	vdp_head++;
+    }
 }
 
 static void vdp_update(void) {
