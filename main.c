@@ -1103,7 +1103,7 @@ static int8 ending_equilibrium(void) {
 
 static int8 tide_pos[24];
 static const int8 tide_max[24] = {
-    11, 20, 12, 19, 12, 19, 13, 18, 13, 18, 13, 18,
+    10, 21, 11, 20, 11, 20, 12, 19, 12, 19, 13, 18,
     13, 18, 13, 18, 13, 18, 12, 19, 12, 19, 11, 20,
 };
 
