@@ -377,53 +377,28 @@ static void put_num(word num, word n, byte color) {
     put_str(msg, n, color);
 }
 
-static byte inc10_byte(byte *num) {
-    byte value = *num + 0x01;
-    if ((value & 0xf) > 0x09) {
-	value = (value & 0xf0) + 0x10;
-	if (value > 0x99) value = 0;
-    }
-    *num = value;
-    return value;
+static word add10(word a, word b) __naked {
+    __asm__("ld a, l"); a;
+    __asm__("add e"); b;
+    __asm__("daa");
+    __asm__("ld e, a");
+    __asm__("ld a, h");
+    __asm__("adc a, d");
+    __asm__("daa");
+    __asm__("ld d, a");
+    __asm__("ret");
 }
 
-static void inc10(word *num) {
-    byte *ptr = (byte *) num;
-    if (inc10_byte(ptr + 0) == 0) {
-	inc10_byte(ptr + 1);
-    }
-}
-
-static byte dec10_byte(byte *num) {
-    byte value = *num - 0x01;
-    if ((value & 0xf) > 0x09) {
-	value = (value & 0xf0) + 0x09;
-	if (value > 0x99) value = 0x99;
-    }
-    *num = value;
-    return value;
-}
-
-static void dec10(word *num) {
-    byte *ptr = (byte *) num;
-    if (dec10_byte(ptr + 0) == 0x99) {
-	dec10_byte(ptr + 1);
-    }
-}
-
-static void add10_digit(word *num, byte digit) {
-    byte *ptr = (byte *) num;
-    byte lo = (*ptr & 0x0f) + digit;
-    byte hi = (*ptr & 0xf0);
-    if (lo > 0x09) {
-	lo = lo - 10;
-	hi += 0x10;
-    }
-    if (hi > 0x90) {
-	inc10_byte(ptr + 1);
-	hi = 0x00;
-    }
-    *ptr = hi | lo;
+static word sub10(word a, word b) __naked {
+    __asm__("ld a, l"); a;
+    __asm__("sub e"); b;
+    __asm__("daa");
+    __asm__("ld e, a");
+    __asm__("ld a, h");
+    __asm__("sbc a, d");
+    __asm__("daa");
+    __asm__("ld d, a");
+    __asm__("ret");
 }
 
 static void put_tile(byte cell, word n) {
@@ -597,7 +572,7 @@ static void rolling_rock_sound(void) {
 
 static word meat;
 static void bite(word dst) {
-    add10_digit(&meat, 5);
+    meat = add10(meat, 5);
     for (byte i = 0; i < 4; i++) {
 	put_tile(36 + i, dst);
 	bite_sound(i);
@@ -908,7 +883,7 @@ static void display_image(byte *level, byte game, word size, word n) {
 
 static void increment_epoch(void) {
     put_num(epoch, POS(7, 23), 5);
-    inc10(&epoch);
+    epoch = add10(epoch, 1);
     steps++;
 }
 
@@ -1331,7 +1306,7 @@ static int8 ending_erosion(void) {
     if (meat == 0) {
 	return -1;
     }
-    dec10(&meat);
+    meat = sub10(meat, 1);
     if (no_grazers()) {
 	return -1;
     }
