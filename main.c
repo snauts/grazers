@@ -1918,7 +1918,7 @@ static void wait_start(void) {
 
 static void title_screen(void) {
     clear_screen();
-    TILESET(logo, mirror, 72);
+    TILESET(logo, mirror, 40);
     memset(mirror, 0, sizeof(logo) / 8);
     display_image(logo_map, 0, SIZE(logo_map), 0x100);
 
