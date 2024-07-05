@@ -78,10 +78,14 @@ static int ink_index(int i) {
 }
 
 static unsigned char encode_ink(unsigned short colors) {
+#ifdef MSX
+    return ((colors & 0xff) << 4) | (colors >> 12);
+#else
     unsigned char b = colors >> 8;
     unsigned char f = colors & 0xff;
     unsigned char l = (f > 7 || b > 7) ? 0x40 : 0x00;
     return l | (f & 7) | ((b & 7) << 3);
+#endif
 }
 
 static void dump_buffer(void *ptr, int size, int step) {
@@ -380,15 +384,31 @@ static void save_bitmap(unsigned char *buf, int size) {
     save(pixel, pixel_size, color, color_size);
 }
 
+const unsigned char msx_look_up[] = {
+    0x01, 0x02, 0x03, 0x04, 0x06, 0x07, 0x08, 0x09,
+    0x0a, 0x0b, 0x0c, 0x0d, 0x0e, 0x0f, 0x01, 0x02,
+};
+
 static unsigned char get_color(unsigned char *color) {
     unsigned char result = 0;
     if (color[0] >= 0x80) result |= 0x02;
     if (color[1] >= 0x80) result |= 0x04;
     if (color[2] >= 0x80) result |= 0x01;
     for (int i = 0; i < 3; i++) {
-	if (color[i] > (result ? 0xf0 : 0x40)) result |= 0x40;
+	if (color[i] > (result ? 0xf0 : 0x40)) {
+#ifdef MSX
+	    result |= 0x08;
+#else
+	    result |= 0x40;
+#endif
+	    break;
+	}
     }
+#ifdef MSX
+    return msx_look_up[result];
+#else
     return result;
+#endif
 }
 
 static unsigned char *read_pcx(const char *file, int zx_color) {
