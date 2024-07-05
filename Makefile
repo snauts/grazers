@@ -65,7 +65,7 @@ blast: sms
 
 msx:
 	TYPE=-DMSX make pcx
-	CODE=0x4000 DATA=0xa000	TYPE=-DMSX make prg
+	CODE=0x4000 DATA=0xc000	TYPE=-DMSX make prg
 	dd if=/dev/zero of=grazers.rom bs=1024 count=32
 	dd if=grazers.bin of=grazers.rom conv=notrunc
 

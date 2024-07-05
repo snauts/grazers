@@ -5,8 +5,19 @@ typedef unsigned short word;
 #ifdef MSX
 static void msx_prefix(void) __naked {
     __asm__(".ascii \"AB\"");
-    __asm__(".dw _reset");
+    __asm__(".dw 0x400a");
     __asm__(".db 0, 0, 0, 0, 0, 0");
+
+    __asm__("di");
+    __asm__("ld a, #0xb4");
+    __asm__("out (#0xa8), a");
+    __asm__("ld a, #0x10");
+    __asm__("ld (#0xffff), a");
+    __asm__("ld a, #0xd4");
+    __asm__("out (#0xa8), a");
+    __asm__("ei");
+
+    __asm__("jp _reset");
 }
 #endif
 
@@ -96,8 +107,8 @@ static void rom_start(void) __naked {
 #endif
 
 #ifdef MSX
-#define SETUP_STACK()	__asm__("ld sp, #0x9df0")
-#define IRQ_BASE	0x9e00
+#define SETUP_STACK()	__asm__("ld sp, #0xddf0")
+#define IRQ_BASE	0xde00
 #endif
 
 static volatile byte vblank;
