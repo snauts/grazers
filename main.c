@@ -484,6 +484,10 @@ static void put_tile(byte cell, word n) {
 #ifdef SMS
     vdp_put_tile(n, cell);
 #endif
+
+#ifdef MSX
+    vram_write(0x5800 + n, cell);
+#endif
 }
 
 static const int8 neighbors[] = { -1, 32, 1, -32 };
@@ -841,9 +845,11 @@ static const byte *sprite_color;
     sprite = tiles;
 
 #elif defined(MSX)
+static byte sprite_offset;
 #define TILE_ATTRIBURE(x)
 #define TILESET(tiles, color, offset) \
-    vdp_memcpy(0x4000 + (offset << 3), tiles, SIZE(tiles));
+    vdp_memcpy(0x4000 + (offset << 3), tiles, SIZE(tiles)); \
+    sprite_offset = offset;
 #elif defined(SMS)
 static word sprite_offset;
 #define TILE_ATTRIBURE(x) \
@@ -881,6 +887,12 @@ static void put_sprite(byte cell, byte base, word n) {
     byte *ptr = (byte *) &id;
     ptr[1] |= (cell & 0x60) >> 4;
     vdp_put_tile(n, id);
+#endif
+
+#ifdef MSX
+    if ((cell & 0x60) == 0) {
+	vram_write(0x5800 + n, sprite_offset + index);
+    }
 #endif
 }
 
