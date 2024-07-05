@@ -2,6 +2,14 @@ typedef signed char int8;
 typedef unsigned char byte;
 typedef unsigned short word;
 
+#ifdef MSX
+static void msx_prefix(void) __naked {
+    __asm__(".ascii \"AB\"");
+    __asm__(".dw _reset");
+    __asm__(".db 0, 0, 0, 0, 0, 0");
+}
+#endif
+
 #ifdef SMS
 static void rom_start(void) __naked {
     __asm__("di");
@@ -294,6 +302,21 @@ static void sms_psg(byte channel, word frequency, byte volume) {
 static void sound_off(void) {
     out_7f(0x9f);
     out_7f(0xbf);
+}
+#endif
+
+#ifdef MSX
+static void vdp_ctrl_reg(byte reg, byte val) {
+    __asm__("di");
+    __asm__("push af");
+    __asm__("ld a, (#0x07)");
+    __asm__("ld c, a");
+    __asm__("inc c");
+    __asm__("out (c), l"); val;
+    __asm__("pop af");
+    __asm__("or a, #0x80");
+    __asm__("out (c), a"); reg;
+    __asm__("ei");
 }
 #endif
 
