@@ -349,6 +349,15 @@ static void vdp_memcpy(word addr, byte *ptr, word count) {
 static void vdp_enable_display(byte state) {
     vdp_ctrl_reg(1, state ? 0xe0 : 0xa0);
 }
+
+static void vdp_color(word addr, byte *color, word count) {
+    while (count-- > 0) {
+	for (byte i = 0; i < 8; i++) {
+	    vram_write(addr++, *color);
+	}
+	color++;
+    }
+}
 #endif
 
 static void memset(byte *ptr, byte data, word len) {
@@ -847,21 +856,24 @@ static byte flip_bits(byte source) {
 static const byte *sprite;
 static const byte *sprite_color;
 #define TILE_ATTRIBURE(x)
-#define TILESET(tiles, color, offset) \
-    sprite_color = color; \
+#define TILESET(tiles, offset) \
+    sprite_color = tiles##_color; \
     sprite = tiles;
 
 #elif defined(MSX)
 static byte sprite_offset;
 #define TILE_ATTRIBURE(x)
-#define TILESET(tiles, color, offset) \
-    vdp_memcpy(0x4000 + (offset << 3), tiles, SIZE(tiles)); \
+#define TILESET(tiles, offset) \
+    word mem_offset = offset << 3; \
+    vdp_memcpy(0x4000 + mem_offset, tiles, SIZE(tiles)); \
+    vdp_color(0x6000 + mem_offset, tiles##_color, SIZE(tiles##_color)); \
     sprite_offset = offset;
+
 #elif defined(SMS)
 static word sprite_offset;
 #define TILE_ATTRIBURE(x) \
     sprite_offset |= (x);
-#define TILESET(tiles, color, offset) \
+#define TILESET(tiles, offset) \
     vdp_enable_display(FALSE); \
     vdp_memcpy(0x4000 + (offset << 5), tiles, SIZE(tiles)); \
     vdp_enable_display(TRUE); \
@@ -995,11 +1007,11 @@ static int8 game_round(byte **src, byte **dst) {
 
 static void reset_memory(void) {
 #if defined(SMS) || defined(MSX)
-    TILESET(tiles, 0, 0);
+    TILESET(tiles, 0);
 #endif
 
 #ifdef SMS
-    TILESET(font, 0, 0x100);
+    TILESET(font, 0x100);
 #endif
 
     memset(update, 0x00, sizeof(update));
@@ -1412,7 +1424,7 @@ static void adat_meitas(void);
 static void finish_game(void) {
     clear_screen();
 
-    TILESET(sunset, sunset_color, 0);
+    TILESET(sunset, 0);
     TILE_ATTRIBURE(0x800);
     memset(forest, 0, SIZE(forest));
     display_image(sunset_map, 0, SIZE(sunset_map), 0);
@@ -1422,7 +1434,7 @@ static void finish_game(void) {
 }
 
 static void use_fence_sprites(void) {
-    TILESET(fence, fence_color, 40);
+    TILESET(fence, 40);
 }
 
 static void fenced_level(byte *level, word size) {
@@ -1569,7 +1581,7 @@ static void eruption_level(void) {
 
     fenced_level(eruption_map, SIZE(eruption_map));
 
-    TILESET(volcano, volcano_color, 72);
+    TILESET(volcano, 72);
     TILE_ATTRIBURE(0x800);
     display_image(volcano_map, 0, SIZE(volcano_map), 0xc0);
 
@@ -1918,8 +1930,13 @@ static void wait_start(void) {
 
 static void title_screen(void) {
     clear_screen();
-    TILESET(logo, mirror, 40);
+#ifdef ZXS
+    TILESET(logo, 72);
+    sprite_color = mirror;
     memset(mirror, 0, sizeof(logo) / 8);
+#else
+    TILESET(logo, 40);
+#endif
     display_image(logo_map, 0, SIZE(logo_map), 0x100);
 
 #ifdef ZXS
