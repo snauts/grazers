@@ -270,7 +270,8 @@ static void to_level(unsigned char *pixel, int *pixel_size,
 	if (!found) {
 	    int x = (n % header.w) / 8;
 	    int y = (n / header.w);
-	    fprintf(stderr, "ERROR: tile not found (%d,%d)\n", x, y);
+	    fprintf(stderr, "ERROR: (%s) tile not found (%d,%d)\n",
+		    file_name, x, y);
 #ifdef MSX
 	    table[done++] = 0;
 #else
