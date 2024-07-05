@@ -374,7 +374,6 @@ static void setup_system(void) {
     vdp_ctrl_reg(0, 0x02);
     vdp_ctrl_reg(1, 0xa0);
     vdp_ctrl_reg(7, 0x00);
-    vdp_memset(0x4000, 0, 0x1800);
 #endif
 }
 
@@ -841,8 +840,8 @@ static const byte *sprite_color;
 
 #elif defined(MSX)
 #define TILE_ATTRIBURE(x)
-#define TILESET(tiles, color, offset)
-
+#define TILESET(tiles, color, offset) \
+    vdp_memcpy(0x4000 + (offset << 3), tiles, SIZE(tiles));
 #elif defined(SMS)
 static word sprite_offset;
 #define TILE_ATTRIBURE(x) \
@@ -974,8 +973,11 @@ static int8 game_round(byte **src, byte **dst) {
 }
 
 static void reset_memory(void) {
-#ifdef SMS
+#if defined(SMS) || defined(MSX)
     TILESET(tiles, 0, 0);
+#endif
+
+#ifdef SMS
     TILESET(font, 0, 0x100);
 #endif
 
@@ -1882,6 +1884,7 @@ static void wait_start(void) {
 
 #ifdef MSX
 static void wait_start(void) {
+    while (1) { }
 }
 #endif
 
