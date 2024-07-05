@@ -79,7 +79,7 @@ static int ink_index(int i) {
 
 static unsigned char encode_ink(unsigned short colors) {
 #ifdef MSX
-    return ((colors & 0xff) << 4) | (colors >> 12);
+    return ((colors & 0xff) << 4) | (colors >> 8);
 #else
     unsigned char b = colors >> 8;
     unsigned char f = colors & 0xff;
@@ -385,8 +385,8 @@ static void save_bitmap(unsigned char *buf, int size) {
 }
 
 const unsigned char msx_look_up[] = {
-    0x01, 0x02, 0x03, 0x04, 0x06, 0x07, 0x08, 0x09,
-    0x0a, 0x0b, 0x0c, 0x0d, 0x0e, 0x0f, 0x01, 0x02,
+    0x01, 0x0f, 0x0f, 0x0f, 0x02, 0x0f, 0x0f, 0x0f,
+    0x01, 0x0f, 0x0f, 0x0f, 0x0f, 0x0f, 0x0f, 0x0f,
 };
 
 static unsigned char get_color(unsigned char *color) {
