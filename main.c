@@ -338,6 +338,10 @@ static void vdp_memset(word addr, byte data, word count) {
 static void vdp_memcpy(word addr, byte *ptr, word count) {
     while (count-- > 0) { vram_write(addr++, *ptr++); }
 }
+
+static void vdp_enable_display(byte state) {
+    vdp_ctrl_reg(1, state ? 0xe0 : 0xa0);
+}
 #endif
 
 static void memset(byte *ptr, byte data, word len) {
@@ -368,8 +372,9 @@ static void setup_system(void) {
 #endif
 #ifdef MSX
     vdp_ctrl_reg(0, 0x02);
-    vdp_ctrl_reg(1, 0xe0);
+    vdp_ctrl_reg(1, 0xa0);
     vdp_ctrl_reg(7, 0x00);
+    vdp_memset(0x4000, 0, 0x1800);
 #endif
 }
 
@@ -387,7 +392,7 @@ static void clear_screen(void) {
 #endif
 #ifdef MSX
     vdp_memset(0x6000, 0, 0x1800);
-    vdp_memset(0x4000, 0, 0x1b00);
+    vdp_memset(0x5800, 0, 0x0300);
 #endif
 }
 
@@ -1895,6 +1900,10 @@ static void title_screen(void) {
 
 #ifdef SMS
     put_str("Press START", POS(10, 17), 5);
+#endif
+
+#ifdef MSX
+    vdp_enable_display(TRUE);
 #endif
 
     grass_stripe(POS( 6, 2), 11);
