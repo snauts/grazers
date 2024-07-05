@@ -308,12 +308,8 @@ static void sound_off(void) {
 #ifdef MSX
 static void vdp_ctrl_reg(byte reg, byte val) {
     __asm__("di");
-    __asm__("push af");
-    __asm__("ld a, (#0x07)");
-    __asm__("ld c, a");
-    __asm__("inc c");
+    __asm__("ld c, #0x99");
     __asm__("out (c), l"); val;
-    __asm__("pop af");
     __asm__("or a, #0x80");
     __asm__("out (c), a"); reg;
     __asm__("ei");
@@ -321,15 +317,11 @@ static void vdp_ctrl_reg(byte reg, byte val) {
 
 static void vram_write(word addr, byte val) {
     __asm__("di");
-    __asm__("push af");
-    __asm__("ld a, (#0x07)");
-    __asm__("ld c, a");
-    __asm__("inc c");
+    __asm__("ld c, #0x99");
     __asm__("out (c), l"); addr;
     __asm__("out (c), h"); addr;
     __asm__("ei");
     __asm__("dec c");
-    __asm__("pop af");
     __asm__("out (c), a"); val;
 }
 #endif
