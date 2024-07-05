@@ -6,6 +6,7 @@ ENTRY = grep _reset grazers.map | cut -d " " -f 6
 all:
 	@echo "make zxs" - build .tap for ZX Spectrum
 	@echo "make sms" - build .sms for Sega Masters
+	@echo "make msx" - build .rom for MSX computer
 	@echo "make fuse" - build and run fuse
 	@echo "make mame" - build and run mame
 	@echo "make blast" - build and run blastem
@@ -61,6 +62,15 @@ mame: sms
 
 blast: sms
 	blastem grazers.sms
+
+msx:
+	TYPE=-DMSX make pcx
+	CODE=0x4000 DATA=0xa000	TYPE=-DMSX make prg
+	dd if=/dev/zero of=grazers.rom bs=1024 count=32
+	dd if=grazers.bin of=grazers.rom conv=notrunc
+
+open: msx
+	openmsx grazers.rom
 
 clean:
 	rm -f grazers* pcx-dump tileset.bin data.h mkrom

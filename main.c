@@ -51,6 +51,11 @@ static void rom_start(void) __naked {
 #define SCALE_HI(n, x)	((n) >> (x))
 #define SCALE_LO(n, x)	((n) << (x))
 #endif
+#ifdef MSX
+#define NOTE(freq)	((word) (freq))
+#define SCALE_HI(n, x)	((n) >> (x))
+#define SCALE_LO(n, x)	((n) << (x))
+#endif
 
 #define POS(x, y)	(((y) << 5) + (x))
 #define BIT(n)		(1 << (n))
@@ -80,6 +85,10 @@ static void rom_start(void) __naked {
 
 #ifdef SMS
 #define SETUP_STACK()	__asm__("ld sp, #0xdff0")
+#endif
+
+#ifdef MSX
+#define SETUP_STACK()	__asm__("ld sp, #0x9ff0")
 #endif
 
 static volatile byte vblank;
@@ -765,14 +774,19 @@ static byte flip_bits(byte source) {
     return result;
 }
 
-#ifdef ZXS
+#if defined(ZXS)
 static const byte *sprite;
 static const byte *sprite_color;
 #define TILE_ATTRIBURE(x)
 #define TILESET(tiles, color, offset) \
     sprite_color = color; \
     sprite = tiles;
-#else
+
+#elif defined(MSX)
+#define TILE_ATTRIBURE(x)
+#define TILESET(tiles, color, offset)
+
+#elif defined(SMS)
 static word sprite_offset;
 #define TILE_ATTRIBURE(x) \
     sprite_offset |= (x);
@@ -1806,6 +1820,11 @@ static void wait_start(void) {
 	    vblank = 0;
 	}
     } while ((in_key(0) & 0x30) == 0x30);
+}
+#endif
+
+#ifdef MSX
+static void wait_start(void) {
 }
 #endif
 
