@@ -1885,20 +1885,27 @@ static void wait_start(void) {
 }
 #endif
 
+#if defined(SMS) || defined(MSX)
+
 #ifdef SMS
+static byte wait_start_key(void) {
+    return (in_key(0) & 0x30) == 0x30;
+}
+#endif
+
+#ifdef MSX
+static byte wait_start_key(void) {
+    return 1;
+}
+#endif
+
 static void wait_start(void) {
     do {
 	if (vblank) {
 	    animate_title();
 	    vblank = 0;
 	}
-    } while ((in_key(0) & 0x30) == 0x30);
-}
-#endif
-
-#ifdef MSX
-static void wait_start(void) {
-    while (1) { }
+    } while (wait_start_key());
 }
 #endif
 
