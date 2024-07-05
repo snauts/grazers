@@ -96,7 +96,8 @@ static void rom_start(void) __naked {
 #endif
 
 #ifdef MSX
-#define SETUP_STACK()	__asm__("ld sp, #0x9ff0")
+#define SETUP_STACK()	__asm__("ld sp, #0x9df0")
+#define IRQ_BASE	0x9e00
 #endif
 
 static volatile byte vblank;
@@ -126,13 +127,18 @@ static void __sdcc_call_hl(void) __naked {
     __asm__("jp (hl)");
 }
 
-#ifdef ZXS
+#if defined(ZXS) || defined(MSX)
 static void interrupt(void) __naked {
     __asm__("di");
     __asm__("push af");
+#ifdef MSX
+    __asm__("in a, (#0x99)");
+    __asm__("and a");
+    __asm__("jp p, irq_done");
+#endif
     __asm__("ld a, #1");
     __asm__("ld (_vblank), a");
-    __asm__("pop af");
+    __asm__("irq_done: pop af");
     __asm__("ei");
     __asm__("reti");
 }
@@ -335,7 +341,7 @@ static void memcpy(byte *dst, byte *src, word len) {
 }
 
 static void setup_system(void) {
-#ifdef ZXS
+#if defined(ZXS) || defined(MSX)
     byte top = (byte) ((IRQ_BASE >> 8) - 1);
     word jmp_addr = (top << 8) | top;
     BYTE(jmp_addr + 0) = 0xc3;
