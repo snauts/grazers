@@ -135,13 +135,19 @@ static int matchDIR(void *pixel, int n, unsigned char *tiles, int i, int d) {
     return *ptr == flip;
 }
 
+#ifdef MSX
+#define MATCH 1
+#else
+#define MATCH 4
+#endif
+
 static int match(unsigned char *pixel,
 		 unsigned char *tiles,
 		 unsigned char *color,
 		 unsigned char *extra,
 		 int n, int i) {
 
-    for (int dir = 0; dir < 4; dir++) {
+    for (int dir = 0; dir < MATCH; dir++) {
 	if (matchDIR(pixel, n, tiles, i, dir)) {
 	    return color[n / 8] == extra[i / 8] ? dir + 1 : 0;
 	}
@@ -261,7 +267,11 @@ static void to_level(unsigned char *pixel, int *pixel_size,
 	    int x = (n % header.w) / 8;
 	    int y = (n / header.w);
 	    fprintf(stderr, "ERROR: tile not found (%d,%d)\n", x, y);
+#ifdef MSX
+	    table[done++] = 0;
+#else
 	    exit(-1);
+#endif
 	}
     }
 
