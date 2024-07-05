@@ -389,6 +389,8 @@ static void setup_system(void) {
 #ifdef MSX
     vdp_ctrl_reg(0, 0x02);
     vdp_ctrl_reg(1, 0xa0);
+    vdp_ctrl_reg(2, 0x06);
+    vdp_ctrl_reg(3, 0xff);
     vdp_ctrl_reg(7, 0x01);
     vdp_ctrl_reg(8, 0x02);
     vdp_memset(0x4000, 0x00, 8);
@@ -867,6 +869,10 @@ static byte sprite_offset;
     word mem_offset = offset << 3; \
     vdp_memcpy(0x4000 + mem_offset, tiles, SIZE(tiles)); \
     vdp_color(0x6000 + mem_offset, tiles##_color, SIZE(tiles##_color)); \
+    vdp_memcpy(0x4800 + mem_offset, tiles, SIZE(tiles)); \
+    vdp_color(0x6800 + mem_offset, tiles##_color, SIZE(tiles##_color)); \
+    vdp_memcpy(0x5000 + mem_offset, tiles, SIZE(tiles)); \
+    vdp_color(0x7000 + mem_offset, tiles##_color, SIZE(tiles##_color)); \
     sprite_offset = offset;
 
 #elif defined(SMS)
