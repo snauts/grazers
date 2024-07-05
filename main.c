@@ -373,7 +373,10 @@ static void setup_system(void) {
 #ifdef MSX
     vdp_ctrl_reg(0, 0x02);
     vdp_ctrl_reg(1, 0xa0);
-    vdp_ctrl_reg(7, 0x00);
+    vdp_ctrl_reg(7, 0x01);
+    vdp_ctrl_reg(8, 0x02);
+    vdp_memset(0x4000, 0x00, 8);
+    vdp_memset(0x6000, 0x11, 8);
 #endif
 }
 
@@ -390,7 +393,6 @@ static void clear_screen(void) {
     vdp_enable_display(TRUE);
 #endif
 #ifdef MSX
-    vdp_memset(0x6000, 0, 0x1800);
     vdp_memset(0x5800, 0, 0x0300);
 #endif
 }
