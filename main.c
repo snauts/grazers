@@ -330,6 +330,14 @@ static void vram_write(word addr, byte val) {
     __asm__("dec c");
     __asm__("out (c), a"); val;
 }
+
+static void vdp_memset(word addr, byte data, word count) {
+    while (count-- > 0) { vram_write(addr++, data); }
+}
+
+static void vdp_memcpy(word addr, byte *ptr, word count) {
+    while (count-- > 0) { vram_write(addr++, *ptr++); }
+}
 #endif
 
 static void memset(byte *ptr, byte data, word len) {
@@ -358,6 +366,11 @@ static void setup_system(void) {
     vdp_state = FALSE;
     vdp_enable_display(TRUE);
 #endif
+#ifdef MSX
+    vdp_ctrl_reg(0, 0x02);
+    vdp_ctrl_reg(1, 0xe0);
+    vdp_ctrl_reg(7, 0x00);
+#endif
 }
 
 static void clear_screen(void) {
@@ -371,6 +384,10 @@ static void clear_screen(void) {
     vdp_memset(0x7800, 0x600, 0x00);
     vdp_head = vdp_tail = 0;
     vdp_enable_display(TRUE);
+#endif
+#ifdef MSX
+    vdp_memset(0x6000, 0, 0x1800);
+    vdp_memset(0x4000, 0, 0x1b00);
 #endif
 }
 
