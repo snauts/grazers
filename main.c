@@ -890,9 +890,9 @@ static void put_sprite(byte cell, byte base, word n) {
 #endif
 
 #ifdef MSX
-    if ((cell & 0x60) == 0) {
-	vram_write(0x5800 + n, sprite_offset + index);
-    }
+    word addr = n + 0x5800;
+    index += sprite_offset;
+    vram_write(addr, index);
 #endif
 }
 
