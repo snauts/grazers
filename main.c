@@ -1679,7 +1679,12 @@ static void eruption_level(void) {
 
     fenced_level(eruption_map, SIZE(eruption_map));
 
+#ifdef MSX
+    TILESET(volcano, 108);
+#else
     TILESET(volcano, 72);
+#endif
+
     TILE_ATTRIBURE(0x800);
     display_image(volcano_map, 0, SIZE(volcano_map), 0xc0);
 
