@@ -880,6 +880,14 @@ static byte movement_keys(void) {
 	| ((output & 0x08) >> 1)
 	| ((output & 0x01) << 3);
 #endif
+
+#ifdef MSX
+    byte output = ~in_key(8) >> 4;
+    return (output & 0x01)
+	| ((output & 0x02) << 2)
+	| ((output & 0x04) >> 1)
+	| ((output & 0x08) >> 1);
+#endif
 }
 
 static byte key_state(void) {
