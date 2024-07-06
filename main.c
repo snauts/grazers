@@ -121,6 +121,7 @@ static word retry;
 static byte level;
 static byte steps;
 static byte wasd;
+static byte reduce;
 
 struct Level { void (*fn)(void); };
 
@@ -404,12 +405,15 @@ static void vdp_color(byte *color, word addr) {
     }
 }
 
-static void vdp_copy_font(void) {
+static void vdp_copy_font(byte should_reduce) {
+    reduce = should_reduce;
+    byte offset = (reduce ? 0xc0 : 0xa0);
     byte *tiles = (byte *) WORD(0x4) + 0x100;
     memset(mirror, 0, 0x300);
-    vdp_copy(160, tiles, mirror, 96);
-    for (byte i = 0; i < 96; i++) {
-	vdp_color(font_color, 160 + i);
+    vdp_copy(offset, tiles, mirror, 256 - offset);
+    byte size = reduce ? 64 : 96;
+    for (byte i = 0; i < size; i++) {
+	vdp_color(font_color, offset + i);
     }
 }
 
@@ -509,7 +513,7 @@ static void put_char(char symbol, word n, byte color) {
 #endif
 
 #ifdef MSX
-    vram_write(0x5800 + n, 128 + symbol);
+    vram_write(0x5800 + n, (reduce ? 0xa0 : 0x80) + symbol);
     color;
 #endif
 }
@@ -1681,6 +1685,7 @@ static void eruption_level(void) {
 
 #ifdef MSX
     TILESET(volcano, 108);
+    vdp_copy_font(1);
 #else
     TILESET(volcano, 72);
 #endif
@@ -1737,6 +1742,7 @@ static const struct Level all_levels[] = {
 
 static void load_level(byte n) {
     clear_screen();
+    vdp_copy_font(0);
     all_levels[n].fn();
 }
 
@@ -2041,7 +2047,7 @@ static void title_screen(void) {
 #endif
 
 #ifdef MSX
-    vdp_copy_font();
+    vdp_copy_font(0);
 
     put_str("ENTER to fast forward", POS(5, 15), 5);
     put_str("SPACE skip one epoch", POS(5, 16), 5);
