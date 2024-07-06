@@ -834,7 +834,7 @@ static byte skip_epoch(void) {
 #endif
 
 #if MSX
-    return ~in_key(8) & BIT(0);
+    return (~in_key(8) & BIT(0)) << 4;
 #endif
 }
 
