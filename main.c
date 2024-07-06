@@ -177,6 +177,14 @@ static byte in_key(byte a) {
 #ifdef SMS
     __asm__("in a, (#0xdc)");
 #endif
+#ifdef MSX
+    __asm__("ld b, a");
+    __asm__("in a, (#0xaa)");
+    __asm__("and #0xf0");
+    __asm__("or b");
+    __asm__("out (#0xaa), a");
+    __asm__("in a, (#0xa9)");
+#endif
     return a;
 }
 
@@ -803,6 +811,10 @@ static byte fast_forward(void) {
 #if SMS
     return (~in_key(0) & 0x20) >> 4;
 #endif
+
+#if MSX
+    return ~in_key(7) & BIT(7);
+#endif
 }
 
 static byte skip_epoch(void) {
@@ -813,6 +825,10 @@ static byte skip_epoch(void) {
 
 #if SMS
     return ~in_key(0) & 0x10;
+#endif
+
+#if MSX
+    return ~in_key(8) & BIT(0);
 #endif
 }
 
@@ -1948,26 +1964,13 @@ static void wait_start(void) {
 #endif
 
 #if defined(SMS) || defined(MSX)
-
-#ifdef SMS
-static byte wait_start_key(void) {
-    return (in_key(0) & 0x30) == 0x30;
-}
-#endif
-
-#ifdef MSX
-static byte wait_start_key(void) {
-    return 1;
-}
-#endif
-
 static void wait_start(void) {
     do {
 	if (vblank) {
 	    animate_title();
 	    vblank = 0;
 	}
-    } while (wait_start_key());
+    } while (!space_or_enter());
 }
 #endif
 
@@ -1998,6 +2001,7 @@ static void title_screen(void) {
 
     put_str("ENTER to fast forward", POS(5, 15), 5);
     put_str("SPACE skip one epoch", POS(5, 16), 5);
+    put_str("Press SPACE", POS(10, 18), 5);
 
     vdp_enable_display(TRUE);
 #endif
