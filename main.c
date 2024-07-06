@@ -134,6 +134,14 @@ static void __sdcc_call_hl(void) __naked {
     __asm__("jp (hl)");
 }
 
+static void memset(byte *ptr, byte data, word len) {
+    while (len-- > 0) { *ptr++ = data; }
+}
+
+static void memcpy(byte *dst, byte *src, word len) {
+    while (len-- > 0) { *dst++ = *src++; }
+}
+
 #if defined(ZXS) || defined(MSX)
 static void interrupt(void) __naked {
     __asm__("di");
@@ -369,15 +377,34 @@ static void vdp_copy(word addr, byte *tiles, byte *color, word count) {
 	addr += 0x800;
     }
 }
+
+static const byte font_color[] = {
+    0x31, 0x31, 0x31, 0x21, 0x21, 0xc1, 0xc1, 0xc1
+};
+
+static void vdp_color_band(byte *color, word addr) {
+    for (byte i = 0; i < 8; i++) {
+	vram_write(addr++, color[i]);
+    }
+}
+
+static void vdp_color(byte *color, word addr) {
+    addr = 0x6000 + (addr << 3);
+    for (byte i = 0; i < 3; i++) {
+	vdp_color_band(color, addr);
+	addr += 0x800;
+    }
+}
+
+static void vdp_copy_font(void) {
+    byte *tiles = (byte *) WORD(0x4) + 0x100;
+    memset(mirror, 0, 0x300);
+    vdp_copy(160, tiles, mirror, 96);
+    for (byte i = 0; i < 96; i++) {
+	vdp_color(font_color, 160 + i);
+    }
+}
 #endif
-
-static void memset(byte *ptr, byte data, word len) {
-    while (len-- > 0) { *ptr++ = data; }
-}
-
-static void memcpy(byte *dst, byte *src, word len) {
-    while (len-- > 0) { *dst++ = *src++; }
-}
 
 static void setup_system(void) {
 #if defined(ZXS) || defined(MSX)
@@ -450,6 +477,11 @@ static void put_char(char symbol, word n, byte color) {
 
 #ifdef SMS
     vdp_put_tile(n, 0xe0 + symbol);
+    color;
+#endif
+
+#ifdef MSX
+    vram_write(0x5800 + n, 128 + symbol);
     color;
 #endif
 }
@@ -1962,6 +1994,11 @@ static void title_screen(void) {
 #endif
 
 #ifdef MSX
+    vdp_copy_font();
+
+    put_str("ENTER to fast forward", POS(5, 15), 5);
+    put_str("SPACE skip one epoch", POS(5, 16), 5);
+
     vdp_enable_display(TRUE);
 #endif
 
