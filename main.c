@@ -1195,6 +1195,12 @@ static void put_wave(word n, byte tile, byte color) {
     if (color) id |= 0x800;
     vdp_put_tile(n, id);
 #endif
+
+#ifdef MSX
+    word addr = n + 0x5800;
+    if (color) tile += 15;
+    vram_write(addr, 40 + tile);
+#endif
 }
 
 static byte tsunami_rnd;
