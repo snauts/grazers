@@ -1015,10 +1015,11 @@ static void special_cell(byte cell, word n) {
 
 static byte in_game;
 static void display_cell(byte cell, byte base, word n) {
-    if (in_game && cell < 7) {
+    byte index = base + cell;
+    if (in_game && index < 7) {
 	special_cell(cell, n);
     }
-    else if (cell + base > 0) {
+    else if (index > 0) {
 	forest[n] = T_WALL;
 	put_sprite(cell, base, n);
     }
