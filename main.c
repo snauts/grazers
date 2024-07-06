@@ -413,9 +413,23 @@ static void vdp_copy_font(void) {
     }
 }
 
+static const byte grass_color[] = {
+    0x31, 0x31, 0x31, 0x31, 0x21, 0x21, 0xc1, 0xc1
+};
+
+static const byte sheep_color[] = {
+    0xf1, 0xf1, 0xf1, 0xf1, 0xf1, 0xe1, 0xe1, 0xe1
+};
+
 static void embelish_tiles(void) {
     for (byte i = 1; i <= 3; i++) {
-	vdp_color(font_color, i);
+	vdp_color(grass_color, i);
+    }
+    for (byte i = 4; i < 16; i++) {
+	vdp_color(sheep_color, i);
+    }
+    for (byte i = 20; i < 32; i++) {
+	vdp_color(sheep_color, i);
     }
 }
 #endif
