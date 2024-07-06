@@ -412,6 +412,12 @@ static void vdp_copy_font(void) {
 	vdp_color(font_color, 160 + i);
     }
 }
+
+static void embelish_tiles(void) {
+    for (byte i = 1; i <= 3; i++) {
+	vdp_color(font_color, i);
+    }
+}
 #endif
 
 static void setup_system(void) {
@@ -1071,6 +1077,10 @@ static void reset_memory(void) {
 
 #ifdef SMS
     TILESET(font, 0x100);
+#endif
+
+#ifdef MSX
+    embelish_tiles();
 #endif
 
     memset(update, 0x00, sizeof(update));
