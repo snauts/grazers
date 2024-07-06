@@ -350,12 +350,23 @@ static void vdp_enable_display(byte state) {
     vdp_ctrl_reg(1, state ? 0xe0 : 0xa0);
 }
 
-static void vdp_color(word addr, byte *color, word count) {
+static void vdp_copy_band(word addr, byte *tiles, byte *color, word count) {
+    word t_addr = 0x4000 + addr;
+    word c_addr = 0x6000 + addr;
     while (count-- > 0) {
 	for (byte i = 0; i < 8; i++) {
-	    vram_write(addr++, *color);
+	    vram_write(t_addr++, *tiles++);
+	    vram_write(c_addr++, *color);
 	}
 	color++;
+    }
+}
+
+static void vdp_copy(word addr, byte *tiles, byte *color, word count) {
+    addr = addr << 3;
+    for (byte i = 0; i < 3; i++) {
+	vdp_copy_band(addr, tiles, color, count);
+	addr += 0x800;
     }
 }
 #endif
@@ -866,13 +877,7 @@ static const byte *sprite_color;
 static byte sprite_offset;
 #define TILE_ATTRIBURE(x)
 #define TILESET(tiles, offset) \
-    word mem_offset = offset << 3; \
-    vdp_memcpy(0x4000 + mem_offset, tiles, SIZE(tiles)); \
-    vdp_color(0x6000 + mem_offset, tiles##_color, SIZE(tiles##_color)); \
-    vdp_memcpy(0x4800 + mem_offset, tiles, SIZE(tiles)); \
-    vdp_color(0x6800 + mem_offset, tiles##_color, SIZE(tiles##_color)); \
-    vdp_memcpy(0x5000 + mem_offset, tiles, SIZE(tiles)); \
-    vdp_color(0x7000 + mem_offset, tiles##_color, SIZE(tiles##_color)); \
+    vdp_copy(offset, tiles, tiles##_color, SIZE(tiles##_color)); \
     sprite_offset = offset;
 
 #elif defined(SMS)
