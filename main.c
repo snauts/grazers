@@ -1784,7 +1784,9 @@ static const struct Level all_levels[] = {
 
 static void load_level(byte n) {
     clear_screen();
+#ifdef MSX
     vdp_copy_font(0);
+#endif
     all_levels[n].fn();
 }
 
