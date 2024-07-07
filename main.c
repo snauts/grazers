@@ -406,12 +406,12 @@ static void vdp_color(byte *color, word addr) {
 }
 
 static void vdp_copy_font(byte should_reduce) {
-    reduce = should_reduce;
-    byte offset = (reduce ? 0xc0 : 0xa0);
+    reduce = (should_reduce ? 0xa0 : 0x80);
+    byte offset = (should_reduce ? 0xc0 : 0xa0);
     byte *tiles = (byte *) WORD(0x4) + 0x100;
     memset(mirror, 0, 0x300);
-    vdp_copy(offset, tiles, mirror, 256 - offset);
-    byte size = reduce ? 64 : 96;
+    byte size = 256 - offset;
+    vdp_copy(offset, tiles, mirror, size);
     for (byte i = 0; i < size; i++) {
 	vdp_color(font_color, offset + i);
     }
@@ -513,7 +513,7 @@ static void put_char(char symbol, word n, byte color) {
 #endif
 
 #ifdef MSX
-    vram_write(0x5800 + n, (reduce ? 0xa0 : 0x80) + symbol);
+    vram_write(0x5800 + n, reduce + symbol);
     color;
 #endif
 }
