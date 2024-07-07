@@ -436,6 +436,14 @@ static void embelish_tiles(void) {
 	vdp_color(sheep_color, i);
     }
 }
+
+static const byte lava_color[] = {
+    0x91, 0x91, 0x81, 0x61, 0x91, 0x91, 0x81, 0x61
+};
+
+static void embelish_lava(void) {
+    vdp_color(lava_color, 50);
+}
 #endif
 
 static void setup_system(void) {
@@ -1681,6 +1689,10 @@ static void eruption_level(void) {
     put_str("until EPOCH 300", POS(8, 17), 4);
     wait_space_or_enter(0);
 
+#ifdef MSX
+    vdp_enable_display(FALSE);
+#endif
+
     fenced_level(eruption_map, SIZE(eruption_map));
 
 #ifdef MSX
@@ -1695,6 +1707,11 @@ static void eruption_level(void) {
 
     use_fence_sprites();
     put_lava(POS(15, 6));
+
+#ifdef MSX
+    embelish_lava();
+    vdp_enable_display(TRUE);
+#endif
 
     finish = &ending_eruption;
 }
