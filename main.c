@@ -67,7 +67,7 @@ static void rom_start(void) __naked {
 #define SCALE_LO(n, x)	((n) << (x))
 #endif
 #ifdef MSX
-#define NOTE(freq)	((word) (freq))
+#define NOTE(freq)	((word) (1789772.5 / (16.0 * freq)))
 #define SCALE_HI(n, x)	((n) >> (x))
 #define SCALE_LO(n, x)	((n) << (x))
 #endif
@@ -322,7 +322,7 @@ static void out_7f(byte data) {
     __asm__("out (#0x7f), a"); data;
 }
 
-static void sms_psg(byte channel, word frequency, byte volume) {
+static void set_psg(byte channel, word frequency, byte volume) {
     channel <<= 5;
     out_7f(0x80 | channel | (frequency & 0xf));
     out_7f(frequency >> 4);
@@ -444,6 +444,27 @@ static const byte lava_color[] = {
 static void embelish_lava(void) {
     vdp_color(lava_color, 50);
 }
+
+static void msx_write_psg_reg(byte reg, byte val) {
+    __asm__("di");
+    __asm__("ld c, #0xa0");
+    __asm__("out (c), a"); reg;
+    __asm__("inc c");
+    __asm__("out (c), l"); val;
+    __asm__("ei");
+}
+
+static void set_psg(byte channel, word period, byte volume) {
+    byte reg = channel << 1;
+    msx_write_psg_reg(reg, period & 0xff);
+    msx_write_psg_reg(reg + 1, period >> 8);
+    msx_write_psg_reg(8 + channel, volume);
+}
+
+static void sound_off(void) {
+    msx_write_psg_reg(8, 0x0);
+    msx_write_psg_reg(9, 0x0);
+}
 #endif
 
 static void setup_system(void) {
@@ -473,6 +494,10 @@ static void setup_system(void) {
     vdp_ctrl_reg(8, 0x02);
     vdp_memset(0x4000, 0x00, 8);
     vdp_memset(0x6000, 0x11, 8);
+    msx_write_psg_reg( 7, 0xbc);
+    msx_write_psg_reg(11, 0xff);
+    msx_write_psg_reg(12, 0xff);
+    msx_write_psg_reg(13, 0x0d);
 #endif
 }
 
@@ -720,9 +745,9 @@ static void beep(word p0, word p1, word len) {
     out_fe(0x00);
 #endif
 
-#ifdef SMS
-    if (p0) sms_psg(0, p0, 15);
-    if (p1) sms_psg(1, p1, 15);
+#if defined(SMS) || defined(MSX)
+    if (p0) set_psg(0, p0, 15);
+    if (p1) set_psg(1, p1, 15);
     len = (len << 3) - (len >> 1);
     for (word i = 0; i < len; i++) { }
     sound_off();
