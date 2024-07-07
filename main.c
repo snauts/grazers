@@ -1235,7 +1235,7 @@ static void put_wave(word n, byte tile, byte color) {
 
 #ifdef MSX
     word addr = n + 0x5800;
-    if (color) tile += 16;
+    if (color) tile += 18;
     vram_write(addr, 40 + tile);
 #endif
 }
