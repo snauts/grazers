@@ -477,6 +477,7 @@ static void setup_system(void) {
     setup_irq(IRQ_BASE >> 8);
 #endif
 #ifdef SMS
+    vdp_head = vdp_tail = 0;
     vdp_init(vdp_registers, SIZE(vdp_registers));
     vdp_memcpy(0xc000, sms_palette, SIZE(sms_palette));
     vdp_memset(0x4000, 0x4000, 0x00);
