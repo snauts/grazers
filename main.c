@@ -1150,6 +1150,7 @@ static void reset_memory(void) {
     level = 0;
     retry = 0;
     wasd = 0;
+    meat = 0;
 }
 
 static byte no_grazers(void) {
