@@ -9,7 +9,13 @@ static void msx_prefix(void) __naked {
     __asm__(".db 0, 0, 0, 0, 0, 0");
 
     __asm__("di");
-    __asm__("ld a, #0xd4");
+    __asm__("in a, (#0xa8)");
+    __asm__("and #0xcf");
+    __asm__("ld b, a");
+    __asm__("and #0x0c");
+    __asm__("sla a");
+    __asm__("sla a");
+    __asm__("or a, b");
     __asm__("out (#0xa8), a");
     __asm__("ei");
 
