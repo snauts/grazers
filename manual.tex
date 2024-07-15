@@ -14,14 +14,40 @@
 \\
 (hunters manual)
 \end{center}
+\vspace{1cm}
 \section*{HUNTER \tile{0cm 0.5cm 1.55cm 4.05cm}}
-This is you. A HUNTER that hunts grazers. Use direction keys to move. SPACE
+This is you. A HUNTER that hunts GRAZERs. Use direction keys to move. SPACE
 key will skip one EPOCH remaining on the same spot. Holding ENTER key will
 fast forward simulation into the future.
-\section*{EMPTY SPACE}
-EMPTY SPACE does not contain anything, but it has all the potential to
+\section*{EMPTY Space}
+EMPTY space does not contain anything, but it has all the potential to
 contain something. GRASS can grow there. HUNTER can move in there.
 ROCK can be rolled there. Disasters may happen in there.
 \section*{GRASS \tile{0.5cm 4.5cm 0cm 0cm}}
-
+If there is GRASS next to EMPTY space it will disseminate into that
+EMPTY space in next EPOCH. GRASS always atracts GRAZERs. Walking into GRASS
+or rolling ROCK there will destroy it.
+\section*{GRAZER \tile{0cm 3.0cm 1.55cm 1.55cm}}
+GRAZERs eat GRASS and become fatter. Once they are fat enough they reproduce.
+If there is no GRASS, then grazers become thinner, seek to migrate and die
+out of hunger if they can not find any GRASS. Without intervention from HUNTER,
+populations usually collapse.
+\pagebreak
+\section*{HEALTH
+  \tile{0cm 3.0cm 1.55cm 1.55cm} >
+  \tile{0cm 3.5cm 1.55cm 1.05cm} >
+  \tile{0cm 4.0cm 1.55cm 0.55cm}
+}
+HEALTH of a GRAZER can be gauged by fatness of it's belly. It is either one, two
+or three pixels wide. Once it's three pixels fat, GRAZER will reproduce and put
+it's offspring in adjacent square, but only if there is GRASS in it.
+\section*{FOOD
+  \tile{1.5cm 3.0cm 0.00cm 1.55cm} >
+  \tile{1.0cm 3.0cm 0.55cm 1.55cm} >
+  \tile{0.5cm 3.0cm 1.05cm 1.55cm} >
+  \tile{0.0cm 3.0cm 1.55cm 1.55cm}
+}
+Amount of GRASS left under GRAZER can be gauged by how high it holds it's head
+looking for new pastures. Highest head position means all GRASS is gone and
+GRAZER would either migrate or starve.
 \end{document}
