@@ -3,3 +3,6 @@ data.h
 pcx-dump
 tileset.bin
 mkrom
+manual.log
+manual.aux
+manual.pdf

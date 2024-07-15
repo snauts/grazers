@@ -72,5 +72,9 @@ msx:
 open: msx
 	openmsx grazers.rom
 
+manual:
+	pdflatex manual.tex
+
 clean:
-	rm -f grazers* pcx-dump tileset.bin data.h mkrom
+	rm -f grazers* pcx-dump tileset.bin data.h mkrom \
+		*.log *.aux *.png *.pdf
