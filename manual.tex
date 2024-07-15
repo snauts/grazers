@@ -1,9 +1,27 @@
-\documentclass{article}
+\documentclass[12pt]{article}
 \usepackage{xcolor}
 \usepackage{graphicx}
+\usepackage{adjustbox}
+\renewcommand*{\familydefault}{\ttdefault}
+\newcommand{\tile}[1]{
+  \clipbox{#1}{\includegraphics[width=2cm,height=5cm]{tiles.png}}
+}
 \begin{document}
 \pagecolor{black}
 \color{green}
-\includegraphics{logo.png}
-grazers manual
+\begin{center}
+\includegraphics[width=12.8cm,height=2cm]{logo.png}
+\\
+(hunters manual)
+\end{center}
+\section*{HUNTER \tile{0cm 0.5cm 1.55cm 4.05cm}}
+This is you. A HUNTER that hunts grazers. Use direction keys to move. SPACE
+key will skip one EPOCH remaining on the same spot. Holding ENTER key will
+fast forward simulation into the future.
+\section*{EMPTY SPACE}
+EMPTY SPACE does not contain anything, but it has all the potential to
+contain something. GRASS can grow there. HUNTER can move in there.
+ROCK can be rolled there. Disasters may happen in there.
+\section*{GRASS \tile{0.5cm 4.5cm 0cm 0cm}}
+
 \end{document}
