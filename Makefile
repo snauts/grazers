@@ -75,6 +75,7 @@ open: msx
 manual:
 	magick logo.pcx logo.png
 	magick tiles.pcx tiles.png
+	magick fence.pcx fence.png
 	pdflatex manual.tex
 	evince manual.pdf
 

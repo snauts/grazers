@@ -6,6 +6,9 @@
 \newcommand{\tile}[1]{
   \clipbox{#1}{\includegraphics[width=2cm,height=5cm]{tiles.png}}
 }
+\newcommand{\fence}[1]{
+  \clipbox{#1}{\includegraphics[width=4cm,height=4.5cm]{fence.png}}
+}
 \begin{document}
 \pagecolor{black}
 \color{green}
@@ -54,4 +57,8 @@ GRAZER would either migrate or starve.
 ROCK can be rolled into GRASS, SAND or EMPTY space by pushing it from opposite
 direction. ROCKs are not only obstacles, but also useful tools for altering
 environmental dynamics.
+\section*{SAND \fence{3.0cm 4.0cm 0.55cm 0.0cm}}
+SAND is not fertile. Nothing grows in sand. Although HUNTER can move in there
+and ROCK can be rolled there. GRAZERs have no interest in checking out square
+that has no GRASS in it.
 \end{document}
