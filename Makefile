@@ -73,7 +73,9 @@ open: msx
 	openmsx grazers.rom
 
 manual:
+	magick logo.pcx logo.png
 	pdflatex manual.tex
+	evince manual.pdf
 
 clean:
 	rm -f grazers* pcx-dump tileset.bin data.h mkrom \
