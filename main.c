@@ -123,7 +123,6 @@ static byte *mirror[512];
 
 static word pos;
 static word epoch;
-static word retry;
 static byte level;
 static byte steps;
 static byte wasd;
@@ -900,17 +899,11 @@ static byte space_or_enter(void) {
     return skip_epoch() | fast_forward();
 }
 
-static byte wait_space_or_enter(byte (*callback)(void)) {
+static byte wait_space_or_enter(void) {
     byte prev, next = space_or_enter();
     do {
 	prev = next;
 	next = space_or_enter();
-	if (callback != 0 && vblank == 1) {
-	    vblank = 0;
-	    if (callback()) {
-		return TRUE;
-	    }
-	}
     } while ((next & (prev ^ next)) == 0);
     return FALSE;
 }
@@ -1154,7 +1147,6 @@ static void reset_memory(void) {
     memset(mirror, 0x00, sizeof(mirror));
     memset(forest, 0x00, sizeof(forest));
     level = 0;
-    retry = 0;
     wasd = 0;
     meat = 0;
 }
@@ -1590,7 +1582,7 @@ static void quarantine_level(void) {
     put_str("- QUARANTINE -", POS(9, 4), 0x44);
     put_str("Prevent GRAZER population", POS(3, 16), 4);
     put_str("from collapse til EPOCH 300", POS(2, 17), 4);
-    wait_space_or_enter(0);
+    wait_space_or_enter();
 
     fenced_level(quarantine_map, SIZE(quarantine_map));
 
@@ -1600,7 +1592,7 @@ static void quarantine_level(void) {
 static void earthquake_level(void) {
     put_str("- EARTHQUAKE -", POS(9, 4), 0x44);
     put_str("Prevent GRAZERs from escaping", POS(2, 16), 4);
-    wait_space_or_enter(0);
+    wait_space_or_enter();
 
     fenced_level(earthquake_map, SIZE(earthquake_map));
     QUEUE(forest + POS(5, 1));
@@ -1613,7 +1605,7 @@ static void gardener_level(void) {
     put_str("Hunt down invasive GRAZER", POS(4, 16), 4);
     put_str("species so that vegetation", POS(3, 17), 4);
     put_str("can fully recover and regrow", POS(2, 18), 4);
-    wait_space_or_enter(0);
+    wait_space_or_enter();
 
     fenced_level(gardener_map, SIZE(gardener_map));
 
@@ -1626,7 +1618,7 @@ static void flooding_level(void) {
     put_str("spread of weeds that needs", POS(2, 17), 4);
     put_str("to be eliminated completely", POS(2, 18), 4);
     put_str("Some GRAZERs must remain", POS(3, 20), 4);
-    wait_space_or_enter(0);
+    wait_space_or_enter();
 
     fenced_level(flooding_map, SIZE(flooding_map));
 
@@ -1640,7 +1632,7 @@ static void tsunami_level(void) {
 
     put_str("- TSUNAMI -", POS(10, 4), 0x44);
     put_str("Help GRAZERs survive TSUNAMI", POS(2, 16), 4);
-    wait_space_or_enter(0);
+    wait_space_or_enter();
 
     fenced_level(tsunami_map, SIZE(tsunami_map));
 
@@ -1659,16 +1651,7 @@ static void equilibrium_level(void) {
     put_str("Reach EQUILIBRIUM so that you", POS(1, 16), 4);
     put_str("stay on the same spot for 800", POS(1, 17), 4);
     put_str("EPOCHs and GRAZERs survive", POS(2, 18), 4);
-    if (retry >= 3) {
-	put_str("LEFT - load previous level", POS(3, 20), 4);
-	if (wait_space_or_enter(&check_R)) {
-	    load_level(--level);
-	    return;
-	}
-    }
-    else {
-	wait_space_or_enter(0);
-    }
+    wait_space_or_enter();
 
     fenced_level(equilibrium_map, SIZE(equilibrium_map));
 
@@ -1681,7 +1664,7 @@ static void migration_level(void) {
 
     put_str("- MIGRATION -", POS(9, 4), 0x44);
     put_str("Help GRAZERs migrate south", POS(3, 16), 4);
-    wait_space_or_enter(0);
+    wait_space_or_enter();
 
     fenced_level(migration_map, SIZE(migration_map));
 
@@ -1693,7 +1676,7 @@ static void aridness_level(void) {
 
     put_str("Both GRAZER subpopulations", POS(2, 16), 4);
     put_str("must survive for 400 EPOCHs", POS(2, 17), 4);
-    wait_space_or_enter(0);
+    wait_space_or_enter();
 
     fenced_level(aridness_map, SIZE(aridness_map));
 
@@ -1708,7 +1691,7 @@ static void lonesome_level(void) {
     put_str("Make sure last inhabitable", POS(3, 16), 4);
     put_str("four spots is occupied by", POS(3, 17), 4);
     put_str("lonesome GRAZERs", POS(7, 18), 4);
-    wait_space_or_enter(0);
+    wait_space_or_enter();
 
     fenced_level(lonesome_map, SIZE(lonesome_map));
 
@@ -1720,7 +1703,7 @@ static void eruption_level(void) {
 
     put_str("Help GRAZERs survive ERUPTION", POS(2, 16), 4);
     put_str("until EPOCH 300", POS(8, 17), 4);
-    wait_space_or_enter(0);
+    wait_space_or_enter();
 
 #ifdef MSX
     vdp_enable_display(FALSE);
@@ -1754,7 +1737,7 @@ static void fertility_level(void) {
 
     put_str("Due to the parasitic outbreak", POS(1, 16), 4);
     put_str("all GRAZERs must be eliminated", POS(1, 17), 4);
-    wait_space_or_enter(0);
+    wait_space_or_enter();
 
     fenced_level(fertility_map, SIZE(fertility_map));
 
@@ -1767,7 +1750,7 @@ static void erosion_level(void) {
     put_str("- EROSION -", POS(10, 4), 0x44);
     put_str("Stock up 200 pieces of MEAT", POS(2, 16), 4);
     put_str("Don't starve!", POS(10, 18), 4);
-    wait_space_or_enter(0);
+    wait_space_or_enter();
 
     fenced_level(erosion_map, SIZE(erosion_map));
 
@@ -1971,7 +1954,7 @@ static void adat_meitas(void) {
 	    advance_channel(channels + i);
 	}
     }
-    wait_space_or_enter(0);
+    wait_space_or_enter();
 }
 
 static void display_msg(const char *text_message) {
@@ -1994,17 +1977,15 @@ static void game_loop(void) {
     case  1:
 	display_msg("  DONE  ");
 	success_tune();
-	retry = 0;
 	level++;
 	break;
     case -1:
 	display_msg(" FAILED ");
 	sad_trombone_wah_wah_wah();
-	retry++;
 	break;
     }
 
-    wait_space_or_enter(0);
+    wait_space_or_enter();
 }
 
 static void grass_stripe(word n, byte len) {
