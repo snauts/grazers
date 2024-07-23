@@ -1169,8 +1169,8 @@ static byte no_grazers(void) {
     return 1;
 }
 
-static int8 ending_400(void) {
-    if (epoch >= 0x400) {
+static int8 ending_300(void) {
+    if (epoch >= 0x300) {
 	return 1;
     }
     else if (no_grazers()) {
@@ -1589,12 +1589,12 @@ static void fenced_level(byte *level, word size) {
 static void quarantine_level(void) {
     put_str("- QUARANTINE -", POS(9, 4), 0x44);
     put_str("Prevent GRAZER population", POS(3, 16), 4);
-    put_str("from collapse til EPOCH 400", POS(2, 17), 4);
+    put_str("from collapse til EPOCH 300", POS(2, 17), 4);
     wait_space_or_enter(0);
 
     fenced_level(quarantine_map, SIZE(quarantine_map));
 
-    finish = &ending_400;
+    finish = &ending_300;
 }
 
 static void earthquake_level(void) {
