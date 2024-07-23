@@ -1435,11 +1435,22 @@ static void circular_drying(void) {
     goto repeat;
 }
 
+static void drying_to_left(void) {
+    if (is_dryable(drying + 32)) {
+	drying += 32;
+    }
+    else if (is_dryable(drying - 32)) {
+	drying -= 32;
+    }
+    else {
+	drying -= 1;
+    }
+}
+
 static void advance_drying(void) {
     switch (drying) {
-    case POS(18, 12):
-	drying -= 1;
-	break;
+    case POS(21, 12):
+	drying_dir = 8;
     case POS(8, 16):
     case POS(7, 15):
 	drying -= 32;
@@ -1450,11 +1461,15 @@ static void advance_drying(void) {
     case POS(13, 8):
     case POS(14, 9):
     case POS(15, 10):
-    case POS(17, 12):
 	drying += 32;
 	break;
     default:
-	circular_drying();
+	if (drying_dir > 7) {
+	    drying_to_left();
+	}
+	else {
+	    circular_drying();
+	}
     }
 }
 
@@ -1471,7 +1486,7 @@ static int8 ending_lonesome(void) {
     if (no_grazers()) {
 	return -1;
     }
-    if (drying == POS(20, 10)) {
+    if (drying == POS(17, 12)) {
 	return 1;
     }
     return 0;
@@ -1690,7 +1705,7 @@ static void lonesome_level(void) {
     put_str("- EXTINCTION -", POS(9, 4), 0x44);
 
     put_str("Make sure last inhabitable", POS(3, 16), 4);
-    put_str("four spots is occupied by", POS(3, 17), 4);
+    put_str("six spots is occupied by", POS(4, 17), 4);
     put_str("lonesome GRAZERs", POS(7, 18), 4);
     wait_space_or_enter();
 
