@@ -1554,8 +1554,8 @@ static int8 ending_fertility(void) {
 }
 
 static int8 ending_erosion(void) {
-    put_str("MEAT:", POS(12, 23), 5);
-    put_num(meat, POS(17, 23), 5);
+    put_str("FAT:", POS(12, 23), 5);
+    put_num(meat, POS(16, 23), 5);
     if (meat >= 0x200) {
 	return  1;
     }
@@ -1764,7 +1764,7 @@ static void erosion_level(void) {
     meat = 0x50;
 
     put_str("- EROSION -", POS(10, 4), 0x44);
-    put_str("Stock up 200 pieces of MEAT", POS(2, 16), 4);
+    put_str("Raise your FAT level to 200", POS(2, 16), 4);
     put_str("Don't starve!", POS(10, 18), 4);
     wait_space_or_enter();
 
