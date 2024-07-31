@@ -14,6 +14,7 @@ all:
 	@echo "make mame" - build and run mame
 	@echo "make blast" - build and run blastem
 	@echo "make open" - build and run openmsx
+	@echo "make vice" - build and run vice
 
 pcx:
 	@gcc $(TYPE) -lm pcx-dump.c -o pcx-dump
@@ -80,6 +81,9 @@ c64:
 	TYPE=-DC64 make pcx
 	ARCH=-mmos6502 CODE=0x80e DATA=0xc000 TYPE=-DC64 make prg
 	cp grazers.bin grazers.prg
+
+vice: c64
+	x64 -autostartprgmode 1 +confirmonexit grazers.prg
 
 manual:
 	magick logo.pcx logo.png
