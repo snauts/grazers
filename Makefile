@@ -1,4 +1,6 @@
-CFLAGS += -mz80 --nostdinc --nostdlib --no-std-crt0
+ARCH ?= -mz80
+
+CFLAGS += --nostdinc --nostdlib --no-std-crt0
 CFLAGS += --code-loc $(CODE) --data-loc $(DATA)
 
 ENTRY = grep _reset grazers.map | cut -d " " -f 6
@@ -7,9 +9,11 @@ all:
 	@echo "make zxs" - build .tap for ZX Spectrum
 	@echo "make sms" - build .sms for Sega Masters
 	@echo "make msx" - build .rom for MSX computer
+	@echo "make c64" - build .prg for C64 computer
 	@echo "make fuse" - build and run fuse
 	@echo "make mame" - build and run mame
 	@echo "make blast" - build and run blastem
+	@echo "make open" - build and run openmsx
 
 pcx:
 	@gcc $(TYPE) -lm pcx-dump.c -o pcx-dump
@@ -36,7 +40,7 @@ pcx:
 	@./pcx-dump -l volcano.pcx >> data.h
 
 prg:
-	@sdcc $(CFLAGS) $(TYPE) main.c -o grazers.ihx
+	@sdcc $(ARCH) $(CFLAGS) $(TYPE) main.c -o grazers.ihx
 	hex2bin grazers.ihx > /dev/null
 
 tap:
@@ -71,6 +75,10 @@ msx:
 
 open: msx
 	openmsx grazers.rom
+
+c64:
+	TYPE=-DC64 make pcx
+	ARCH=-mmos6502 CODE=0x4000 DATA=0xc000 TYPE=-DC64 make prg
 
 manual:
 	magick logo.pcx logo.png

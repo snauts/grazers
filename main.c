@@ -77,6 +77,11 @@ static void rom_start(void) __naked {
 #define SCALE_HI(n, x)	((n) >> (x))
 #define SCALE_LO(n, x)	((n) << (x))
 #endif
+#ifdef C64
+#define NOTE(freq)	((word) freq)
+#define SCALE_HI(n, x)	((n) >> (x))
+#define SCALE_LO(n, x)	((n) << (x))
+#endif
 
 #define POS(x, y)	(((y) << 5) + (x))
 #define BIT(n)		(1 << (n))
@@ -113,6 +118,17 @@ static void rom_start(void) __naked {
 #define IRQ_BASE	0xde00
 #endif
 
+#ifdef C64
+#define SETUP_STACK()
+
+void sdcc_deps(void) __naked {
+    __asm__(".area ZP (PAG)");
+    __asm__("REGTEMP::	.ds 8");
+    __asm__("DPTR::	.ds 2");
+    __asm__(".area CODE");
+}
+#endif
+
 static volatile byte vblank;
 static byte *map_y[192];
 
@@ -136,9 +152,15 @@ static const byte pixel_map[] = {
     0x80, 0x40, 0x20, 0x10, 0x08, 0x04, 0x02, 0x01
 };
 
+#if defined(C64)
+void _sdcc_indirect_jsr(void) __naked {
+    __asm__("jmp [REGTEMP]");
+}
+#else
 static void __sdcc_call_hl(void) __naked {
     __asm__("jp (hl)");
 }
+#endif
 
 static void memset(byte *ptr, byte data, word len) {
     while (len-- > 0) { *ptr++ = data; }
@@ -577,6 +599,7 @@ static void put_num(word num, word n, byte color) {
 }
 
 static word add10(word a, word b) __naked {
+#ifndef C64
     __asm__("ld a, l"); a;
     __asm__("add e"); b;
     __asm__("daa");
@@ -586,9 +609,11 @@ static word add10(word a, word b) __naked {
     __asm__("daa");
     __asm__("ld d, a");
     __asm__("ret");
+#endif
 }
 
 static word sub10(word a, word b) __naked {
+#ifndef C64
     __asm__("ld a, l"); a;
     __asm__("sub e"); b;
     __asm__("daa");
@@ -598,6 +623,7 @@ static word sub10(word a, word b) __naked {
     __asm__("daa");
     __asm__("ld d, a");
     __asm__("ret");
+#endif
 }
 
 static void put_tile(byte cell, word n) {
@@ -992,6 +1018,10 @@ static byte sprite_offset;
 #define TILESET(tiles, offset) \
     vdp_copy(offset, tiles, tiles##_color, SIZE(tiles##_color)); \
     sprite_offset = offset;
+
+#elif defined(C64)
+#define TILE_ATTRIBURE(x)
+#define TILESET(tiles, offset)
 
 #elif defined(SMS)
 static word sprite_offset;
@@ -2062,7 +2092,7 @@ static void wait_start(void) {
 }
 #endif
 
-#if defined(SMS) || defined(MSX)
+#if defined(SMS) || defined(MSX) || defined(C64)
 static void wait_start(void) {
     do {
 	if (vblank) {
