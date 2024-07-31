@@ -78,7 +78,8 @@ open: msx
 
 c64:
 	TYPE=-DC64 make pcx
-	ARCH=-mmos6502 CODE=0x4000 DATA=0xc000 TYPE=-DC64 make prg
+	ARCH=-mmos6502 CODE=0x80e DATA=0xc000 TYPE=-DC64 make prg
+	cp grazers.bin grazers.prg
 
 manual:
 	magick logo.pcx logo.png
