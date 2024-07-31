@@ -79,7 +79,7 @@ open: msx
 
 c64:
 	TYPE=-DC64 make pcx
-	ARCH=-mmos6502 CODE=0x80e DATA=0xc000 TYPE=-DC64 make prg
+	ARCH=-mmos6502 CODE=0x7FF DATA=0xc000 TYPE=-DC64 make prg
 	cp grazers.bin grazers.prg
 
 vice: c64

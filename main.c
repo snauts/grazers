@@ -127,7 +127,9 @@ static void rom_start(void) __naked {
 #endif
 
 #ifdef C64
-#define SETUP_STACK()
+#define SETUP_STACK() \
+    __asm__("ldx #0xff"); \
+    __asm__("txs");
 
 void sdcc_deps(void) __naked {
     __asm__(".area ZP (PAG)");
