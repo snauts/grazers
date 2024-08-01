@@ -74,6 +74,7 @@ static void rom_start(void) __naked {
 #define NOTE(freq)	((word) ((2400.0 * freq) / 440.0))
 #define SCALE_HI(n, x)	((n) << (x))
 #define SCALE_LO(n, x)	((n) >> (x))
+#define COLOR(x, y, n)	BYTE(0x5800 + n)
 #define SPRITE_X(x)	(x)
 #define SPRITE_INC	0x100
 #endif
@@ -91,6 +92,7 @@ static void rom_start(void) __naked {
 #define NOTE(freq)	((word) freq)
 #define SCALE_HI(n, x)	((n) >> (x))
 #define SCALE_LO(n, x)	((n) << (x))
+#define COLOR(x, y, n)	*(map_y[y + 1] + x)
 #define SPRITE_X(x)	((x) << 3)
 #define SPRITE_INC	0x1
 #endif
@@ -663,15 +665,15 @@ static word sub10(word a, word b) __naked {
 }
 
 static void put_tile(byte cell, word n) {
-#ifdef ZXS
+#if defined(ZXS) || defined(C64)
     byte x = n & 0x1f;
     byte y = (n >> 2) & ~7;
-    BYTE(0x5800 + n) = tiles_color[cell];
+    COLOR(x, y, n) = tiles_color[cell];
     const byte *addr = tiles + (cell << 3);
-    byte *ptr = map_y[y] + x;
+    byte *ptr = map_y[y] + SPRITE_X(x);
     for (byte i = 0; i < 8; i++) {
 	*ptr = *addr++;
-	ptr += 0x100;
+	ptr += SPRITE_INC;
     }
 #endif
 
@@ -1082,11 +1084,7 @@ static void put_sprite(byte cell, byte base, word n) {
     byte y = (n >> 2) & ~7;
     byte flipH = cell & 0x20;
     byte flipV = cell & 0x40;
-#ifdef C64
-    *(map_y[y + 1] + x) = sprite_color[index];
-#else
-    BYTE(0x5800 + n) = sprite_color[index];
-#endif
+    COLOR(x, y, n) = sprite_color[index];
     const byte *addr = sprite + (index << 3);
     if (flipV) addr = addr + 7;
     byte *ptr = map_y[y] + SPRITE_X(x);
