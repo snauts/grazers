@@ -78,7 +78,7 @@ static int ink_index(int i) {
 }
 
 static unsigned char encode_ink(unsigned short colors) {
-#ifdef MSX
+#if defined(MSX) || defined(C64)
     return ((colors & 0xff) << 4) | (colors >> 8);
 #else
     unsigned char b = colors >> 8;
@@ -390,6 +390,11 @@ const unsigned char msx_look_up[] = {
     0x01, 0x05, 0x08, 0x0a, 0x0f, 0x0f, 0x0b, 0x0f,
 };
 
+const unsigned char c64_look_up[] = {
+    0x00, 0x01, 0x02, 0x03, 0x05, 0x04, 0x06, 0x0f,
+    0x08, 0x09, 0x0a, 0x0b, 0x0c, 0x0d, 0x0e, 0x07,
+};
+
 static unsigned char get_color(unsigned char *color) {
     unsigned char result = 0;
     if (color[0] >= 0x80) result |= 0x02;
@@ -407,6 +412,8 @@ static unsigned char get_color(unsigned char *color) {
     }
 #ifdef MSX
     return msx_look_up[result];
+#elif defined(C64)
+    return c64_look_up[result];
 #else
     return result;
 #endif
