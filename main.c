@@ -74,6 +74,8 @@ static void rom_start(void) __naked {
 #define NOTE(freq)	((word) ((2400.0 * freq) / 440.0))
 #define SCALE_HI(n, x)	((n) << (x))
 #define SCALE_LO(n, x)	((n) >> (x))
+#define SPRITE_X(x)	(x)
+#define SPRITE_INC	0x100
 #endif
 #ifdef SMS
 #define NOTE(freq)	((word) (125000.0 / freq))
@@ -89,6 +91,8 @@ static void rom_start(void) __naked {
 #define NOTE(freq)	((word) freq)
 #define SCALE_HI(n, x)	((n) >> (x))
 #define SCALE_LO(n, x)	((n) << (x))
+#define SPRITE_X(x)	((x) << 3)
+#define SPRITE_INC	0x1
 #endif
 
 #define POS(x, y)	(((y) << 5) + (x))
@@ -1073,21 +1077,25 @@ static word sprite_offset;
 static void put_sprite(byte cell, byte base, word n) {
     byte index = base + (cell & 0x1f);
 
-#ifdef ZXS
+#if defined(ZXS) || defined(C64)
     byte x = n & 0x1f;
     byte y = (n >> 2) & ~7;
     byte flipH = cell & 0x20;
     byte flipV = cell & 0x40;
+#ifdef C64
+    *(map_y[y + 1] + x) = sprite_color[index];
+#else
     BYTE(0x5800 + n) = sprite_color[index];
+#endif
     const byte *addr = sprite + (index << 3);
     if (flipV) addr = addr + 7;
-    byte *ptr = map_y[y] + x;
+    byte *ptr = map_y[y] + SPRITE_X(x);
     for (byte i = 0; i < 8; i++) {
 	byte data = *addr;
 	if (flipV) addr--; else addr++;
 	if (flipH) data = flip_bits(data);
 	*ptr = data;
-	ptr += 0x100;
+	ptr += SPRITE_INC;
     }
 #endif
 
@@ -1102,24 +1110,6 @@ static void put_sprite(byte cell, byte base, word n) {
     word addr = n + 0x5800;
     index += sprite_offset;
     vram_write(addr, index);
-#endif
-
-#ifdef C64
-    byte x = n & 0x1f;
-    byte y = (n >> 2) & ~7;
-    byte flipH = cell & 0x20;
-    byte flipV = cell & 0x40;
-    *(map_y[y + 1] + x) = sprite_color[index];
-    const byte *addr = sprite + (index << 3);
-    if (flipV) addr = addr + 7;
-    byte *ptr = map_y[y] + (x << 3);
-    for (byte i = 0; i < 8; i++) {
-	byte data = *addr;
-	if (flipV) addr--; else addr++;
-	if (flipH) data = flip_bits(data);
-	*ptr = data;
-	ptr++;
-    }
 #endif
 }
 
