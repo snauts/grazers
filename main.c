@@ -537,6 +537,10 @@ static void setup_system(void) {
     msx_write_psg_reg(12, 0xff);
     msx_write_psg_reg(13, 0x0d);
 #endif
+#ifdef C64
+    BYTE(0xd020) = 0;
+    BYTE(0xd021) = 0;
+#endif
 }
 
 static void clear_screen(void) {
@@ -553,6 +557,9 @@ static void clear_screen(void) {
 #endif
 #ifdef MSX
     vdp_memset(0x5800, 0, 0x0300);
+#endif
+#ifdef C64
+    memset(0x400, 32, 1000);
 #endif
 }
 
