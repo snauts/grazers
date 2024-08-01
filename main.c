@@ -538,8 +538,14 @@ static void setup_system(void) {
     msx_write_psg_reg(13, 0x0d);
 #endif
 #ifdef C64
-    BYTE(0xd020) = 0;
-    BYTE(0xd021) = 0;
+    __asm__ ("sei");
+    BYTE(0xd011) = 0x2b; /* bitmap mode */
+    BYTE(0xd015) = 0x00; /* disable sprites */
+    BYTE(0xd016) = 0xc8; /* standard mode */
+    BYTE(0xd018) = 0x38; /* memory regions */
+    BYTE(0xd020) = 0x00; /* black border */
+    BYTE(0xd021) = 0x00; /* black background */
+    BYTE(0xdd00) = (BYTE(0xdd00) & ~3) | 1;
 #endif
 }
 
@@ -559,7 +565,8 @@ static void clear_screen(void) {
     vdp_memset(0x5800, 0, 0x0300);
 #endif
 #ifdef C64
-    memset(0x400, 32, 1000);
+    memset(0x8c00, 0, 1000);
+    BYTE(0xd011) = 0x3b;
 #endif
 }
 
