@@ -79,8 +79,9 @@ open: msx
 
 c64:
 	TYPE=-DC64 make pcx
-	ARCH=-mmos6502 CODE=0x7FF DATA=0xc000 TYPE=-DC64 make prg
-	cp grazers.bin grazers.prg
+	@sdcc -mmos6502 -DC64 --nostdinc --nostdlib --no-std-crt0 main.c -c
+	@sdld -b CODE=0x07ff -b BSS=0x6000 -m -i grazers.ihx main.o
+	hex2bin -e prg grazers.ihx > /dev/null
 
 vice: c64
 	x64 -autostartprgmode 1 +confirmonexit grazers.prg
