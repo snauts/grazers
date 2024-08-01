@@ -925,31 +925,39 @@ static void queue_item(word where, byte type, byte sprite) {
 }
 
 static byte fast_forward(void) {
-#if ZXS
+#ifdef ZXS
     return ((~in_key(0xbf) & 1) << 1) | ((~in_key(0x7f) & 8) >> 2);
 #endif
 
-#if SMS
+#ifdef SMS
     return (~in_key(0) & 0x20) >> 4;
 #endif
 
-#if MSX
+#ifdef MSX
     return ~in_key(7) & BIT(7);
+#endif
+
+#ifdef C64
+    return 0;
 #endif
 }
 
 static byte skip_epoch(void) {
-#if ZXS
+#ifdef ZXS
     byte reg = ~in_key(0x7f);
     return ((reg & 1) << 4) | ((reg & 4) << 2);
 #endif
 
-#if SMS
+#ifdef SMS
     return ~in_key(0) & 0x10;
 #endif
 
-#if MSX
+#ifdef MSX
     return (~in_key(8) & BIT(0)) << 4;
+#endif
+
+#ifdef C64
+    return 0;
 #endif
 }
 
