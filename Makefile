@@ -80,7 +80,7 @@ open: msx
 c64:
 	TYPE=-DC64 make pcx
 	@sdcc -mmos6502 -DC64 --nostdinc --nostdlib --no-std-crt0 main.c -c
-	@sdld -b CODE=0x07ff -b BSS=0x6000 -m -i grazers.ihx main.o
+	@sdld -b CODE=0x07ff -b BSS=0x6000 -m -i grazers.ihx main.rel
 	hex2bin -e prg grazers.ihx > /dev/null
 
 vice: c64
@@ -95,4 +95,4 @@ manual:
 
 clean:
 	rm -f grazers* pcx-dump tileset.bin data.h mkrom \
-		*.log *.aux *.png *.pdf
+		*.log *.aux *.png *.pdf *.asm *.lst *.rel *.sym

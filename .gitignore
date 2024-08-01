@@ -7,3 +7,7 @@ mkrom
 *.aux
 *.pdf
 *.png
+*.asm
+*.lst
+*.rel
+*.sym
