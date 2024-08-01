@@ -577,6 +577,12 @@ static void precalculate(void) {
 	map_y[y] = (byte *) (0x4000 + (f << 5));
     }
 #endif
+#ifdef C64
+    for (word y = 0; y < 192; y++) {
+	word offset = (y << 5) + (y << 3);
+	map_y[y] = (byte *) (0xa004 + offset);
+    }
+#endif
 }
 
 static void put_char(char symbol, word n, byte color) {
@@ -1028,7 +1034,7 @@ static byte flip_bits(byte source) {
     return result;
 }
 
-#if defined(ZXS)
+#if defined(ZXS) || defined(C64)
 static const byte *sprite;
 static const byte *sprite_color;
 #define TILE_ATTRIBURE(x)
@@ -1042,10 +1048,6 @@ static byte sprite_offset;
 #define TILESET(tiles, offset) \
     vdp_copy(offset, tiles, tiles##_color, SIZE(tiles##_color)); \
     sprite_offset = offset;
-
-#elif defined(C64)
-#define TILE_ATTRIBURE(x)
-#define TILESET(tiles, offset)
 
 #elif defined(SMS)
 static word sprite_offset;
