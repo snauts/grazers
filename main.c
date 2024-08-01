@@ -565,8 +565,8 @@ static void clear_screen(void) {
     vdp_memset(0x5800, 0, 0x0300);
 #endif
 #ifdef C64
+    memset(0x8c00, 0x00, 1000);
     memset(0xa000, 0x00, 8192);
-    memset(0x8c00, 0x04, 1000);
     BYTE(0xd011) = 0x3b;
 #endif
 }
@@ -582,6 +582,7 @@ static void precalculate(void) {
     for (word y = 0; y < 192; y += 8) {
 	word offset = (y << 5) + (y << 3);
 	map_y[y] = (byte *) (0xa020 + offset);
+	map_y[y + 1] = (byte *) (0x8c04 + (offset >> 3));
     }
 #endif
 }
@@ -1100,7 +1101,7 @@ static void put_sprite(byte cell, byte base, word n) {
     byte y = (n >> 2) & ~7;
     byte flipH = cell & 0x20;
     byte flipV = cell & 0x40;
-    BYTE(0x8c00 + n) = sprite_color[index];
+    *(map_y[y + 1] + x) = sprite_color[index];
     const byte *addr = sprite + (index << 3);
     if (flipV) addr = addr + 7;
     byte *ptr = map_y[y] + (x << 3);
