@@ -704,6 +704,7 @@ static word add10(word a, word b) {
     __asm__("adc a, d");
     __asm__("daa");
     __asm__("ld d, a");
+    return a;
 #else
     return a + b;
 #endif
@@ -719,6 +720,7 @@ static word sub10(word a, word b) {
     __asm__("sbc a, d");
     __asm__("daa");
     __asm__("ld d, a");
+    return a;
 #else
     return a - b;
 #endif
