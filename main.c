@@ -624,7 +624,7 @@ static void put_char(char symbol, word n, byte color) {
     byte *ptr = map_y[y] + SPRITE_X(x);
     for (byte i = 0; i < 8; i++) {
 	*ptr = *addr++;
-	ptr += 0x100;
+	ptr += SPRITE_INC;
     }
 #endif
 
@@ -2218,9 +2218,9 @@ static void title_screen(void) {
 #endif
 
 #ifdef C64
-    put_str("WASD or JOYSTICK to move", POS(3, 15), 5);
-    put_str("ENTER or SPACE to skip", POS(4, 16), 5);
-    put_str("Press SPACE", POS(10, 18), 5);
+    put_str("Joystick or WASD to move", POS(3, 15), D_GREEN);
+    put_str("ENTER or SPACE to skip", POS(4, 16), D_GREEN);
+    put_str("Press SPACE", POS(10, 18), D_GREEN);
 #endif
 
     grass_stripe(POS( 6, 2), 11);
