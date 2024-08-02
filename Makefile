@@ -77,7 +77,8 @@ msx:
 open: msx
 	openmsx grazers.rom
 
-MOS6502_CFLAGS = --nostdinc --nostdlib --no-std-crt0 --no-zp-spill
+MOS6502_CFLAGS = --nostdinc --nostdlib --no-std-crt0 \
+	--no-zp-spill --opt-code-speed
 
 c64:
 	TYPE=-DC64 make pcx
