@@ -753,7 +753,7 @@ static word sub10(word a, word b) {
     __asm__("sbc a, d");
     __asm__("daa");
     __asm__("ld d, a");
-    return a;
+    return b;
 #else
     __asm__("sed");
     a = a - b;
