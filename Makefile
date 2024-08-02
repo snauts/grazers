@@ -82,7 +82,7 @@ MOS6502_CFLAGS = --nostdinc --nostdlib --no-std-crt0 --no-zp-spill
 c64:
 	TYPE=-DC64 make pcx
 	@sdcc -mmos6502 -DC64 $(MOS6502_CFLAGS) main.c -c
-	@sdld -b CODE=0x7ff -b BSS=0x6000 -b ZP=0x2 -m -i grazers.ihx main.rel
+	@sdld -b CODE=0x7ff -b BSS=0x6c00 -b ZP=0x2 -m -i grazers.ihx main.rel
 	hex2bin -e prg grazers.ihx > /dev/null
 
 vice: c64

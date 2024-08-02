@@ -89,7 +89,7 @@ static void rom_start(void) __naked {
 #define COLOR(x, y, n)	*(map_y[y + 1] + x)
 #define SPRITE_X(x)	((x) << 3)
 #define SPRITE_INC	0x1
-#define FONT_ADDR	0x7000
+#define FONT_ADDR	0x7c00
 #define FLASH_ADDR	0x8d44
 #define FLASH_INC	40
 #endif
@@ -545,9 +545,9 @@ static void copy_font_to_RAM(void) {
     BYTE(0xdd00) = (BYTE(0xdc00) & ~3) | 1;
 
     BYTE(0x0001) = 0x33;
-    memcpy((byte *) 0x7100, (byte *) 0xd900, 0x100);
-    memcpy((byte *) 0x7200, (byte *) 0xda00, 0x100);
-    memcpy((byte *) 0x7300, (byte *) 0xd800, 0x100);
+    memcpy((byte *) (FONT_ADDR + 0x100), (byte *) 0xd900, 0x100);
+    memcpy((byte *) (FONT_ADDR + 0x200), (byte *) 0xda00, 0x100);
+    memcpy((byte *) (FONT_ADDR + 0x300), (byte *) 0xd800, 0x100);
     BYTE(0x0001) = 0x35;
 }
 
