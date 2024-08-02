@@ -1876,6 +1876,10 @@ static void eruption_level(void) {
     vdp_enable_display(FALSE);
 #endif
 
+#ifdef C64
+    BYTE(0xd011) = 0x2b;
+#endif
+
     fenced_level(eruption_map, SIZE(eruption_map));
 
 #ifdef MSX
@@ -1894,6 +1898,10 @@ static void eruption_level(void) {
 #ifdef MSX
     embelish_lava();
     vdp_enable_display(TRUE);
+#endif
+
+#ifdef C64
+    BYTE(0xd011) = 0x3b;
 #endif
 
     finish = &ending_eruption;
