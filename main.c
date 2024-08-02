@@ -1051,7 +1051,9 @@ static byte fast_forward(void) {
 #endif
 
 #ifdef C64
-    return c64_key(BIT(0), BIT(1)) | c64_joy(BIT(4));
+    byte joy = c64_joy(0x1f);
+    if (joy) return joy & BIT(4);
+    return c64_key(BIT(0), BIT(1));
 #endif
 }
 
@@ -1148,7 +1150,7 @@ static void wait_user_input(void) {
 	prev = next;
 	next = key_state();
 	change = next & (prev ^ next);
-	if (fast_forward()) break;
+	if (fast_forward()) return;
     } while (change == 0);
 
     for (byte n = 0; n < SIZE(neighbors); n++) {
