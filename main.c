@@ -83,7 +83,7 @@ static void rom_start(void) __naked {
 #endif
 
 #ifdef C64
-#define NOTE(freq)	((word) freq)
+#define NOTE(freq)	((word) (freq * (16777216.0 / 985248.0)))
 #define SCALE_HI(n, x)	((n) >> (x))
 #define SCALE_LO(n, x)	((n) << (x))
 #define COLOR(x, y, n)	*(map_y[y + 1] + x)
@@ -629,8 +629,10 @@ static void setup_system(void) {
     /* sound config */
     memset((byte *) 0xd400, 0, 28);
     BYTE(0xd418) = 0x0f;
-    BYTE(0xdc06) = 0xf0;
-    BYTE(0xdc0d) = 0xf0;
+    BYTE(0xd403) = 0x08;
+    BYTE(0xd40a) = 0x08;
+    BYTE(0xd406) = 0xf0;
+    BYTE(0xd40d) = 0xf0;
     __asm__ ("cli");
 #endif
 }
