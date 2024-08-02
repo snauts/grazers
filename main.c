@@ -521,6 +521,18 @@ static void interrupt(void) __naked {
     __asm__("pla");
     __asm__("rti");
 }
+
+static void copy_font_to_RAM(void) {
+    BYTE(0xd011) = 0x23;
+    BYTE(0xd018) = 0x34;
+    BYTE(0xdd00) = (BYTE(0xdc00) & ~3) | 1;
+
+    BYTE(0x0001) = 0x33;
+    memcpy(0x7100, 0xd100, 0x100);
+    memcpy(0x7200, 0xd000, 0x100);
+    memcpy(0x7300, 0xd000, 0x100);
+    BYTE(0x0001) = 0x35;
+}
 #endif
 
 static void setup_system(void) {
@@ -558,6 +570,7 @@ static void setup_system(void) {
 #endif
 #ifdef C64
     __asm__ ("sei");
+    copy_font_to_RAM();
     BYTE(0xd011) = 0x2b; /* bitmap mode */
     BYTE(0xd016) = 0xc8; /* standard mode */
     BYTE(0xd018) = 0x38; /* memory regions */
@@ -570,9 +583,7 @@ static void setup_system(void) {
     BYTE(0xdd0d); /* clear pending irq */
     BYTE(0xd01a) = 0x01; /* genereate raster irq */
     BYTE(0xd012) = 0x00; /* generate on line 0 */
-    BYTE(0x0001) = 0x35; /* turn of ROM */
     WORD(0xfffe) = (word) &interrupt;
-    BYTE(0xdd00) = (BYTE(0xdd00) & ~3) | 1;
     __asm__ ("cli");
 #endif
 }
@@ -2218,8 +2229,8 @@ static void title_screen(void) {
 #endif
 
 #ifdef C64
-    put_str("Joystick or WASD to move", POS(3, 15), D_GREEN);
-    put_str("ENTER or SPACE to skip", POS(4, 16), D_GREEN);
+    put_str("Joystick or WASD to move", POS(4, 15), D_GREEN);
+    put_str("ENTER or SPACE to skip", POS(5, 16), D_GREEN);
     put_str("Press SPACE", POS(10, 18), D_GREEN);
 #endif
 
