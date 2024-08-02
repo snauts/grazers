@@ -556,6 +556,13 @@ static byte c64_key(byte row, byte col) {
     return ~BYTE(0xdc01) & col;
 }
 
+static byte c64_joy(byte bit) {
+    BYTE(0xdc02) = 0x00;
+    byte state = ~BYTE(0xdc00) | ~BYTE(0xdc01);
+    BYTE(0xdc02) = 0xff;
+    return state & bit;
+}
+
 static void sound_off(void) {
     BYTE(0xd404) = 0x40;
     BYTE(0xd40b) = 0x40;
@@ -1044,7 +1051,7 @@ static byte fast_forward(void) {
 #endif
 
 #ifdef C64
-    return c64_key(BIT(0), BIT(1));
+    return c64_key(BIT(0), BIT(1)) | c64_joy(BIT(4));
 #endif
 }
 
@@ -1113,6 +1120,15 @@ static byte movement_keys(void) {
 #endif
 
 #ifdef C64
+    byte joy = c64_joy(0xf);
+
+    if (joy) {
+	return (joy & BIT(1))
+	    | ((joy & BIT(0)) << 3)
+	    | ((joy & BIT(3)) >> 1)
+	    | ((joy & BIT(2)) >> 2);
+    }
+
     byte was = c64_key(BIT(1), BIT(1) | BIT(2) | BIT(5));
 
     return c64_key(BIT(2), BIT(2))
