@@ -543,9 +543,9 @@ static void copy_font_to_RAM(void) {
     BYTE(0xdd00) = (BYTE(0xdc00) & ~3) | 1;
 
     BYTE(0x0001) = 0x33;
-    memcpy((byte *) 0x7100, (byte *) 0xd100, 0x100);
-    memcpy((byte *) 0x7200, (byte *) 0xd000, 0x100);
-    memcpy((byte *) 0x7300, (byte *) 0xd000, 0x100);
+    memcpy((byte *) 0x7100, (byte *) 0xd900, 0x100);
+    memcpy((byte *) 0x7200, (byte *) 0xda00, 0x100);
+    memcpy((byte *) 0x7300, (byte *) 0xd800, 0x100);
     BYTE(0x0001) = 0x35;
 }
 #endif
