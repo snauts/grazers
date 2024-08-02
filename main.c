@@ -724,8 +724,22 @@ static void put_num(word num, word n, byte color) {
     put_str(msg, n, color);
 }
 
+#ifdef C64
 static word add10(word a, word b) {
-#ifndef C64
+    __asm__("sed");
+    a = a + b;
+    __asm__("cld");
+    return a;
+}
+
+static word sub10(word a, word b) {
+    __asm__("sed");
+    a = a - b;
+    __asm__("cld");
+    return a;
+}
+#else
+static word add10(word a, word b) __naked {
     __asm__("ld a, l"); a;
     __asm__("add e"); b;
     __asm__("daa");
@@ -734,17 +748,10 @@ static word add10(word a, word b) {
     __asm__("adc a, d");
     __asm__("daa");
     __asm__("ld d, a");
-    return a;
-#else
-    __asm__("sed");
-    a = a + b;
-    __asm__("cld");
-    return a;
-#endif
+    __asm__("ret");
 }
 
-static word sub10(word a, word b) {
-#ifndef C64
+static word sub10(word a, word b) __naked{
     __asm__("ld a, l"); a;
     __asm__("sub e"); b;
     __asm__("daa");
@@ -753,14 +760,9 @@ static word sub10(word a, word b) {
     __asm__("sbc a, d");
     __asm__("daa");
     __asm__("ld d, a");
-    return b;
-#else
-    __asm__("sed");
-    a = a - b;
-    __asm__("cld");
-    return a;
-#endif
+    __asm__("ret");
 }
+#endif
 
 static void put_tile(byte cell, word n) {
 #if defined(ZXS) || defined(C64)
