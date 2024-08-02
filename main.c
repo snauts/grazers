@@ -903,7 +903,7 @@ static void beep(word p0, word p1, word len) {
     if (p0) set_psg(0, p0);
     if (p1) set_psg(1, p1);
 #ifdef C64
-    len = (len << 2);
+    len = (len << 2) + (len >> 1);
 #else
     len = (len << 3) - (len >> 1);
 #endif
