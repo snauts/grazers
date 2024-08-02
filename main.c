@@ -543,9 +543,9 @@ static void copy_font_to_RAM(void) {
     BYTE(0xdd00) = (BYTE(0xdc00) & ~3) | 1;
 
     BYTE(0x0001) = 0x33;
-    memcpy(0x7100, 0xd100, 0x100);
-    memcpy(0x7200, 0xd000, 0x100);
-    memcpy(0x7300, 0xd000, 0x100);
+    memcpy((byte *) 0x7100, (byte *) 0xd100, 0x100);
+    memcpy((byte *) 0x7200, (byte *) 0xd000, 0x100);
+    memcpy((byte *) 0x7300, (byte *) 0xd000, 0x100);
     BYTE(0x0001) = 0x35;
 }
 #endif
@@ -599,6 +599,9 @@ static void setup_system(void) {
     BYTE(0xd01a) = 0x01; /* genereate raster irq */
     BYTE(0xd012) = 0x00; /* generate on line 0 */
     WORD(0xfffe) = (word) &interrupt;
+    memset((byte *) 0x8c00, 0x00, 1000);
+    memset((byte *) 0xa000, 0x00, 8192);
+    BYTE(0xd011) = 0x3b;
     __asm__ ("cli");
 #endif
 }
@@ -619,9 +622,7 @@ static void clear_screen(void) {
     vdp_memset(0x5800, 0, 0x0300);
 #endif
 #ifdef C64
-    memset(0x8c00, 0x00, 1000);
-    memset(0xa000, 0x00, 8192);
-    BYTE(0xd011) = 0x3b;
+    memset((byte *) 0x8c00, 0x00, 1000);
 #endif
 }
 
