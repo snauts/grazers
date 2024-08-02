@@ -1138,6 +1138,7 @@ static void wait_user_input(void) {
     for (byte n = 0; n < SIZE(neighbors); n++) {
 	if (change & BIT(n)) {
 	    move_hunter(neighbors[n]);
+	    break;
 	}
     }
 }
