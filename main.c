@@ -384,11 +384,11 @@ static void out_7f(byte data) {
     __asm__("out (#0x7f), a"); data;
 }
 
-static void set_psg(byte channel, word frequency, byte volume) {
+static void set_psg(byte channel, word frequency) {
     channel <<= 5;
     out_7f(0x80 | channel | (frequency & 0xf));
     out_7f(frequency >> 4);
-    out_7f(0x90 | channel | (15 - volume));
+    out_7f(0x90 | channel);
 }
 
 static void sound_off(void) {
@@ -516,11 +516,11 @@ static void msx_write_psg_reg(byte reg, byte val) {
     __asm__("ei");
 }
 
-static void set_psg(byte channel, word period, byte volume) {
+static void set_psg(byte channel, word period) {
     byte reg = channel << 1;
     msx_write_psg_reg(reg, period & 0xff);
     msx_write_psg_reg(reg + 1, period >> 8);
-    msx_write_psg_reg(8 + channel, volume);
+    msx_write_psg_reg(8 + channel, 15);
 }
 
 static void sound_off(void) {
@@ -554,6 +554,18 @@ static void copy_font_to_RAM(void) {
 static byte c64_key(byte row, byte col) {
     BYTE(0xdc00) = ~row;
     return ~BYTE(0xdc01) & col;
+}
+
+static void sound_off(void) {
+    BYTE(0xd404) = 0x40;
+    BYTE(0xd40b) = 0x40;
+}
+
+static void set_psg(byte channel, word frequency) {
+    byte offset = channel ? 7 : 0;
+    BYTE(0xd400 + offset + 0) = frequency & 0xff;
+    BYTE(0xd400 + offset + 1) = frequency >> 8;
+    BYTE(0xd400 + offset + 4) = 0x41;
 }
 #endif
 
@@ -877,10 +889,14 @@ static void beep(word p0, word p1, word len) {
     out_fe(0x00);
 #endif
 
-#if defined(SMS) || defined(MSX)
-    if (p0) set_psg(0, p0, 15);
-    if (p1) set_psg(1, p1, 15);
+#if defined(SMS) || defined(MSX) || defined(C64)
+    if (p0) set_psg(0, p0);
+    if (p1) set_psg(1, p1);
+#ifdef C64
+    len = (len << 2);
+#else
     len = (len << 3) - (len >> 1);
+#endif
     for (word i = 0; i < len; i++) { }
     sound_off();
 #endif
@@ -1025,7 +1041,7 @@ static byte skip_epoch(void) {
 #endif
 
 #ifdef C64
-    return c64_key(BIT(7), BIT(4));
+    return c64_key((byte) BIT(7), BIT(4));
 #endif
 }
 
