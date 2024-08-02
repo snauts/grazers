@@ -1075,7 +1075,12 @@ static byte movement_keys(void) {
 #endif
 
 #ifdef C64
-    return 0;
+    byte was = c64_key(BIT(1), BIT(1) | BIT(2) | BIT(5));
+
+    return c64_key(BIT(2), BIT(2))
+	| ((was & BIT(2)) >> 2)
+	| ((was & BIT(1)) << 2)
+	| ((was & BIT(5)) >> 4);
 #endif
 }
 
