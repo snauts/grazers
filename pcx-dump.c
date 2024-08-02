@@ -70,7 +70,7 @@ static unsigned short on_pixel(unsigned char *buf, int i, int w) {
 	}
 	i += w;
     }
-    return pixel == 0 ? 0x1 : pixel;
+    return pixel;
 }
 
 static int ink_index(int i) {
