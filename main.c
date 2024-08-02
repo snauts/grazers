@@ -510,6 +510,17 @@ static void sound_off(void) {
 }
 #endif
 
+#ifdef C64
+static void interrupt(void) __naked {
+    __asm__("pha");
+    __asm__("lda #0xff");
+    __asm__("sta 0xd019");
+    __asm__("sta _vblank");
+    __asm__("pla");
+    __asm__("rti");
+}
+#endif
+
 static void setup_system(void) {
 #if defined(ZXS) || defined(MSX)
     byte top = (byte) ((IRQ_BASE >> 8) - 1);
