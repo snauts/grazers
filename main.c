@@ -1783,7 +1783,7 @@ static void flooding_level(void) {
     put_str("Recent FLOODING had caused ", POS(2, 16), D_GREEN);
     put_str("spread of weeds that needs", POS(2, 17), D_GREEN);
     put_str("to be eliminated completely", POS(2, 18), D_GREEN);
-    put_str("Some GRAZERs must remain", POS(3, 20), 4);
+    put_str("Some GRAZERs must remain", POS(3, 20), D_GREEN);
     wait_space_or_enter();
 
     fenced_level(flooding_map, SIZE(flooding_map));
