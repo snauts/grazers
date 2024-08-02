@@ -2088,13 +2088,27 @@ static void grass_stripe(word n, byte len) {
 }
 
 #ifdef ZXS
+#define FLASH_ADDR	0x5900
+#define FLASH_INC	32
+#define D_GREEN		0x04
+#define L_GREEN		0x44
+#endif
+
+#ifdef C64
+#define FLASH_ADDR	0x8d44
+#define FLASH_INC	40
+#define D_GREEN		0x50
+#define L_GREEN		0xd0
+#endif
+
+#if defined(ZXS) ||  defined(C64)
 static void title_flash(byte offset, byte color) {
-    word addr = 0x5900;
+    word addr = FLASH_ADDR;
     for (word i = 0; i < 5; i++) {
 	if (offset < 0x20) {
 	    BYTE(addr + offset) = color;
 	}
-	addr += 0x20;
+	addr += FLASH_INC;
 	offset++;
     }
 }
@@ -2107,10 +2121,10 @@ static void animate_title(void) {
     put_tile(frame ? 0x1b : 0x1a, POS(22, 21));
     byte feed = (frame ? 0x0e : 0x0f);
     put_tile(eat > 192 ? 0xc : feed, POS( 7, 4));
-#ifdef ZXS
+#if defined(ZXS) ||  defined(C64)
     byte roll = (eat >> 1) & 0x3f;
-    title_flash(roll - 0x10, 0x04);
-    title_flash(roll - 0x08, 0x44);
+    title_flash(roll - 0x10, D_GREEN);
+    title_flash(roll - 0x08, L_GREEN);
 #endif
     eat++;
 }
@@ -2147,7 +2161,7 @@ static void wait_start(void) {
 
 static void title_screen(void) {
     clear_screen();
-#ifdef ZXS
+#if defined(ZXS) || defined(C64)
     TILESET(logo, 72);
     sprite_color = mirror;
     memset(mirror, 0, sizeof(logo) / 8);
