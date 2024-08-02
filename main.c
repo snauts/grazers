@@ -1381,6 +1381,14 @@ static void put_wave(word n, byte tile, byte color) {
     if (color) tile += 18;
     vram_write(addr, 40 + tile);
 #endif
+
+#ifdef C64
+    byte x = n & 0x1f;
+    byte y = (n >> 2) & ~7;
+    put_sprite(tile, 0, n);
+    COLOR(x, y, 0) = color ? 0x30 : 0xe0;
+#endif
+
 }
 
 static byte tsunami_rnd;
