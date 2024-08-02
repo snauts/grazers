@@ -402,7 +402,7 @@ static unsigned char get_color(unsigned char *color) {
     if (color[2] >= 0x80) result |= 0x01;
     for (int i = 0; i < 3; i++) {
 	if (color[i] > (result ? 0xf0 : 0x40)) {
-#ifdef MSX
+#if defined(MSX) || defined(C64)
 	    result |= 0x08;
 #else
 	    result |= 0x40;
