@@ -84,6 +84,8 @@ c64:
 	@sdcc -mmos6502 -DC64 $(MOS6502_CFLAGS) main.c -c
 	@sdld -b CODE=0x7ff -b BSS=0x6c00 -b ZP=0x2 -m -i grazers.ihx main.rel
 	hex2bin -e prg grazers.ihx > /dev/null
+	c1541 -format grazers,00 d64 grazers.d64 \
+		-attach grazers.d64 -write grazers.prg grazers
 
 vice: c64
 	x64 -autostartprgmode 1 +confirmonexit grazers.prg
