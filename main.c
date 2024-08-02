@@ -2217,6 +2217,12 @@ static void title_screen(void) {
     vdp_enable_display(TRUE);
 #endif
 
+#ifdef C64
+    put_str("WASD or JOYSTICK to move", POS(3, 15), 5);
+    put_str("ENTER or SPACE to skip", POS(4, 16), 5);
+    put_str("Press SPACE", POS(10, 18), 5);
+#endif
+
     grass_stripe(POS( 6, 2), 11);
     grass_stripe(POS( 3, 3), 9);
     grass_stripe(POS(13, 3), 6);
