@@ -558,7 +558,7 @@ static byte c64_key(byte row, byte col) {
 
 static byte c64_joy(byte bit) {
     BYTE(0xdc02) = 0x00;
-    byte state = ~BYTE(0xdc00) | ~BYTE(0xdc01);
+    byte state = ~BYTE(0xdc00);
     BYTE(0xdc02) = 0xff;
     return state & bit;
 }
@@ -2323,7 +2323,7 @@ static void title_screen(void) {
 #endif
 
 #ifdef C64
-    put_str("Joystick or WASD to move", POS(4, 15), CYAN);
+    put_str("Joystick2 or WASD to move", POS(4, 15), CYAN);
     put_str("ENTER or SPACE to skip", POS(5, 16), CYAN);
     put_str("Press SPACE", POS(10, 18), CYAN);
 #endif
