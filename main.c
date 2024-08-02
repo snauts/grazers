@@ -557,12 +557,21 @@ static void setup_system(void) {
 #ifdef C64
     __asm__ ("sei");
     BYTE(0xd011) = 0x2b; /* bitmap mode */
-    BYTE(0xd015) = 0x00; /* disable sprites */
     BYTE(0xd016) = 0xc8; /* standard mode */
     BYTE(0xd018) = 0x38; /* memory regions */
+    BYTE(0xd015) = 0x00; /* disable sprites */
     BYTE(0xd020) = 0x00; /* black border */
     BYTE(0xd021) = 0x00; /* black background */
+    BYTE(0xdc0d) = 0x7f; /* disable timer irq */
+    BYTE(0xdd0d) = 0x7f; /* disable timer irq */
+    BYTE(0xdc0d); /* clear pending irq */
+    BYTE(0xdd0d); /* clear pending irq */
+    BYTE(0xd01a) = 0x01; /* genereate raster irq */
+    BYTE(0xd012) = 0x00; /* generate on line 0 */
+    BYTE(0x0001) = 0x35; /* turn of ROM */
+    WORD(0xfffe) = (word) &interrupt;
     BYTE(0xdd00) = (BYTE(0xdd00) & ~3) | 1;
+    __asm__ ("cli");
 #endif
 }
 
