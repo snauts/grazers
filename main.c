@@ -77,6 +77,7 @@ static void rom_start(void) __naked {
 #define COLOR(x, y, n)	BYTE(0x5800 + n)
 #define SPRITE_X(x)	(x)
 #define SPRITE_INC	0x100
+#define FONT_ADDR	0x3c00
 #endif
 #ifdef SMS
 #define NOTE(freq)	((word) (125000.0 / freq))
@@ -95,6 +96,7 @@ static void rom_start(void) __naked {
 #define COLOR(x, y, n)	*(map_y[y + 1] + x)
 #define SPRITE_X(x)	((x) << 3)
 #define SPRITE_INC	0x1
+#define FONT_ADDR	0x7000
 #endif
 
 #define POS(x, y)	(((y) << 5) + (x))
@@ -614,12 +616,12 @@ static void precalculate(void) {
 }
 
 static void put_char(char symbol, word n, byte color) {
-#ifdef ZXS
+#if defined(ZXS) || defined(C64)
     byte x = n & 0x1f;
     byte y = (n >> 2) & ~7;
-    BYTE(0x5800 + n) = color;
-    byte *addr = (byte *) 0x3c00 + (symbol << 3);
-    byte *ptr = map_y[y] + x;
+    COLOR(x, y, n) = color;
+    byte *addr = (byte *) FONT_ADDR + (symbol << 3);
+    byte *ptr = map_y[y] + SPRITE_X(x);
     for (byte i = 0; i < 8; i++) {
 	*ptr = *addr++;
 	ptr += 0x100;
@@ -1030,6 +1032,10 @@ static byte movement_keys(void) {
 	| ((output & 0x02) << 2)
 	| ((output & 0x04) >> 1)
 	| ((output & 0x08) >> 1);
+#endif
+
+#ifdef C64
+    return 0;
 #endif
 }
 
