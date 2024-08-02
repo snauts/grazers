@@ -548,6 +548,11 @@ static void copy_font_to_RAM(void) {
     memcpy((byte *) 0x7300, (byte *) 0xd800, 0x100);
     BYTE(0x0001) = 0x35;
 }
+
+static byte c64_key(byte row, byte col) {
+    BYTE(0xdc00) = ~row;
+    return ~BYTE(0xdc01) & col;
+}
 #endif
 
 static void setup_system(void) {
@@ -602,6 +607,8 @@ static void setup_system(void) {
     memset((byte *) 0x8c00, 0x00, 1000);
     memset((byte *) 0xa000, 0x00, 8192);
     BYTE(0xd011) = 0x3b;
+    BYTE(0xdc02) = 0xff;
+    BYTE(0xdc03) = 0x00;
     __asm__ ("cli");
 #endif
 }
@@ -993,7 +1000,7 @@ static byte fast_forward(void) {
 #endif
 
 #ifdef C64
-    return 0;
+    return c64_key(BIT(0), BIT(1));
 #endif
 }
 
@@ -1012,7 +1019,7 @@ static byte skip_epoch(void) {
 #endif
 
 #ifdef C64
-    return 0;
+    return c64_key(BIT(7), BIT(4));
 #endif
 }
 
