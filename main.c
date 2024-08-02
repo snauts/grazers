@@ -160,6 +160,7 @@ void sdcc_deps(void) __naked {
     __asm__(".area ZP (PAG)");
     __asm__("REGTEMP::	.ds 8");
     __asm__("DPTR::	.ds 2");
+    __asm__("_queue::	.ds 2");
     __asm__(".area CODE");
 }
 #endif
@@ -793,7 +794,12 @@ static inline byte should_regrow(byte *ptr) {
     return FALSE;
 }
 
+#ifdef C64
+extern byte **queue;
+#else
 static byte **queue;
+#endif
+
 #define QUEUE(x) *(queue++) = (x)
 static inline void regrow_neighbors(byte *ptr) {
     for (byte n = 0; n < SIZE(neighbors); n++) {
