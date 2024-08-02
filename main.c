@@ -720,7 +720,7 @@ static word sub10(word a, word b) {
     __asm__("daa");
     __asm__("ld d, a");
 #else
-    return a + b;
+    return a - b;
 #endif
 }
 
