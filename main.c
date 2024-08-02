@@ -80,24 +80,6 @@ static void rom_start(void) __naked {
 #define FONT_ADDR	0x3c00
 #define FLASH_ADDR	0x5900
 #define FLASH_INC	32
-#define D_GREEN		0x04
-#define L_GREEN		0x44
-#endif
-
-#ifdef SMS
-#define NOTE(freq)	((word) (125000.0 / freq))
-#define SCALE_HI(n, x)	((n) >> (x))
-#define SCALE_LO(n, x)	((n) << (x))
-#define D_GREEN		0
-#define L_GREEN		0
-#endif
-
-#ifdef MSX
-#define NOTE(freq)	((word) (1789772.5 / (16.0 * freq)))
-#define SCALE_HI(n, x)	((n) >> (x))
-#define SCALE_LO(n, x)	((n) << (x))
-#define D_GREEN		0
-#define L_GREEN		0
 #endif
 
 #ifdef C64
@@ -110,8 +92,28 @@ static void rom_start(void) __naked {
 #define FONT_ADDR	0x7000
 #define FLASH_ADDR	0x8d44
 #define FLASH_INC	40
+#endif
+
+#ifdef SMS
+#define NOTE(freq)	((word) (125000.0 / freq))
+#define SCALE_HI(n, x)	((n) >> (x))
+#define SCALE_LO(n, x)	((n) << (x))
+#endif
+
+#ifdef MSX
+#define NOTE(freq)	((word) (1789772.5 / (16.0 * freq)))
+#define SCALE_HI(n, x)	((n) >> (x))
+#define SCALE_LO(n, x)	((n) << (x))
+#endif
+
+#ifdef C64
 #define D_GREEN		0x50
 #define L_GREEN		0xd0
+#define CYAN		0x30
+#else
+#define D_GREEN		0x04
+#define L_GREEN		0x44
+#define CYAN		0x05
 #endif
 
 #define POS(x, y)	(((y) << 5) + (x))
@@ -1242,7 +1244,7 @@ static void display_image(byte *level, byte game, word size, word n) {
 }
 
 static void increment_epoch(void) {
-    put_num(epoch, POS(7, 23), 5);
+    put_num(epoch, POS(7, 23), CYAN);
     epoch = add10(epoch, 1);
     steps++;
 }
@@ -1686,8 +1688,8 @@ static int8 ending_fertility(void) {
 }
 
 static int8 ending_erosion(void) {
-    put_str("FAT:", POS(12, 23), 5);
-    put_num(meat, POS(16, 23), 5);
+    put_str("FAT:", POS(12, 23), CYAN);
+    put_num(meat, POS(16, 23), CYAN);
     if (meat >= 0x200) {
 	return  1;
     }
@@ -1934,7 +1936,7 @@ static void init_variables(void) {
     steps = 0;
     queue = update;
     load_level(level);
-    put_str("EPOCH:0000", POS(1, 23), 5);
+    put_str("EPOCH:0000", POS(1, 23), CYAN);
 }
 
 const word wah_wah[] = { // D4 -> C4# -> C4 -> B3
@@ -2107,7 +2109,7 @@ static void adat_meitas(void) {
 
 static void display_msg(const char *text_message) {
     raw_image(dialog_map, 0, SIZE(dialog_map), 0x140);
-    put_str(text_message, POS(12, 11), 5);
+    put_str(text_message, POS(12, 11), CYAN);
 }
 
 static void game_loop(void) {
@@ -2217,10 +2219,10 @@ static void title_screen(void) {
     display_image(logo_map, 0, SIZE(logo_map), 0x100);
 
 #ifdef ZXS
-    put_str("ENTER or N to fast forward", POS(3, 15), 5);
-    put_str("SPACE or M skip one epoch", POS(3, 16), 5);
-    put_str("1 - QAOP keys", POS(9, 18), 5);
-    put_str("2 - WASD keys", POS(9, 19), 5);
+    put_str("ENTER or N to fast forward", POS(3, 15), CYAN);
+    put_str("SPACE or M skip one epoch", POS(3, 16), CYAN);
+    put_str("1 - QAOP keys", POS(9, 18), CYAN);
+    put_str("2 - WASD keys", POS(9, 19), CYAN);
 #endif
 
 #ifdef SMS
@@ -2230,17 +2232,17 @@ static void title_screen(void) {
 #ifdef MSX
     vdp_copy_font(0);
 
-    put_str("ENTER to fast forward", POS(5, 15), 5);
-    put_str("SPACE skip one epoch", POS(5, 16), 5);
-    put_str("Press SPACE", POS(10, 18), 5);
+    put_str("ENTER to fast forward", POS(5, 15), CYAN);
+    put_str("SPACE skip one epoch", POS(5, 16), CYAN);
+    put_str("Press SPACE", POS(10, 18), CYAN);
 
     vdp_enable_display(TRUE);
 #endif
 
 #ifdef C64
-    put_str("Joystick or WASD to move", POS(4, 15), D_GREEN);
-    put_str("ENTER or SPACE to skip", POS(5, 16), D_GREEN);
-    put_str("Press SPACE", POS(10, 18), D_GREEN);
+    put_str("Joystick or WASD to move", POS(4, 15), CYAN);
+    put_str("ENTER or SPACE to skip", POS(5, 16), CYAN);
+    put_str("Press SPACE", POS(10, 18), CYAN);
 #endif
 
     grass_stripe(POS( 6, 2), 11);
