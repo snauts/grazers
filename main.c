@@ -1455,7 +1455,7 @@ static int8 ending_tsunami(void) {
 
 static word last_pos, stayed;
 static int8 ending_equilibrium(void) {
-    if (++stayed == 800) {
+    if (++stayed == 600) {
 	return 1;
     }
     if (last_pos != pos) {
@@ -1815,7 +1815,7 @@ static void equilibrium_level(void) {
     last_pos = 0;
     put_str("- EQUILIBRIUM -", POS(8, 4), L_GREEN);
     put_str("Reach EQUILIBRIUM so that you", POS(1, 16), D_GREEN);
-    put_str("stay on the same spot for 800", POS(1, 17), D_GREEN);
+    put_str("stay on the same spot for 600", POS(1, 17), D_GREEN);
     put_str("EPOCHs and GRAZERs survive", POS(2, 18), D_GREEN);
     put_str("use ENTER to fast forward", POS(3, 20), D_GREEN);
     wait_space_or_enter();
