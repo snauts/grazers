@@ -918,10 +918,16 @@ static void bite_sound(word distance) {
     beep(NOTE(187.8) - offset, NOTE(187.8) + offset, 256);
 }
 
+#ifdef C64
+#define ROLL_BASE 1536
+#else
+#define ROLL_BASE 768
+#endif
+
 static void rolling_rock_sound(void) {
     for (byte i = 0; i < 4; i++) {
 	byte offset = 0x10 << i;
-	beep(768 - (offset << 1), 768 + offset, 64);
+	beep(ROLL_BASE - (offset << 1), ROLL_BASE + offset, 64);
     }
 }
 
