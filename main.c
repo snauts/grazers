@@ -84,8 +84,8 @@ static void rom_start(void) __naked {
 
 #ifdef C64
 #define NOTE(freq)	((word) (freq * (16777216.0 / 985248.0)))
-#define SCALE_HI(n, x)	((n) >> (x))
-#define SCALE_LO(n, x)	((n) << (x))
+#define SCALE_HI(n, x)	((n) << (x))
+#define SCALE_LO(n, x)	((n) >> (x))
 #define COLOR(x, y, n)	*(map_y[y + 1] + x)
 #define SPRITE_X(x)	((x) << 3)
 #define SPRITE_INC	0x1
