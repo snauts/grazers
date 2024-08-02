@@ -694,7 +694,7 @@ static void put_num(word num, word n, byte color) {
     put_str(msg, n, color);
 }
 
-static word add10(word a, word b) __naked {
+static word add10(word a, word b) {
 #ifndef C64
     __asm__("ld a, l"); a;
     __asm__("add e"); b;
@@ -704,11 +704,12 @@ static word add10(word a, word b) __naked {
     __asm__("adc a, d");
     __asm__("daa");
     __asm__("ld d, a");
-    __asm__("ret");
+#else
+    return a + b;
 #endif
 }
 
-static word sub10(word a, word b) __naked {
+static word sub10(word a, word b) {
 #ifndef C64
     __asm__("ld a, l"); a;
     __asm__("sub e"); b;
@@ -718,7 +719,8 @@ static word sub10(word a, word b) __naked {
     __asm__("sbc a, d");
     __asm__("daa");
     __asm__("ld d, a");
-    __asm__("ret");
+#else
+    return a + b;
 #endif
 }
 
