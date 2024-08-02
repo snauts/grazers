@@ -621,8 +621,16 @@ static void setup_system(void) {
     memset((byte *) 0x8c00, 0x00, 1000);
     memset((byte *) 0xa000, 0x00, 8192);
     BYTE(0xd011) = 0x3b;
+
+    /* keyboard input */
     BYTE(0xdc02) = 0xff;
     BYTE(0xdc03) = 0x00;
+
+    /* sound config */
+    memset((byte *) 0xd400, 0, 28);
+    BYTE(0xd418) = 0x0f;
+    BYTE(0xdc06) = 0xf0;
+    BYTE(0xdc0d) = 0xf0;
     __asm__ ("cli");
 #endif
 }
