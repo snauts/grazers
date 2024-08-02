@@ -1731,6 +1731,7 @@ static void finish_game(void) {
     display_image(sunset_map, 0, SIZE(sunset_map), 0);
 
     adat_meitas();
+    clear_screen();
     reset();
 }
 
