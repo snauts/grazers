@@ -528,6 +528,11 @@ static void sound_off(void) {
     msx_write_psg_reg(8, 0x0);
     msx_write_psg_reg(9, 0x0);
 }
+
+static byte msx_get_trigger(byte x) __naked {
+    __asm__("call #0xd8"); x;
+    __asm__("ret");
+}
 #endif
 
 #ifdef C64
@@ -1055,7 +1060,7 @@ static byte fast_forward(void) {
 #endif
 
 #ifdef MSX
-    return ~in_key(7) & BIT(7);
+    return (~in_key(7) | msx_get_trigger(3)) & BIT(7);
 #endif
 
 #ifdef C64
@@ -1076,7 +1081,7 @@ static byte skip_epoch(void) {
 #endif
 
 #ifdef MSX
-    return (~in_key(8) & BIT(0)) << 4;
+    return ((~in_key(8) << 4) | msx_get_trigger(1)) & BIT(4);
 #endif
 
 #ifdef C64
