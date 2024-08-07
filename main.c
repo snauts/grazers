@@ -533,6 +533,23 @@ static byte msx_get_trigger(byte x) __naked {
     __asm__("call #0xd8"); x;
     __asm__("ret");
 }
+
+static byte msx_get_direction(void) __naked {
+    __asm__("ld a, #1");
+    __asm__("call #0xd5");
+    __asm__("ret");
+}
+
+static byte msx_direction_map(void) {
+    static const byte dir[] = {
+	0,
+	BIT(3), BIT(3) | BIT(2),
+	BIT(2), BIT(2) | BIT(1),
+	BIT(1), BIT(1) | BIT(0),
+	BIT(0), BIT(0) | BIT(3)
+    };
+    return dir[msx_get_direction()];
+}
 #endif
 
 #ifdef C64
@@ -1131,7 +1148,8 @@ static byte movement_keys(void) {
     return (output & 0x01)
 	| ((output & 0x02) << 2)
 	| ((output & 0x04) >> 1)
-	| ((output & 0x08) >> 1);
+	| ((output & 0x08) >> 1)
+	| msx_direction_map();
 #endif
 
 #ifdef C64
