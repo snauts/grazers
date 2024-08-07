@@ -2359,6 +2359,8 @@ static void title_screen(void) {
     put_str("Press SPACE", POS(10, 18), CYAN);
 #endif
 
+    put_str("v1.2", POS(27, 23), CYAN);
+
     grass_stripe(POS( 6, 2), 11);
     grass_stripe(POS( 3, 3), 9);
     grass_stripe(POS(13, 3), 6);
