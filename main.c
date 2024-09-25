@@ -11,8 +11,13 @@ void VTII10bG(void) __naked {
 static byte enable_AY;
 
 static void select_music(void *ptr) {
-    __asm__("call _VTII10bG + 3");
+    __asm__("call _VTII10bG + 3"); ptr;
     enable_AY = 1;
+}
+
+static void stop_music(void) {
+    enable_AY = 0;
+    __asm__("call _VTII10bG + 8");
 }
 #endif
 
