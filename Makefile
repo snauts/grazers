@@ -53,7 +53,7 @@ zxs:
 	@make tap
 
 fuse: zxs
-	fuse --no-confirm-actions -g 2x grazers.tap
+	fuse --machine 128 --no-confirm-actions -g 2x grazers.tap
 
 sms:
 	TYPE=-DSMS make pcx
