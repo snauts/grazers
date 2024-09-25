@@ -2,6 +2,12 @@ typedef signed char int8;
 typedef unsigned char byte;
 typedef unsigned short word;
 
+#if defined(ZXS)
+void VTII10bG(void) __naked {
+    __asm__(".incbin \"VTII10bG\"");
+}
+#endif
+
 #ifdef C64
 static void c64_prefix(void) __naked {
     __asm__(".db 0x01, 0x08, 0x0c, 0x08, 0x0a, 0x00, 0x9e, 0x20");
