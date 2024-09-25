@@ -5,7 +5,7 @@ typedef unsigned short word;
 #if defined(ZXS)
 void VTII10bG(void) __naked {
     /* VTII10bG is compiled to work at 0x8000 */
-    __asm__(".incbin \"VTII10bG\"");
+    __asm__(".incbin \"VTII10bG.zxs\"");
 }
 
 static byte enable_AY;
