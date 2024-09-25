@@ -7,18 +7,6 @@ void VTII10bG(void) __naked {
     /* VTII10bG is compiled to work at 0x8000 */
     __asm__(".incbin \"VTII10bG.zxs\"");
 }
-
-static byte enable_AY;
-
-static void select_music(void *ptr) {
-    __asm__("call _VTII10bG + 3"); ptr;
-    enable_AY = 1;
-}
-
-static void stop_music(void) {
-    enable_AY = 0;
-    __asm__("call _VTII10bG + 8");
-}
 #endif
 
 #ifdef C64
@@ -226,10 +214,28 @@ static void memcpy(byte *dst, byte *src, word len) {
 }
 
 #if defined(ZXS) || defined(MSX)
+static byte enable_AY;
+
+static void select_music(void *ptr) {
+    __asm__("call _VTII10bG + 3"); ptr;
+    enable_AY = 1;
+}
+
+static void stop_music(void) {
+    enable_AY = 0;
+    __asm__("call _VTII10bG + 8");
+}
+
 static void interrupt(void) __naked {
     __asm__("di");
     __asm__("push af");
-#ifdef ZXS
+
+#ifdef MSX
+    __asm__("in a, (#0x99)");
+    __asm__("and a");
+    __asm__("jp p, irq_done");
+#endif
+
     __asm__("ld a, (_enable_AY)");
     __asm__("and a");
     __asm__("jp z, skip_AY");
@@ -247,12 +253,7 @@ static void interrupt(void) __naked {
     __asm__("pop bc");
 
     __asm__("skip_AY:");
-#endif
-#ifdef MSX
-    __asm__("in a, (#0x99)");
-    __asm__("and a");
-    __asm__("jp p, irq_done");
-#endif
+
     __asm__("ld a, #1");
     __asm__("ld (_vblank), a");
     __asm__("irq_done: pop af");
@@ -645,10 +646,8 @@ static void set_psg(byte channel, word frequency) {
 #endif
 
 static void setup_system(void) {
-#if defined(ZXS)
-    enable_AY = 0;
-#endif
 #if defined(ZXS) || defined(MSX)
+    enable_AY = 0;
     byte top = (byte) ((IRQ_BASE >> 8) - 1);
     word jmp_addr = (top << 8) | top;
     BYTE(jmp_addr + 0) = 0xc3;
