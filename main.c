@@ -35,6 +35,12 @@ static void msx_prefix(void) __naked {
     __asm__("ei");
 
     __asm__("jp _reset");
+    __asm__("msx_pfx_end:");
+    __asm__(".blkb 0x20 - (msx_pfx_end - _msx_prefix)");
+}
+
+void VTII10bG(void) __naked {
+    __asm__(".incbin \"VTII10bG.msx\"");
 }
 #endif
 
