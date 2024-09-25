@@ -4,7 +4,15 @@ typedef unsigned short word;
 
 #if defined(ZXS)
 void VTII10bG(void) __naked {
+    /* VTII10bG is compiled to work at 0x8000 */
     __asm__(".incbin \"VTII10bG\"");
+}
+
+static byte enable_AY;
+
+static void select_music(void *ptr) {
+    __asm__("call _VTII10bG + 3");
+    enable_AY = 1;
 }
 #endif
 
@@ -216,6 +224,25 @@ static void memcpy(byte *dst, byte *src, word len) {
 static void interrupt(void) __naked {
     __asm__("di");
     __asm__("push af");
+#ifdef ZXS
+    __asm__("ld a, (_enable_AY)");
+    __asm__("and a");
+    __asm__("jp z, skip_AY");
+
+    __asm__("push bc");
+    __asm__("push de");
+    __asm__("push hl");
+    __asm__("push ix");
+    __asm__("push iy");
+    __asm__("call _VTII10bG + 5");
+    __asm__("pop iy");
+    __asm__("pop ix");
+    __asm__("pop hl");
+    __asm__("pop de");
+    __asm__("pop bc");
+
+    __asm__("skip_AY:");
+#endif
 #ifdef MSX
     __asm__("in a, (#0x99)");
     __asm__("and a");
@@ -606,6 +633,9 @@ static void set_psg(byte channel, word frequency) {
 #endif
 
 static void setup_system(void) {
+#if defined(ZXS)
+    enable_AY = 0;
+#endif
 #if defined(ZXS) || defined(MSX)
     byte top = (byte) ((IRQ_BASE >> 8) - 1);
     word jmp_addr = (top << 8) | top;
