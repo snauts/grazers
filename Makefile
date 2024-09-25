@@ -49,7 +49,7 @@ tap:
 
 zxs:
 	TYPE=-DZXS make pcx
-	CODE=0x8000 DATA=0xe000	TYPE=-DZXS make prg
+	CODE=0x8000 DATA=0x7000	TYPE=-DZXS make prg
 	@make tap
 
 fuse: zxs
