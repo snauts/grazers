@@ -290,6 +290,13 @@ static byte in_key(byte a) {
     return a;
 }
 
+#ifdef ZXS
+static byte in_joy(byte a) {
+    __asm__("in a, (#0x1f)"); a;
+    return a;
+}
+#endif
+
 #ifdef SMS
 static void vdp_word(word addr, word data) {
     __asm__("ld c, #0xbf"); addr;
@@ -1131,7 +1138,9 @@ static byte fast_forward(void) {
 static byte skip_epoch(void) {
 #ifdef ZXS
     byte reg = ~in_key(0x7f);
-    return ((reg & 1) << 4) | ((reg & 4) << 2);
+    reg = ((reg & 1) << 4) | ((reg & 4) << 2);
+    if (wasd & 4) reg |= in_joy(0) & 0x10;
+    return reg;
 #endif
 
 #ifdef SMS
@@ -1163,7 +1172,7 @@ static byte wait_space_or_enter(void) {
 static byte movement_keys(void) {
 #ifdef ZXS
     byte output;
-    if (wasd) {
+    if (wasd & 2) {
 	output = in_key(0xfd) & 7;
 	output |= (in_key(0xfb) & 2) << 2;
     }
@@ -1173,7 +1182,17 @@ static byte movement_keys(void) {
 	output |= (in_key(0xfb) & 1) << 3;
 	output |= (in_key(0xfd) & 1) << 1;
     }
-    return (~output) & 0xf;
+
+    output = (~output) & 0xf;
+
+    if (wasd & 4) {
+	byte joy = in_joy(0);
+	output |= (joy & 0x1) << 2;
+	output |= (joy & 0x6) >> 1;
+	output |= (joy & 0x8);
+    }
+
+    return output;
 #endif
 
 #ifdef SMS
@@ -2334,7 +2353,7 @@ static void animate_title(void) {
 
 #ifdef ZXS
 static byte read_1_or_2(void) {
-    return ~in_key(0xf7) & 3;
+    return ~in_key(0xf7) & 7;
 }
 
 static void wait_start(void) {
@@ -2347,7 +2366,7 @@ static void wait_start(void) {
 	    animate_title();
 	}
     } while ((next & (prev ^ next)) == 0);
-    wasd = next & 2;
+    wasd = next & 6;
 }
 #endif
 
@@ -2374,10 +2393,11 @@ static void title_screen(void) {
     display_image(logo_map, 0, SIZE(logo_map), 0x100);
 
 #ifdef ZXS
-    put_str("ENTER or N to fast forward", POS(3, 15), CYAN);
-    put_str("SPACE or M skip one epoch", POS(3, 16), CYAN);
-    put_str("1 - QAOP keys", POS(9, 18), CYAN);
-    put_str("2 - WASD keys", POS(9, 19), CYAN);
+    put_str("ENTER or N to fast forward", POS(3, 14), CYAN);
+    put_str("SPACE or M skip one epoch", POS(3, 15), CYAN);
+    put_str("1 - QAOP keys", POS(9, 17), CYAN);
+    put_str("2 - WASD keys", POS(9, 18), CYAN);
+    put_str("3 - Joystick", POS(9, 19), CYAN);
 #endif
 
 #ifdef SMS
