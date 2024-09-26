@@ -569,10 +569,21 @@ static void msx_write_psg_reg(byte reg, byte val) {
 }
 
 static void init_msx_psg(void) {
+    __asm__("di");
+    BYTE(0xcd00) |= BIT(1);
+    __asm__("ei");
+
     msx_write_psg_reg( 7, 0xbc);
     msx_write_psg_reg(11, 0xff);
     msx_write_psg_reg(12, 0xff);
     msx_write_psg_reg(13, 0x0d);
+}
+
+static void resume_msx_music(void) {
+    __asm__("di");
+    BYTE(0xcd00) &= ~BIT(1);
+    __asm__("call _PT3Play + 10");
+    __asm__("ei");
 }
 
 static void set_psg(byte channel, word period) {
@@ -1011,6 +1022,10 @@ static void beep(word p0, word p1, word len) {
 #endif
     for (word i = 0; i < len; i++) { }
     sound_off();
+#endif
+
+#ifdef MSX
+    resume_msx_music();
 #endif
 }
 
