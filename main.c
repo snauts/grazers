@@ -221,8 +221,21 @@ static void memcpy(byte *dst, byte *src, word len) {
 #if defined(ZXS) || defined(MSX)
 static byte enable_AY;
 
-static void select_music(void *ptr) {
+static byte *AY_regs(void) {
+    return (byte *) WORD(((byte *) &PT3Play) + 13);
+}
+
+static byte *PT3_vars(void) {
+    return (byte *) (((word) AY_regs()) & 0xff00);
+}
+
+static void start_music(void *ptr) {
     __asm__("call _PT3Play + 3"); ptr;
+}
+
+static void select_music(void *ptr) {
+    memset(PT3_vars(), 0, 0x300);
+    start_music(ptr);
     enable_AY = 1;
 }
 
@@ -231,18 +244,14 @@ static void stop_music(void) {
     __asm__("call _PT3Play + 8");
 }
 
-static word AY_regs(void) {
-    return WORD(((byte *) &PT3Play) + 13);
-}
-
 static void silence_music(void) {
-    BYTE(AY_regs() & 0xff00) |= BIT(1);
+    BYTE(PT3_vars()) |= BIT(1);
 }
 
 static void resume_music(void) {
     __asm__("di");
-    BYTE(AY_regs() & 0xff00) &= ~BIT(1);
-    memset((void *) AY_regs(), 0, 14);
+    memset(AY_regs(), 0, 14);
+    BYTE(PT3_vars()) &= ~BIT(1);
     __asm__("call _PT3Play + 10");
     __asm__("ei");
 }
