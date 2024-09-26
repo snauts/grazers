@@ -568,6 +568,13 @@ static void msx_write_psg_reg(byte reg, byte val) {
     __asm__("ei");
 }
 
+static void init_msx_psg(void) {
+    msx_write_psg_reg( 7, 0xbc);
+    msx_write_psg_reg(11, 0xff);
+    msx_write_psg_reg(12, 0xff);
+    msx_write_psg_reg(13, 0x0d);
+}
+
 static void set_psg(byte channel, word period) {
     byte reg = channel << 1;
     msx_write_psg_reg(reg, period & 0xff);
@@ -679,10 +686,6 @@ static void setup_system(void) {
     vdp_ctrl_reg(8, 0x02);
     vdp_memset(0x4000, 0x00, 8);
     vdp_memset(0x6000, 0x11, 8);
-    msx_write_psg_reg( 7, 0xbc);
-    msx_write_psg_reg(11, 0xff);
-    msx_write_psg_reg(12, 0xff);
-    msx_write_psg_reg(13, 0x0d);
 #endif
 #ifdef C64
     __asm__ ("sei");
@@ -992,6 +995,10 @@ static void beep(word p0, word p1, word len) {
     }
     __asm__("ei");
     out_fe(0x00);
+#endif
+
+#ifdef MSX
+    init_msx_psg();
 #endif
 
 #if defined(SMS) || defined(MSX) || defined(C64)
