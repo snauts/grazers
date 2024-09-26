@@ -256,6 +256,10 @@ static void resume_music(void) {
     __asm__("ei");
 }
 
+static void ingame_music1(void) {
+    __asm__(".incbin \"ingame1.pt3\"");
+}
+
 static void interrupt(void) __naked {
     __asm__("di");
     __asm__("push af");
@@ -2430,6 +2434,11 @@ static void wait_start(void) {
 
 static void title_screen(void) {
     clear_screen();
+
+#if defined(ZXS) || defined(MSX)
+    select_music(&ingame_music1);
+#endif
+
 #if defined(ZXS) || defined(C64)
     TILESET(logo, 72);
     sprite_color = mirror;
