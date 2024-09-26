@@ -1961,6 +1961,9 @@ static void gardener_level(void) {
     put_str("Hunt down invasive GRAZER", POS(4, 16), D_GREEN);
     put_str("species so that vegetation", POS(3, 17), D_GREEN);
     put_str("can fully recover and regrow", POS(2, 18), D_GREEN);
+
+    put_str("HINT: wait for two herds", POS(4, 21), D_GREEN);
+    put_str("to be close to each other", POS(3, 22), D_GREEN);
     wait_space_or_enter();
 
     fenced_level(gardener_map, SIZE(gardener_map));
