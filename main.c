@@ -3,9 +3,8 @@ typedef unsigned char byte;
 typedef unsigned short word;
 
 #if defined(ZXS)
-void VTII10bG(void) __naked {
-    /* VTII10bG is compiled to work at 0x8000 */
-    __asm__(".incbin \"VTII10bG.zxs\"");
+void PT3Play(void) __naked {
+    __asm__(".incbin \"PT3PlayZXS.bin\"");
 }
 #endif
 
@@ -39,8 +38,8 @@ static void msx_prefix(void) __naked {
     __asm__(".blkb 0x20 - (msx_pfx_end - _msx_prefix)");
 }
 
-void VTII10bG(void) __naked {
-    __asm__(".incbin \"VTII10bG.msx\"");
+void PT3Play(void) __naked {
+    __asm__(".incbin \"PT3PlayMSX.bin\"");
 }
 #endif
 
@@ -223,13 +222,13 @@ static void memcpy(byte *dst, byte *src, word len) {
 static byte enable_AY;
 
 static void select_music(void *ptr) {
-    __asm__("call _VTII10bG + 3"); ptr;
+    __asm__("call _PT3Play + 3"); ptr;
     enable_AY = 1;
 }
 
 static void stop_music(void) {
     enable_AY = 0;
-    __asm__("call _VTII10bG + 8");
+    __asm__("call _PT3Play + 8");
 }
 
 static void interrupt(void) __naked {
@@ -251,7 +250,7 @@ static void interrupt(void) __naked {
     __asm__("push hl");
     __asm__("push ix");
     __asm__("push iy");
-    __asm__("call _VTII10bG + 5");
+    __asm__("call _PT3Play + 5");
     __asm__("pop iy");
     __asm__("pop ix");
     __asm__("pop hl");

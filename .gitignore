@@ -1,8 +1,8 @@
 grazers*
 data.h
 pcx-dump
-tileset.bin
 mkrom
+*.bin
 *.log
 *.aux
 *.pdf

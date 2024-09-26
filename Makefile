@@ -49,6 +49,7 @@ tap:
 
 zxs:
 	TYPE=-DZXS make pcx
+	sjasmplus --raw=PT3PlayZXS.bin PT3PlayZXS.S
 	CODE=0x8000 DATA=0x7000	TYPE=-DZXS make prg
 	@make tap
 
@@ -70,6 +71,7 @@ blast: sms
 
 msx:
 	TYPE=-DMSX make pcx
+	sjasmplus --raw=PT3PlayMSX.bin PT3PlayMSX.S
 	CODE=0x4000 DATA=0xc000	TYPE=-DMSX make prg
 	dd if=/dev/zero of=grazers.rom bs=1024 count=32
 	dd if=grazers.bin of=grazers.rom conv=notrunc
@@ -99,5 +101,5 @@ manual:
 	evince manual.pdf
 
 clean:
-	rm -f grazers* pcx-dump tileset.bin data.h mkrom \
-		*.log *.aux *.png *.pdf *.asm *.lst *.rel *.sym
+	rm -f grazers* pcx-dump data.h mkrom \
+		*.bin *.log *.aux *.png *.pdf *.asm *.lst *.rel *.sym
