@@ -1938,6 +1938,9 @@ static void quarantine_level(void) {
     put_str("- QUARANTINE -", POS(9, 4), L_GREEN);
     put_str("Prevent GRAZER population", POS(3, 16), D_GREEN);
     put_str("from collapse til EPOCH 300", POS(2, 17), D_GREEN);
+
+    put_str("HINT: wait for GRAZERs to form", POS(1, 21), D_GREEN);
+    put_str("a wave then punch through it", POS(2, 22), D_GREEN);
     wait_space_or_enter();
 
     fenced_level(quarantine_map, SIZE(quarantine_map));
