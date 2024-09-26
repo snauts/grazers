@@ -1,3 +1,5 @@
+	DEVICE NOSLOT64K
+
 ;Vortex Tracker II v1.0 PT3 player for ZX Spectrum
 ;ROM version (specially for Axor)
 ;(c)2004,2007 S.V.Bulba <vorobey@mail.khstu.ru>
@@ -29,7 +31,7 @@ Release EQU "MOR7"
 ;Call MUTE or INIT one more time to mute sound after stopping
 ;playing 
 
-	ORG #C000
+	ORG #4020
 
 ;Test codes (commented)
 ;	CALL START
@@ -949,13 +951,12 @@ PL2	LD IX,ChanA
 	LD (CurESld),HL
 
 ROUT	XOR A
-ROUT_A0	LD DE,#FFBF
-	LD BC,#FFFD
+ROUT_A0	LD C,#A0
 	LD HL,AYREGS
 LOUT	OUT (C),A
-	LD B,E
+	INC C
 	OUTI 
-	LD B,D
+	DEC C
 	INC A
 	CP 13
 	JR NZ,LOUT
@@ -963,7 +964,7 @@ LOUT	OUT (C),A
 	LD A,(HL)
 	AND A
 	RET M
-	LD B,E
+	INC C
 	OUT (C),A
 	RET
 
@@ -1057,6 +1058,10 @@ T_PACK	DB #06EC*2/256,#06EC*2
 ;vars from here can be stripped
 ;you can move VARS to any other address
 
+STOP
+	SAVEBIN "PT3PlayMSX.bin", START, STOP - START
+
+	ORG #CD00
 VARS
 
 ;vars in code and other self-modified code moved here
