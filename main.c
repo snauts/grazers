@@ -1280,13 +1280,22 @@ static byte key_state(void) {
     return skip_epoch() | movement_keys();
 }
 
-static void wait_user_input(void) {
+static byte skip_level(void) {
+#ifdef ZXS
+    return (~in_key(0xfe) & 0x1c) == 0x1c;
+#else
+    return 0;
+#endif
+}
+
+static int8 wait_user_input(void) {
     byte change, prev, next = key_state();
     do {
 	prev = next;
 	next = key_state();
 	change = next & (prev ^ next);
-	if (fast_forward()) return;
+	if (fast_forward()) return 0;
+	if (skip_level()) return 1;
     } while (change == 0);
 
     for (byte n = 0; n < SIZE(neighbors); n++) {
@@ -1295,6 +1304,7 @@ static void wait_user_input(void) {
 	    break;
 	}
     }
+    return 0;
 }
 
 static void display_forest(byte **ptr) {
@@ -1460,7 +1470,7 @@ static int8 game_round(byte **src, byte **dst) {
     int8 ret = finish();
     increment_epoch();
     if (ret == 0) {
-	wait_user_input();
+	ret = wait_user_input();
     }
     QUEUE(0);
     return ret;
