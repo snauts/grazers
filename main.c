@@ -231,6 +231,22 @@ static void stop_music(void) {
     __asm__("call _PT3Play + 8");
 }
 
+static word AY_regs(void) {
+    return WORD(((byte *) &PT3Play) + 13);
+}
+
+static void silence_music(void) {
+    BYTE(AY_regs() & 0xff00) |= BIT(1);
+}
+
+static void resume_music(void) {
+    __asm__("di");
+    BYTE(AY_regs() & 0xff00) &= ~BIT(1);
+    memset((void *) AY_regs(), 0, 14);
+    __asm__("call _PT3Play + 10");
+    __asm__("ei");
+}
+
 static void interrupt(void) __naked {
     __asm__("di");
     __asm__("push af");
@@ -569,21 +585,11 @@ static void msx_write_psg_reg(byte reg, byte val) {
 }
 
 static void init_msx_psg(void) {
-    __asm__("di");
-    BYTE(0xcd00) |= BIT(1);
-    __asm__("ei");
-
+    silence_music();
     msx_write_psg_reg( 7, 0xbc);
     msx_write_psg_reg(11, 0xff);
     msx_write_psg_reg(12, 0xff);
     msx_write_psg_reg(13, 0x0d);
-}
-
-static void resume_msx_music(void) {
-    __asm__("di");
-    BYTE(0xcd00) &= ~BIT(1);
-    __asm__("call _PT3Play + 10");
-    __asm__("ei");
 }
 
 static void set_psg(byte channel, word period) {
@@ -1025,7 +1031,7 @@ static void beep(word p0, word p1, word len) {
 #endif
 
 #ifdef MSX
-    resume_msx_music();
+    resume_music();
 #endif
 }
 
