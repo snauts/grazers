@@ -31,7 +31,7 @@ Release EQU "7"
 ;Call MUTE or INIT one more time to mute sound after stopping
 ;playing 
 
-	ORG #C000
+	ORG #8000
 
 ;Test codes (commented)
 ;	CALL START
