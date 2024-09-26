@@ -29,9 +29,15 @@ Release EQU "MOR7"
 ;into RAM or INIT subroutine was not called before.
 
 ;Call MUTE or INIT one more time to mute sound after stopping
-;playing 
+;playing
 
+	IF MSX
 	ORG #4020
+	ENDIF
+
+	IF ZXS
+	ORG #8000
+	ENDIF
 
 ;Test codes (commented)
 ;	CALL START
@@ -366,7 +372,7 @@ PD_VOL	RLCA
 	RLCA
 	LD (IX-12+CHP.Volume),A
 	JR PD_LP2
-	
+
 PD_EOff	LD (IX-12+CHP.Env_En),A
 	LD (IX-12+CHP.PsInOr),A
 	JR PD_LP2
@@ -436,7 +442,7 @@ PD_NOIS	LD (Ns_Base),A
 
 PD_REL	RES 0,(IX-12+CHP.Flags)
 	JR PD_RES
-	
+
 PD_NOTE	LD (IX-12+CHP.Note),A
 	SET 0,(IX-12+CHP.Flags)
 	XOR A
@@ -583,7 +589,7 @@ C_DELAY	LD A,(BC)
 	INC BC
 	LD (Delay),A
 	RET
-	
+
 SETENV	LD (IX-12+CHP.Env_En),E
 	LD (AYREGS+EnvTp),A
 	LD A,(BC)
@@ -951,6 +957,7 @@ PL2	LD IX,ChanA
 	ADD HL,DE
 	LD (CurESld),HL
 
+	IF MSX
 ROUT	XOR A
 ROUT_A0	LD C,#A0
 	LD HL,SETUP
@@ -959,7 +966,7 @@ ROUT_A0	LD C,#A0
 	LD HL,AYREGS
 LOUT	OUT (C),A
 	INC C
-	OUTI 
+	OUTI
 	DEC C
 	INC A
 	CP 13
@@ -971,6 +978,31 @@ LOUT	OUT (C),A
 	INC C
 	OUT (C),A
 	RET
+	ENDIF
+
+	IF ZXS
+ROUT	XOR A
+ROUT_A0	LD DE,#FFBF
+	LD BC,#FFFD
+	LD HL,SETUP
+	BIT 1,(HL)
+	RET NZ
+	LD HL,AYREGS
+LOUT	OUT (C),A
+	LD B,E
+	OUTI
+	LD B,D
+	INC A
+	CP 13
+	JR NZ,LOUT
+	OUT (C),A
+	LD A,(HL)
+	AND A
+	RET M
+	LD B,E
+	OUT (C),A
+	RET
+	ENDIF
 
 NT_DATA	DB (T_NEW_0-T1_)*2
 	DB TCNEW_0-T_
@@ -1063,16 +1095,22 @@ T_PACK	DB #06EC*2/256,#06EC*2
 ;you can move VARS to any other address
 
 STOP
+	IF MSX
 	SAVEBIN "PT3PlayMSX.bin", START, STOP - START
-
 	ORG #CD00
+	ENDIF
+
+	IF ZXS
+	SAVEBIN "PT3PlayZXS.bin", START, STOP - START
+	ORG #6D00
+	ENDIF
 VARS
 
 ;vars in code and other self-modified code moved here
 ;(for ROM and RAM separation)
 SETUP	DB 0 ;set bit0 to 1, if you want to play without looping
 	     ;bit7 is set each time, when loop point is passed
-CrPsPtr	DW 0 
+CrPsPtr	DW 0
 AddToEn	DB 0
 AdInPtA	DW 0
 AdInPtB	DW 0
