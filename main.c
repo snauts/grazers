@@ -2332,7 +2332,11 @@ static void adat_meitas(void) {
     }
 
     melody = 0;
+
+#if defined(ZXS) ||  defined(C64)
     stop_music();
+#endif
+
     while (!space_or_enter() && melody < 2) {
 	update_pause(channels);
 
