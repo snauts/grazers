@@ -233,15 +233,16 @@ static void start_music(void *ptr) {
     __asm__("call _PT3Play + 3"); ptr;
 }
 
-static void select_music(void *ptr) {
-    memset(PT3_vars(), 0, 0x300);
-    start_music(ptr);
-    enable_AY = 1;
-}
-
 static void stop_music(void) {
     enable_AY = 0;
     __asm__("call _PT3Play + 8");
+}
+
+static void select_music(void *ptr) {
+    stop_music();
+    memset(PT3_vars(), 0, 0x300);
+    start_music(ptr);
+    enable_AY = 1;
 }
 
 static void silence_music(void) {
@@ -258,6 +259,10 @@ static void resume_music(void) {
 
 static void ingame_music1(void) {
     __asm__(".incbin \"ingame1.pt3\"");
+}
+
+static void leebee_tune(void) {
+    __asm__(".incbin \"leebee.pt3\"");
 }
 
 static void interrupt(void) __naked {
@@ -2486,6 +2491,11 @@ static void credit_events(byte i) {
 	forest_rectangle(POS(2, 11), 28, 3, C_FOOD);
 	queue_item(POS(1, 13), T_DEER, T_DEER);
 	break;
+#if defined(ZXS) || defined(MSX)
+    case 0x78:
+	select_music(&leebee_tune);
+	break;
+#endif
     }
     static const char snauts[] = " Game by Snauts ";
     static const char leebee[] = " Music by Lee Bee ";
