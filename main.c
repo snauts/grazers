@@ -2442,36 +2442,54 @@ static void wait_start(void) {
 }
 #endif
 
-static void credit_char(const char *str, byte i) {
-    char c = str[i];
-    if (c != 0 && c != ' ') {
-	put_char(str[i], POS(8, 12) + i, L_GREEN);
+static void credit_glyph(char c, word n) {
+    forest[n] = T_WALL;
+    if (c == ' ') {
+	put_tile(1, n);
+    }
+    else {
+	put_char(c, n, L_GREEN);
+    }
+}
+
+static void credit_char(const char *str, byte i, byte x) {
+    for (byte y = 11; y <= 13; y++) {
+	credit_glyph(y == 12 ? str[i] : ' ', POS(x + i, y));
     }
 }
 
 static void credit_roll(const char *str, byte i, byte len, byte offset) {
+    byte x = (32 - len) >> 1;
+    offset = offset + x;
     if (offset <= i && i < offset + len) {
-	credit_char(str, i - offset);
+	credit_char(str, i - offset, x);
+    }
+}
+
+static void forest_rectangle(word n, byte dx, byte dy, byte c) {
+    byte *ptr = forest + n;
+    for (byte i = 0; i < dy; i++) {
+	memset(ptr, c, dx);
+	ptr += 32;
     }
 }
 
 static void credit_events(byte i) {
     switch (i) {
     case 0x00:
-    case 0x63:
+    case 0x70:
 	queue_item(POS(1, 13), C_FOOD, C_FOOD);
 	break;
     case 0x20:
+    case 0x90:
+	forest_rectangle(POS(2, 11), 28, 3, C_FOOD);
 	queue_item(POS(1, 13), T_DEER, T_DEER);
 	break;
-    case 0x8c:
-	queue_item(POS(30, 11), T_DEER, T_DEER);
-	break;
     }
-    static const char snauts[] = "Game by Snauts";
-    static const char leebee[] = "Music by Lee Bee";
-    credit_roll(snauts, i, sizeof(snauts), 10);
-    credit_roll(leebee, i, sizeof(leebee), 109);
+    static const char snauts[] = " Game by Snauts ";
+    static const char leebee[] = " Music by Lee Bee ";
+    credit_roll(snauts, i, sizeof(snauts) - 1, 0x00);
+    credit_roll(leebee, i, sizeof(leebee) - 1, 0x70);
 }
 
 static void grazer_step(byte i) {
@@ -2485,17 +2503,10 @@ static void grazer_step(byte i) {
     steps++;
 }
 
-static void forest_rectangle(word n, byte dx, byte dy, byte c) {
-    byte *ptr = forest + n;
-    for (byte i = 0; i < dy; i++) {
-	memset(ptr, c, dx);
-	ptr += 32;
-    }
-}
-
 static void make_invisible_wall(void) {
-    forest_rectangle(POS(0, 10), 32, 5, T_WALL);
+    forest_rectangle(POS(0, 9), 32, 7, T_WALL);
     forest_rectangle(POS(1, 11), 30, 3, C_BARE);
+    forest_rectangle(POS(2, 10), 28, 5, C_BARE);
 }
 
 static void setup_credits(void) {
@@ -2514,7 +2525,7 @@ static void delay(byte ticks) {
 }
 
 static void credit_loop(void) {
-    for (byte i = 0; i < 240; i++) {
+    for (byte i = 0; i < 248; i++) {
 	grazer_step(i);
 	delay(3);
     }
