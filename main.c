@@ -2442,17 +2442,36 @@ static void wait_start(void) {
 }
 #endif
 
+static void credit_char(const char *str, byte i) {
+    char c = str[i];
+    if (c != 0 && c != ' ') {
+	put_char(str[i], POS(8, 12) + i, L_GREEN);
+    }
+}
+
+static void credit_roll(const char *str, byte i, byte len, byte offset) {
+    if (offset <= i && i < offset + len) {
+	credit_char(str, i - offset);
+    }
+}
+
 static void credit_events(byte i) {
     switch (i) {
     case 0x00:
     case 0x63:
-	queue_item(POS(1, 13), 1, 1);
+	queue_item(POS(1, 13), C_FOOD, C_FOOD);
 	break;
     case 0x20:
-    case 0x83:
 	queue_item(POS(1, 13), T_DEER, T_DEER);
 	break;
+    case 0x8c:
+	queue_item(POS(30, 11), T_DEER, T_DEER);
+	break;
     }
+    static const char snauts[] = "Game by Snauts";
+    static const char leebee[] = "Music by Lee Bee";
+    credit_roll(snauts, i, sizeof(snauts), 10);
+    credit_roll(leebee, i, sizeof(leebee), 109);
 }
 
 static void grazer_step(byte i) {
@@ -2495,7 +2514,7 @@ static void delay(byte ticks) {
 }
 
 static void credit_loop(void) {
-    for (byte i = 0; i < 224; i++) {
+    for (byte i = 0; i < 240; i++) {
 	grazer_step(i);
 	delay(3);
     }
