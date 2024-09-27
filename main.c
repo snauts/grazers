@@ -2452,15 +2452,17 @@ static void grazer_step(void) {
     steps++;
 }
 
+static void forest_rectangle(word n, byte dx, byte dy, byte c) {
+    byte *ptr = forest + n;
+    for (byte i = 0; i < dy; i++) {
+	memset(ptr, c, dx);
+	ptr += 32;
+    }
+}
+
 static void make_invisible_wall(void) {
-    for (byte i = 0; i < 32; i++) {
-	forest[POS(i, 10)] = T_WALL;
-	forest[POS(i, 14)] = T_WALL;
-    }
-    for (byte i = 11; i < 14; i++) {
-	forest[POS(0, i)] = T_WALL;
-	forest[POS(31, i)] = T_WALL;
-    }
+    forest_rectangle(POS(0, 10), 32, 5, T_WALL);
+    forest_rectangle(POS(1, 11), 30, 3, C_BARE);
 }
 
 static void setup_credits(void) {
@@ -2468,8 +2470,8 @@ static void setup_credits(void) {
     in_game = 1;
     queue = update;
     use_fence_sprites();
-    queue_item(POS(1, 13), 1, 1);
     make_invisible_wall();
+    queue_item(POS(1, 13), 1, 1);
 }
 
 static void credit_loop(void) {
