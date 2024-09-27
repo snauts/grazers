@@ -239,9 +239,18 @@ static void stop_music(void) {
 }
 
 static void select_music(void *ptr) {
-    stop_music();
+    static void *current;
+    if (enable_AY) {
+	if (ptr == current) {
+	    return; /* already playing */
+	}
+	else {
+	    stop_music();
+	}
+    }
     memset(PT3_vars(), 0, 0x300);
     start_music(ptr);
+    current = ptr;
     enable_AY = 1;
 }
 
@@ -255,6 +264,10 @@ static void resume_music(void) {
     BYTE(PT3_vars()) &= ~BIT(1);
     __asm__("call _PT3Play + 10");
     __asm__("ei");
+}
+
+static void title_tune(void) {
+    __asm__(".incbin \"title.pt3\"");
 }
 
 static void ingame_music1(void) {
@@ -1979,6 +1992,10 @@ static void earthquake_level(void) {
 }
 
 static void gardener_level(void) {
+#if defined(ZXS) || defined(MSX)
+    select_music(&ingame_music1);
+#endif
+
     put_str("- PREDATOR -", POS(10, 4), L_GREEN);
     put_str("Hunt down invasive GRAZER", POS(4, 16), D_GREEN);
     put_str("species so that vegetation", POS(3, 17), D_GREEN);
@@ -2574,7 +2591,7 @@ static void title_screen(void) {
 #endif
 
 #if defined(ZXS) || defined(MSX)
-    select_music(&ingame_music1);
+    select_music(&title_tune);
 #endif
 
     display_image(logo_map, 0, SIZE(logo_map), 0x100);
