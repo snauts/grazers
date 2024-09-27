@@ -2444,11 +2444,12 @@ static void wait_start(void) {
 
 static void credit_events(byte i) {
     switch (i) {
-    case 0:
-    case 96:
+    case 0x00:
+    case 0x63:
 	queue_item(POS(1, 13), 1, 1);
 	break;
-    case 32:
+    case 0x20:
+    case 0x83:
 	queue_item(POS(1, 13), T_DEER, T_DEER);
 	break;
     }
@@ -2494,7 +2495,7 @@ static void delay(byte ticks) {
 }
 
 static void credit_loop(void) {
-    for (byte i = 0; i < 208; i++) {
+    for (byte i = 0; i < 224; i++) {
 	grazer_step(i);
 	delay(3);
     }
