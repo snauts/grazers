@@ -39,7 +39,6 @@ pcx:
 	@./pcx-dump -l sunset.pcx >> data.h
 	@./pcx-dump -c volcano.pcx >> data.h
 	@./pcx-dump -l volcano.pcx >> data.h
-	@./pcx-dump -c leebee.pcx >> data.h
 
 prg:
 	@sdcc $(ARCH) $(CFLAGS) $(TYPE) main.c -o grazers.ihx
