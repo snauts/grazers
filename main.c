@@ -2457,6 +2457,9 @@ static void credit_glyph(char c, word n) {
     if (c == ' ') {
 	put_tile(1, n);
     }
+    else if (c >= '1' && c <= '9') {
+	put_sprite(0, c - '1', n);
+    }
     else {
 	put_char(c, n, L_GREEN);
     }
@@ -2502,7 +2505,7 @@ static void credit_events(byte i) {
 #endif
     }
     static const char snauts[] = " Game by Snauts ";
-    static const char leebee[] = " Music by Lee Bee ";
+    static const char leebee[] = " Music by 123456 ";
     credit_roll(snauts, i, sizeof(snauts) - 1, 0x00);
     credit_roll(leebee, i, sizeof(leebee) - 1, 0x70);
 }
@@ -2528,6 +2531,7 @@ static void setup_credits(void) {
     steps = 1;
     in_game = 1;
     queue = update;
+    TILESET(leebee, 108);
     make_invisible_wall();
 }
 
