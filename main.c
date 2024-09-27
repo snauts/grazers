@@ -2442,11 +2442,59 @@ static void wait_start(void) {
 }
 #endif
 
+static void grazer_step(void) {
+    byte **src = steps & 1 ? update : mirror;
+    byte **dst = steps & 1 ? mirror : update;
+    queue = dst;
+    advance_forest(src);
+    display_forest(dst);
+    QUEUE(0);
+    steps++;
+}
+
+static void make_invisible_wall(void) {
+    for (byte i = 0; i < 32; i++) {
+	forest[POS(i, 10)] = T_WALL;
+	forest[POS(i, 14)] = T_WALL;
+    }
+    for (byte i = 11; i < 14; i++) {
+	forest[POS(0, i)] = T_WALL;
+	forest[POS(31, i)] = T_WALL;
+    }
+}
+
+static void setup_credits(void) {
+    steps = 1;
+    in_game = 1;
+    queue = update;
+    use_fence_sprites();
+    queue_item(POS(1, 13), 1, 1);
+    make_invisible_wall();
+}
+
+static void credit_loop(void) {
+    for (byte i = 0; i < 50; i++) {
+	while (!vblank) { }
+	vblank = 0;
+	grazer_step();
+    }
+}
+
 static void show_credits(void) {
+    setup_credits();
+    credit_loop();
+    clear_screen();
 }
 
 static void title_screen(void) {
     clear_screen();
+
+#if defined(MSX)
+    vdp_copy_font(0);
+    vdp_enable_display(TRUE);
+#endif
+
+    show_credits();
 
 #if defined(ZXS) || defined(C64)
     TILESET(logo, 72);
@@ -2455,13 +2503,6 @@ static void title_screen(void) {
 #else
     TILESET(logo, 40);
 #endif
-
-#if defined(MSX)
-    vdp_copy_font(0);
-    vdp_enable_display(TRUE);
-#endif
-
-    show_credits();
 
 #if defined(ZXS) || defined(MSX)
     select_music(&ingame_music1);
