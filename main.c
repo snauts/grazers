@@ -2333,7 +2333,7 @@ static void adat_meitas(void) {
 
     melody = 0;
 
-#if defined(ZXS) ||  defined(C64)
+#if defined(ZXS) || defined(MSX)
     stop_music();
 #endif
 
@@ -2528,7 +2528,6 @@ static void setup_credits(void) {
     steps = 1;
     in_game = 1;
     queue = update;
-    use_fence_sprites();
     make_invisible_wall();
 }
 
