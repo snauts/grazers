@@ -2442,12 +2442,11 @@ static void wait_start(void) {
 }
 #endif
 
+static void show_credits(void) {
+}
+
 static void title_screen(void) {
     clear_screen();
-
-#if defined(ZXS) || defined(MSX)
-    select_music(&ingame_music1);
-#endif
 
 #if defined(ZXS) || defined(C64)
     TILESET(logo, 72);
@@ -2456,6 +2455,18 @@ static void title_screen(void) {
 #else
     TILESET(logo, 40);
 #endif
+
+#if defined(MSX)
+    vdp_copy_font(0);
+    vdp_enable_display(TRUE);
+#endif
+
+    show_credits();
+
+#if defined(ZXS) || defined(MSX)
+    select_music(&ingame_music1);
+#endif
+
     display_image(logo_map, 0, SIZE(logo_map), 0x100);
 
 #ifdef ZXS
@@ -2471,13 +2482,10 @@ static void title_screen(void) {
 #endif
 
 #ifdef MSX
-    vdp_copy_font(0);
-
     put_str("ENTER to fast forward", POS(5, 15), CYAN);
     put_str("SPACE skip one epoch", POS(5, 16), CYAN);
     put_str("Press SPACE", POS(10, 18), CYAN);
 
-    vdp_enable_display(TRUE);
 #endif
 
 #ifdef C64
