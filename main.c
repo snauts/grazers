@@ -2442,12 +2442,25 @@ static void wait_start(void) {
 }
 #endif
 
-static void grazer_step(void) {
+static void credit_events(byte i) {
+    switch (i) {
+    case 0:
+    case 96:
+	queue_item(POS(1, 13), 1, 1);
+	break;
+    case 32:
+	queue_item(POS(1, 13), T_DEER, T_DEER);
+	break;
+    }
+}
+
+static void grazer_step(byte i) {
     byte **src = steps & 1 ? update : mirror;
     byte **dst = steps & 1 ? mirror : update;
     queue = dst;
     advance_forest(src);
     display_forest(dst);
+    credit_events(i);
     QUEUE(0);
     steps++;
 }
@@ -2471,14 +2484,19 @@ static void setup_credits(void) {
     queue = update;
     use_fence_sprites();
     make_invisible_wall();
-    queue_item(POS(1, 13), 1, 1);
+}
+
+static void delay(byte ticks) {
+    while (ticks-- > 0) {
+	while (!vblank) { }
+	vblank = 0;
+    }
 }
 
 static void credit_loop(void) {
-    for (byte i = 0; i < 50; i++) {
-	while (!vblank) { }
-	vblank = 0;
-	grazer_step();
+    for (byte i = 0; i < 208; i++) {
+	grazer_step(i);
+	delay(3);
     }
 }
 
