@@ -2327,6 +2327,7 @@ static void adat_meitas(void) {
     }
 
     melody = 0;
+    stop_music();
     while (!space_or_enter() && melody < 2) {
 	update_pause(channels);
 
