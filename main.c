@@ -1030,18 +1030,19 @@ static byte get_face(int8 diff, byte cell) {
     }
 }
 
+static byte sfx_no_irq;
 static void beep(word p0, word p1, word len) {
 #ifdef ZXS
     word c0 = 0;
     word c1 = 0;
-    __asm__("di");
+    if (sfx_no_irq) __asm__("di");
     for (word i = 0; i < len; i++) {
 	out_fe(c0 >= 32768 ? 0x10 : 0x00);
 	c0 += p0;
 	out_fe(c1 >= 32768 ? 0x10 : 0x00);
 	c1 += p1;
     }
-    __asm__("ei");
+    if (sfx_no_irq) __asm__("di");
     out_fe(0x00);
 #endif
 
@@ -1066,10 +1067,16 @@ static void beep(word p0, word p1, word len) {
 #endif
 }
 
+static void irq_beep(word p0, word p1, word len) {
+    sfx_no_irq = 0;
+    beep(p0, p1, len);
+    sfx_no_irq = 1;
+}
+
 static void bite_sound(word distance) {
     word offset = 3 * NOTE(187.8) / 2;
     offset = offset >> (4 - distance);
-    beep(NOTE(187.8) - offset, NOTE(187.8) + offset, 256);
+    irq_beep(NOTE(187.8) - offset, NOTE(187.8) + offset, 256);
 }
 
 #ifdef C64
@@ -1081,7 +1088,7 @@ static void bite_sound(word distance) {
 static void rolling_rock_sound(void) {
     for (byte i = 0; i < 4; i++) {
 	byte offset = 0x10 << i;
-	beep(ROLL_BASE - (offset << 1), ROLL_BASE + offset, 64);
+	irq_beep(ROLL_BASE - (offset << 1), ROLL_BASE + offset, 64);
     }
 }
 
@@ -1510,6 +1517,7 @@ static void reset_memory(void) {
     memset(update, 0x00, sizeof(update));
     memset(mirror, 0x00, sizeof(mirror));
     memset(forest, 0x00, sizeof(forest));
+    sfx_no_irq = 1;
     level = 0;
     wasd = 0;
     meat = 0;
