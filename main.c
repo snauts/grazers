@@ -1042,7 +1042,7 @@ static void beep(word p0, word p1, word len) {
 	out_fe(c1 >= 32768 ? 0x10 : 0x00);
 	c1 += p1;
     }
-    if (sfx_no_irq) __asm__("di");
+    if (sfx_no_irq) __asm__("ei");
     out_fe(0x00);
 #endif
 
