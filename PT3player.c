@@ -1176,6 +1176,23 @@ LOUT:	OUT (C),A
 	OUT (C),A
 #endif
 
+#ifdef MSX
+	LD C,#0xA0
+LOUT:	OUT (C),A
+	INC C
+	OUTI
+	DEC C
+	INC A
+	CP #13
+	JR NZ,LOUT
+	OUT (C),A
+	LD A,(HL)
+	AND A
+	RET M
+	INC C
+	OUT (C),A
+#endif
+
 #ifdef CPC
 LOUT:
        LD B,#0xF4
