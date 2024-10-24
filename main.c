@@ -215,8 +215,8 @@ static void memcpy(byte *dst, byte *src, word len) {
 static byte enable_AY;
 
 static void start_music(void *ptr) {
-    enable_AY = 1; ptr;
     Player_Resume();
+    enable_AY = 1; ptr;
 }
 
 static void stop_music(void) {
@@ -2191,7 +2191,7 @@ static void init_variables(void) {
     put_str("EPOCH:0000", POS(1, 23), CYAN);
 }
 
-const word wah_wah[] = { // D4 -> C4# -> C4 -> B3
+static const word wah_wah[] = { // D4 -> C4# -> C4 -> B3
     NOTE(293.7), NOTE(277.1), NOTE(261.6), NOTE(246.9),
 };
 

@@ -99,20 +99,20 @@ mvac7 version:
 #define CHNPRM_Volume 28 //RESB 1
 #define CHNPRM_Size   29 //RESB 1
 
-char ChanA[29];
-char ChanB[29];
-char ChanC[29];
+static char ChanA[29];
+static char ChanB[29];
+static char ChanC[29];
 
-char DelyCnt;
-word CurESld;
-char CurEDel;
+static char DelyCnt;
+static word CurESld;
+static char CurEDel;
 
-char Ns_Base;
-char AddToNs;
+static char Ns_Base;
+static char AddToNs;
 
-char AYREGS[14];
-word EnvBase;
-char VTABLE[240];
+static char AYREGS[14];
+static word EnvBase;
+static char VTABLE[240];
 
 /*
 Switches: 1=ON; 0=OFF
@@ -125,33 +125,33 @@ Switches: 1=ON; 0=OFF
 - BIT 6 = ?
 - BIT 7 = is END? 0=No, 1=Yes
 */
-char PT3_state;  // before called PT3_SETUP
+static char PT3_state;  // before called PT3_SETUP
 
-word PT3_MODADDR;  //direccion datos canción
-word PT3_CrPsPtr;  //POSICION CURSOR EN PATTERN
-word PT3_SAMPTRS;  //sample info?
-word PT3_OrnPtrs;  //Ornament pattern
+static word PT3_MODADDR;  //direccion datos canción
+static word PT3_CrPsPtr;  //POSICION CURSOR EN PATTERN
+static word PT3_SAMPTRS;  //sample info?
+static word PT3_OrnPtrs;  //Ornament pattern
 
-word PT3_PDSP;     //pilasave
-word PT3_CSP;      //pilsave2
-word PT3_PSP;      //pilsave3
+static word PT3_PDSP;     //pilasave
+static word PT3_CSP;      //pilsave2
+static word PT3_PSP;      //pilsave3
 
-char PT3_PrNote;
-word PT3_PrSlide;
+static char PT3_PrNote;
+static word PT3_PrSlide;
 
-word PT3_AdInPtA;  //play data pattern
-word PT3_AdInPtB;  //play data
-word PT3_AdInPtC;  //play data
+static word PT3_AdInPtA;  //play data pattern
+static word PT3_AdInPtB;  //play data
+static word PT3_AdInPtC;  //play data
 
-word PT3_LPosPtr;  //Position Ptr?
-word PT3_PatsPtr;  //Pat Ptr
+static word PT3_LPosPtr;  //Position Ptr?
+static word PT3_PatsPtr;  //Pat Ptr
 
-char PT3_Delay;            //delay
-char PT3_AddToEn;          //Envelope data (No cal ya que no usa Envs??)
-char PT3_Env_Del;          //Envelope data (idem)
-word PT3_ESldAdd;  //Envelope data (idem)
+static char PT3_Delay;            //delay
+static char PT3_AddToEn;          //Envelope data (No cal ya que no usa Envs??)
+static char PT3_Env_Del;          //Envelope data (idem)
+static word PT3_ESldAdd;  //Envelope data (idem)
 
-word NoteTable;   //note table memory address
+static word NoteTable;   //note table memory address
 
 /* =============================================================================
  Player_Init
@@ -159,7 +159,7 @@ word NoteTable;   //note table memory address
  Input:       -
  Output:      -
 ============================================================================= */
-void Player_Init(void) __naked
+static void Player_Init(void) __naked
 {
 __asm
   push IX
@@ -218,7 +218,7 @@ __endasm;
  Input:       -
  Output:      -
 ============================================================================= */
-void Player_Pause(void) __naked
+static void Player_Pause(void) __naked
 {
 __asm
   LD   HL,#_PT3_state
@@ -242,7 +242,7 @@ __endasm;
  Input:       -
  Output:      -
 ============================================================================= */
-void Player_Resume(void) __naked
+static void Player_Resume(void) __naked
 {
 __asm
    LD   HL,#_PT3_state
@@ -260,7 +260,7 @@ __endasm;
  Input:       -
  Output:      [char] 0 = No, 1 = Yes
 ----------------------------------------------------------------------------- */
-char Player_IsEnd(void) __naked
+static char Player_IsEnd(void) __naked
 {
 __asm
     LD   HL,#_PT3_state
@@ -283,7 +283,7 @@ __endasm;
  Input:       - (char or SWITCHER definition) 0=OFF ; 1=ON
  Output:      -
 ============================================================================= */
-void Player_Loop(char loop) __naked
+static void Player_Loop(char loop) __naked __sdcccall(0)
 {
 loop;
 __asm
@@ -320,12 +320,9 @@ __endasm;
         (char) Loop - 0=off ; 1=on  (false = 0, true = 1));
  Output:      -
 ----------------------------------------------------------------------------- */
-void Player_InitSong(word songADDR, word notetableADDR, char loop) __naked
-__sdcccall(0)
+static void Player_InitSong(word ptr, word NT, char loop) __naked __sdcccall(0)
 {
-songADDR;
-notetableADDR;
-loop;
+ptr; NT; loop;
 __asm
 
   push IX
@@ -441,7 +438,7 @@ __endasm;
  Input:       -
  Output:      -
 ----------------------------------------------------------------------------- */
-void Player_Decode(void) __naked
+static void Player_Decode(void) __naked
 {
 __asm
   push IX
@@ -1142,8 +1139,7 @@ __endasm;
 /* -----------------------------------------------------------------------------
  Player_CopyAY
 ----------------------------------------------------------------------------- */
-
-void Player_CopyAY(void) __naked
+static void Player_CopyAY(void) __naked
 {
 __asm
 	LD   HL,#_PT3_state
@@ -1235,7 +1231,7 @@ __endasm;
 }
 
 #ifdef MSX
-const word NT[96]={
+static const word NT[96]={
 0xD5D,0xC9C,0xBE7,0xB3C,0xA9B,0xA02,0x973,0x8EB,0x86B,0x7F2,0x780,0x714,
 0x6AE,0x64E,0x5F4,0x59E,0x54D,0x501,0x4B9,0x475,0x435,0x3F9,0x3C0,0x38A,
 0x357,0x327,0x2FA,0x2CF,0x2A7,0x281,0x25D,0x23B,0x21B,0x1FC,0x1E0,0x1C5,
@@ -1249,7 +1245,7 @@ const word NT[96]={
 #endif
 
 #ifdef ZXS
-const word NT[96]={
+static const word NT[96]={
 0xD3D,0xC7F,0xBCC,0xB22,0xA82,0x9EB,0x95D,0x8D6,0x857,0x7DF,0x76E,0x703,
 0x69F,0x640,0x5E6,0x591,0x541,0x4F6,0x4AE,0x46B,0x42C,0x3F0,0x3B7,0x382,
 0x34F,0x320,0x2F3,0x2C9,0x2A1,0x27B,0x257,0x236,0x216,0x1F8,0x1DC,0x1C1,
@@ -1263,7 +1259,7 @@ const word NT[96]={
 #endif
 
 #ifdef CPC
-const word NT[96]={
+static const word NT[96]={
 0x777,0x70C,0x6A7,0x647,0x5ED,0x598,0x547,0x4FC,0x4B4,0x470,0x431,0x3F4,
 0x3BC,0x386,0x353,0x324,0x2F6,0x2CC,0x2A4,0x27E,0x25A,0x238,0x218,0x1FA,
 0x1DE,0x1C3,0x1AA,0x192,0x17B,0x166,0x152,0x13F,0x12D,0x11C,0x10C,0x0FD,

@@ -289,11 +289,11 @@ static void save(unsigned char *pixel, int pixel_size,
 
     char name[256];
     remove_extension(file_name, name);
-    printf("const byte %s%s[] = {\n", name, as_level ? "_map" : "");
+    printf("static const byte %s%s[] = {\n", name, as_level ? "_map" : "");
     dump_buffer(pixel, pixel_size, 1);
     printf("};\n");
     if (color != NULL && need_color && !as_level) {
-	printf("const byte %s_color[] = {\n", name);
+	printf("static const byte %s_color[] = {\n", name);
 	dump_buffer(color, color_size, 1);
 	printf("};\n");
     }
