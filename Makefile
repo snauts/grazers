@@ -50,7 +50,6 @@ tap:
 
 zxs:
 	TYPE=-DZXS make pcx
-	sjasmplus -DZXS=1 -DMSX=0 --msg=err PT3Play.S
 	CODE=0x8000 DATA=0x7000	TYPE=-DZXS make prg
 	@make tap
 
@@ -72,7 +71,6 @@ blast: sms
 
 msx:
 	TYPE=-DMSX make pcx
-	sjasmplus -DZXS=0 -DMSX=1 --msg=err PT3Play.S
 	CODE=0x4000 DATA=0xc000	TYPE=-DMSX make prg
 	dd if=/dev/zero of=grazers.rom bs=1024 count=32
 	dd if=grazers.bin of=grazers.rom conv=notrunc

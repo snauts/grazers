@@ -2,12 +2,6 @@ typedef signed char int8;
 typedef unsigned char byte;
 typedef unsigned short word;
 
-#if defined(ZXS)
-void PT3Play(void) __naked {
-    __asm__(".incbin \"PT3PlayZXS.bin\"");
-}
-#endif
-
 #ifdef C64
 static void c64_prefix(void) __naked {
     __asm__(".db 0x01, 0x08, 0x0c, 0x08, 0x0a, 0x00, 0x9e, 0x20");
@@ -36,10 +30,6 @@ static void msx_prefix(void) __naked {
     __asm__("jp _reset");
     __asm__("msx_pfx_end:");
     __asm__(".blkb 0x20 - (msx_pfx_end - _msx_prefix)");
-}
-
-void PT3Play(void) __naked {
-    __asm__(".incbin \"PT3PlayMSX.bin\"");
 }
 #endif
 
@@ -219,23 +209,19 @@ static void memcpy(byte *dst, byte *src, word len) {
 }
 
 #if defined(ZXS) || defined(MSX)
+
+#include "PT3player.c"
+
 static byte enable_AY;
 
-static byte *AY_regs(void) {
-    return (byte *) WORD(((byte *) &PT3Play) + 13);
-}
-
-static byte *PT3_vars(void) {
-    return (byte *) (((word) AY_regs()) & 0xff00);
-}
-
 static void start_music(void *ptr) {
-    __asm__("call _PT3Play + 3"); ptr;
+    enable_AY = 1; ptr;
+    Player_Resume();
 }
 
 static void stop_music(void) {
     enable_AY = 0;
-    __asm__("call _PT3Play + 8");
+    Player_Pause();
 }
 
 static void select_music(void *ptr) {
@@ -248,21 +234,21 @@ static void select_music(void *ptr) {
 	    stop_music();
 	}
     }
-    memset(PT3_vars(), 0, 0x300);
-    start_music(ptr);
+    Player_Init();
+    Player_InitSong((word) ptr, (word) NT, 1);
+
     current = ptr;
-    enable_AY = 1;
+    start_music(ptr);
 }
 
 static void silence_music(void) {
-    BYTE(PT3_vars()) |= BIT(1);
+    PT3_state |= BIT(2);
 }
 
 static void resume_music(void) {
     __asm__("di");
-    memset(AY_regs(), 0, 14);
-    BYTE(PT3_vars()) &= ~BIT(1);
-    __asm__("call _PT3Play + 10");
+    memset(AYREGS, 0, 14);
+    PT3_state &= ~BIT(2);
     __asm__("ei");
 }
 
@@ -297,7 +283,8 @@ static void interrupt(void) __naked {
     __asm__("push hl");
     __asm__("push ix");
     __asm__("push iy");
-    __asm__("call _PT3Play + 5");
+    __asm__("call _Player_Decode");
+    __asm__("call _Player_CopyAY");
     __asm__("pop iy");
     __asm__("pop ix");
     __asm__("pop hl");
