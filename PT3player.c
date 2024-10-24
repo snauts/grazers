@@ -1151,6 +1151,10 @@ __endasm;
 void Player_CopyAY(void) __naked
 {
 __asm
+	LD   HL,#_PT3_state
+	BIT  2,(HL)
+	RET  NZ
+
         XOR A
         LD HL,#_AYREGS
 
