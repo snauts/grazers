@@ -257,6 +257,7 @@ static void title_tune(void) {
 }
 
 static void ingame_music_a(void) {
+    __asm__(".incbin \"title.pt3\"");
 }
 
 static void ingame_music_b(void) {
@@ -2190,8 +2191,8 @@ static void erosion_level(void) {
 
 static const struct Level all_levels[] = {
     { &gardener_level },
-    { &quarantine_level },
     { &earthquake_level },
+    { &quarantine_level },
     { &tsunami_level },
     { &flooding_level },
     { &equilibrium_level },
