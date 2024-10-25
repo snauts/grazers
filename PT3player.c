@@ -270,7 +270,7 @@ MUTE:
   LD   (#_AYREGS+AY_AmpB),A
   LD   (#_AYREGS+AY_AmpC),A
 
-  //JP   _PlayAY                ;ROUT_A0
+  JP   _Player_CopyAY                ;ROUT_A0
   ret
 
 __endasm;
