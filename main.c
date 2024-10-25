@@ -256,8 +256,15 @@ static void title_tune(void) {
     __asm__(".incbin \"title.pt3\"");
 }
 
-static void ingame_music1(void) {
-    __asm__(".incbin \"ingame1.pt3\"");
+static void ingame_music_a(void) {
+}
+
+static void ingame_music_b(void) {
+    __asm__(".incbin \"ingame-b.pt3\"");
+}
+
+static void ingame_music_c(void) {
+    __asm__(".incbin \"ingame-c.pt3\"");
 }
 
 static void leebee_tune(void) {
@@ -310,6 +317,8 @@ static void setup_irq(byte base) {
 static void out_fe(byte data) {
     __asm__("out (#0xfe), a"); data;
 }
+#else
+#define select_music(ptr)
 #endif
 
 static byte in_key(byte a) {
@@ -1962,6 +1971,8 @@ static void fenced_level(byte *level, word size) {
 }
 
 static void quarantine_level(void) {
+    select_music(&ingame_music_c);
+
     put_str("- QUARANTINE -", POS(9, 4), L_GREEN);
     put_str("Prevent GRAZER population", POS(3, 16), D_GREEN);
     put_str("from collapse til EPOCH 300", POS(2, 17), D_GREEN);
@@ -1976,6 +1987,8 @@ static void quarantine_level(void) {
 }
 
 static void earthquake_level(void) {
+    select_music(&ingame_music_b);
+
     put_str("- EARTHQUAKE -", POS(9, 4), L_GREEN);
     put_str("Prevent GRAZERs from escaping", POS(2, 16), D_GREEN);
     wait_space_or_enter();
@@ -1987,9 +2000,7 @@ static void earthquake_level(void) {
 }
 
 static void gardener_level(void) {
-#if defined(ZXS) || defined(MSX)
-    select_music(&ingame_music1);
-#endif
+    select_music(&ingame_music_a);
 
     put_str("- PREDATOR -", POS(10, 4), L_GREEN);
     put_str("Hunt down invasive GRAZER", POS(4, 16), D_GREEN);
@@ -2006,6 +2017,8 @@ static void gardener_level(void) {
 }
 
 static void flooding_level(void) {
+    select_music(&ingame_music_b);
+
     put_str("- FLOODING -", POS(10, 4), L_GREEN);
     put_str("Recent FLOODING had caused ", POS(2, 16), D_GREEN);
     put_str("spread of weeds that needs", POS(2, 17), D_GREEN);
@@ -2019,6 +2032,8 @@ static void flooding_level(void) {
 }
 
 static void tsunami_level(void) {
+    select_music(&ingame_music_a);
+
     tsunami_rnd = 11;
     wave_len = 24;
     wave_dir = -1;
@@ -2038,6 +2053,8 @@ static byte check_R(void) {
 
 static void load_level(byte n);
 static void equilibrium_level(void) {
+    select_music(&ingame_music_c);
+
     stayed = 0;
     last_pos = 0;
     put_str("- EQUILIBRIUM -", POS(8, 4), L_GREEN);
@@ -2053,6 +2070,8 @@ static void equilibrium_level(void) {
 }
 
 static void migration_level(void) {
+    select_music(&ingame_music_a);
+
     wave_dir = 3;
     memcpy(tide_pos, tide_max, sizeof(tide_max));
 
@@ -2066,6 +2085,8 @@ static void migration_level(void) {
 }
 
 static void aridness_level(void) {
+    select_music(&ingame_music_b);
+
     put_str("- DROUGHT -", POS(10, 4), L_GREEN);
 
     put_str("Both GRAZER subpopulations", POS(2, 16), D_GREEN);
@@ -2078,6 +2099,8 @@ static void aridness_level(void) {
 }
 
 static void lonesome_level(void) {
+    select_music(&ingame_music_c);
+
     drying_dir = 0;
     drying = POS(19, 6);
     put_str("- EXTINCTION -", POS(9, 4), L_GREEN);
@@ -2093,6 +2116,8 @@ static void lonesome_level(void) {
 }
 
 static void eruption_level(void) {
+    select_music(&ingame_music_a);
+
     put_str("- ERUPTION -", POS(10, 4), L_GREEN);
 
     put_str("Help GRAZERs survive ERUPTION", POS(2, 16), D_GREEN);
@@ -2135,6 +2160,8 @@ static void eruption_level(void) {
 }
 
 static void fertility_level(void) {
+    select_music(&ingame_music_b);
+
     put_str("- FERTILITY -", POS(9, 4), L_GREEN);
 
     put_str("Due to the parasitic outbreak", POS(1, 16), D_GREEN);
@@ -2147,6 +2174,8 @@ static void fertility_level(void) {
 }
 
 static void erosion_level(void) {
+    select_music(&ingame_music_c);
+
     meat = 0x50;
 
     put_str("- EROSION -", POS(10, 4), L_GREEN);
