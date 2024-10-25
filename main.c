@@ -2004,12 +2004,14 @@ static void gardener_level(void) {
     select_music(&ingame_music_a);
 
     put_str("- PREDATOR -", POS(10, 4), L_GREEN);
-    put_str("Hunt down invasive GRAZER", POS(4, 16), D_GREEN);
-    put_str("species so that vegetation", POS(3, 17), D_GREEN);
-    put_str("can fully recover and regrow", POS(2, 18), D_GREEN);
+
+    put_str("This breed of GRAZERs is", POS(4, 15), D_GREEN);
+    put_str("destroying the land! ", POS(6, 16), D_GREEN);
+    put_str("Slaughter them all so the", POS(4, 18), D_GREEN);
+    put_str("vegetation can flourish.", POS(5, 19), D_GREEN);
 
     put_str("HINT: wait for two herds", POS(4, 21), D_GREEN);
-    put_str("to be close to each other", POS(3, 22), D_GREEN);
+    put_str("to be close to each other", POS(4, 22), D_GREEN);
     wait_space_or_enter();
 
     fenced_level(gardener_map, SIZE(gardener_map));
