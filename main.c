@@ -1952,6 +1952,10 @@ static void adat_meitas(void);
 static void finish_game(void) {
     clear_screen();
 
+#if defined(ZXS) || defined(MSX)
+    stop_music();
+#endif
+
     TILESET(sunset, 0);
     TILE_ATTRIBURE(0x800);
     memset(forest, 0, SIZE(forest));
@@ -2377,10 +2381,6 @@ static void adat_meitas(void) {
     }
 
     melody = 0;
-
-#if defined(ZXS) || defined(MSX)
-    stop_music();
-#endif
 
     while (!space_or_enter() && melody < 2) {
 	update_pause(channels);
