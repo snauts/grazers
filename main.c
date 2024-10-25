@@ -235,7 +235,8 @@ static void select_music(void *ptr) {
 	}
     }
     Player_Init();
-    Player_InitSong((word) ptr, (word) NT, 1);
+    Player_InitSong((word) ptr);
+    Player_Loop(1);
 
     current = ptr;
     start_music(ptr);
