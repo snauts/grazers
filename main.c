@@ -258,7 +258,7 @@ static void title_tune(void) {
 }
 
 static void ingame_music_a(void) {
-    __asm__(".incbin \"title.pt3\"");
+    __asm__(".incbin \"ingame-a.pt3\"");
 }
 
 static void ingame_music_b(void) {
