@@ -214,9 +214,9 @@ static void memcpy(byte *dst, byte *src, word len) {
 
 static byte enable_AY;
 
-static void start_music(void *ptr) {
+static void start_music(void) {
     Player_Resume();
-    enable_AY = 1; ptr;
+    enable_AY = 1;
 }
 
 static void stop_music(void) {
@@ -239,7 +239,7 @@ static void select_music(void *ptr) {
     Player_Loop(1);
 
     current = ptr;
-    start_music(ptr);
+    start_music();
 }
 
 static void silence_music(void) {
