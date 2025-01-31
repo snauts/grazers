@@ -1318,7 +1318,10 @@ static int8 wait_user_input(void) {
 	prev = next;
 	next = key_state();
 	change = next & (prev ^ next);
-	if (fast_forward()) return 0;
+	if (fast_forward()) {
+	    change = next;
+	    break;
+	}
 	if (skip_level()) return 1;
     } while (change == 0);
 
