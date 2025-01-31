@@ -1185,7 +1185,9 @@ static void queue_item(word where, byte type, byte sprite) {
 
 static byte fast_forward(void) {
 #ifdef ZXS
-    return ((~in_key(0xbf) & 1) << 1) | ((~in_key(0x7f) & 8) >> 2);
+    byte ret = ((~in_key(0xbf) & 1) << 1) | ((~in_key(0x7f) & 8) >> 2);
+    if (wasd & 4) ret |= in_joy(0) & 0x10;
+    return ret;
 #endif
 
 #ifdef SMS
@@ -1207,7 +1209,6 @@ static byte skip_epoch(void) {
 #ifdef ZXS
     byte reg = ~in_key(0x7f);
     reg = ((reg & 1) << 4) | ((reg & 4) << 2);
-    if (wasd & 4) reg |= in_joy(0) & 0x10;
     return reg;
 #endif
 
