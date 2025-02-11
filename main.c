@@ -2548,7 +2548,8 @@ static void credit_events(byte i) {
 	queue_item(POS(1, 13), T_DEER, T_DEER);
 	break;
 #if defined(ZXS) || defined(MSX)
-    case 0x78:
+    case 0x10:
+    case 0x80:
 	select_music(&leebee_tune);
 	break;
 #endif
