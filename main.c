@@ -341,6 +341,7 @@ static void out_fe(byte data) {
 }
 #else
 #define select_music(ptr)
+#define stop_music()
 #define has_AY() 0
 #endif
 
@@ -2435,6 +2436,7 @@ static void adat_meitas(void) {
     if (has_AY()) {
 	select_music(&victory_tune);
 	wait_space_or_enter();
+	stop_music();
     }
     else {
 	adat_meitas_simple();
