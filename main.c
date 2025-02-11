@@ -212,6 +212,7 @@ static void memcpy(byte *dst, byte *src, word len) {
 
 #include "PT3player.c"
 
+static byte has_AY;
 static byte enable_AY;
 
 static void start_music(void) {
@@ -271,6 +272,14 @@ static void ingame_music_c(void) {
 
 static void leebee_tune(void) {
     __asm__(".incbin \"leebee.pt3\"");
+}
+
+static void victory_tune(void) {
+    __asm__(".incbin \"victory.pt3\"");
+}
+
+static void done_tune(void) {
+    __asm__(".incbin \"done.pt3\"");
 }
 
 static void interrupt(void) __naked {
