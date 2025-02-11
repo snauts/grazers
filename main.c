@@ -212,8 +212,15 @@ static void memcpy(byte *dst, byte *src, word len) {
 
 #include "PT3player.c"
 
-static byte has_AY;
 static byte enable_AY;
+
+static byte has_AY(void) {
+#if defined(ZXS)
+    return BYTE(23312) != 0;
+#else
+    return 1;
+#endif
+}
 
 static void start_music(void) {
     Player_Resume();
@@ -225,7 +232,7 @@ static void stop_music(void) {
     Player_Pause();
 }
 
-static void select_music(void *ptr) {
+static void select_AY_music(void *ptr) {
     static void *current;
     if (enable_AY) {
 	if (ptr == current) {
@@ -241,6 +248,10 @@ static void select_music(void *ptr) {
 
     current = ptr;
     start_music();
+}
+
+static void select_music(void *ptr) {
+    if (has_AY()) select_AY_music(ptr);
 }
 
 static void silence_music(void) {
@@ -330,6 +341,7 @@ static void out_fe(byte data) {
 }
 #else
 #define select_music(ptr)
+#define has_AY() 0
 #endif
 
 static byte in_key(byte a) {
@@ -1315,7 +1327,7 @@ static byte key_state(void) {
 
 static byte skip_level(void) {
 #ifdef ZXS
-    return (~in_key(0xfe) & 0x1c) == 0x1c;
+    return (~in_key(0xfe) & 0x1f) == 0x15;
 #else
     return 0;
 #endif
@@ -2255,7 +2267,7 @@ static void sad_trombone_wah_wah_wah(void) {
     }
 }
 
-static void success_tune(void) {
+static void success_tune_simple(void) {
     static const word tune[] = {
 	NOTE(130.8), NOTE(164.8), 0,
 	NOTE(196.0), NOTE(164.8), 0,
@@ -2273,6 +2285,15 @@ static void success_tune(void) {
     for (byte i = 0; i < 4; i++) {
 	beep(SCALE_HI(NOTE(196.0), 2), SCALE_HI(NOTE(196.0), 2), 256);
 	beep(SCALE_HI(NOTE(196.0), 3), SCALE_HI(NOTE(196.0), 3), 256);
+    }
+}
+
+static void success_tune(void) {
+    if (has_AY()) {
+	select_music(&done_tune);
+    }
+    else {
+	success_tune_simple();
     }
 }
 
@@ -2384,7 +2405,7 @@ static void advance_channel(struct Channel *channel) {
     }
 }
 
-static void adat_meitas(void) {
+static void adat_meitas_simple(void) {
     const word *base[] = { music1, music2 };
     struct Channel channels[SIZE(base)];
 
@@ -2408,6 +2429,16 @@ static void adat_meitas(void) {
 	}
     }
     wait_space_or_enter();
+}
+
+static void adat_meitas(void) {
+    if (has_AY()) {
+	select_music(&victory_tune);
+	wait_space_or_enter();
+    }
+    else {
+	adat_meitas_simple();
+    }
 }
 
 static void display_msg(const char *text_message) {
