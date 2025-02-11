@@ -2,6 +2,12 @@ typedef signed char int8;
 typedef unsigned char byte;
 typedef unsigned short word;
 
+#ifdef ZXS
+static void zxs_prefix(void) __naked {
+    __asm__("jp _reset");
+}
+#endif
+
 #ifdef C64
 static void c64_prefix(void) __naked {
     __asm__(".db 0x01, 0x08, 0x0c, 0x08, 0x0a, 0x00, 0x9e, 0x20");
