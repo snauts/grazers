@@ -4,6 +4,22 @@ typedef unsigned short word;
 
 #ifdef ZXS
 static void zxs_prefix(void) __naked {
+    __asm__("di");
+    __asm__("ld a, #0x00");
+    __asm__("ld (#0xfd00), a");
+
+    __asm__("ld a, #0x01");
+    __asm__("ld bc, #0x7ffd");
+    __asm__("out (c), a");
+    __asm__("ld (#0xfd00), a");
+
+    __asm__("ld a, (#0x5b5c)");
+    __asm__("out (c), a");
+
+    __asm__("ld a, (#0xfd00)");
+    __asm__("ld (_is_48K), a");
+
+    __asm__("ei");
     __asm__("jp _reset");
 }
 #endif
@@ -218,11 +234,12 @@ static void memcpy(byte *dst, byte *src, word len) {
 
 #include "PT3player.c"
 
+static byte is_48K;
 static byte enable_AY;
 
 static byte has_AY(void) {
 #if defined(ZXS)
-    return BYTE(23312) != 0;
+    return !is_48K;
 #else
     return 1;
 #endif

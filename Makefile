@@ -3,8 +3,6 @@ ARCH ?= -mz80
 CFLAGS += --nostdinc --nostdlib --no-std-crt0
 CFLAGS += --code-loc $(CODE) --data-loc $(DATA)
 
-ENTRY = grep _reset grazers.map | cut -d " " -f 6
-
 all:
 	@echo "make zxs" - build .tap for ZX Spectrum
 	@echo "make sms" - build .sms for Sega Masters
@@ -46,7 +44,7 @@ prg:
 	hex2bin grazers.ihx > /dev/null
 
 tap:
-	bin2tap -b -r $(shell printf "%d" 0x$$($(ENTRY))) grazers.bin
+	bin2tap -b -r 32768 grazers.bin
 
 zxs:
 	TYPE=-DZXS make pcx
