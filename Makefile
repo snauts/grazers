@@ -41,15 +41,16 @@ pcx:
 
 prg:
 	@sdcc $(ARCH) $(CFLAGS) $(TYPE) main.c -o grazers.ihx
-	hex2bin grazers.ihx > /dev/null
+	@makebin -p -yo A -o $(CODE) grazers.ihx grazers.bin
 
 tap:
-	bin2tap -b -r 32768 grazers.bin
+	gcc bin2tap.c -DADDRESS=$(CODE) -o bin2tap
+	@./bin2tap grazers.bin grazers.tap
 
 zxs:
 	TYPE=-DZXS make pcx
-	CODE=0x8000 DATA=0x7000	TYPE=-DZXS make prg
-	@make tap
+	@CODE=0x8000 DATA=0x7000 TYPE=-DZXS make prg
+	@CODE=0x8000 make tap
 
 fuse: zxs
 	fuse --machine 128 --no-confirm-actions -g 2x grazers.tap
@@ -98,5 +99,5 @@ manual:
 	evince manual.pdf
 
 clean:
-	rm -f grazers* pcx-dump data.h mkrom \
+	rm -f grazers* pcx-dump data.h mkrom bin2tap \
 		*.bin *.log *.aux *.png *.pdf *.asm *.lst *.rel *.sym

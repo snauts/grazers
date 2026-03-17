@@ -1,6 +1,7 @@
 grazers*
 data.h
 pcx-dump
+bin2tap
 mkrom
 *.bin
 *.log
